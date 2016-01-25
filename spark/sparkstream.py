@@ -37,8 +37,8 @@ def clean_string(text):
             3: multiple spaces are replaced by one.
                                 "input      string" -> "input string"
             """
-    text.strip()
     text = text.encode('ascii','ignore')
+    text.strip()
     text.replace("\/", "/")
     text.replace("\\", "\ ")
     text.replace("\'", "'")
@@ -62,11 +62,13 @@ def write_into_cassandra(record):
         #print (i)
         json_str = json.loads(i)
         #print (json_str)
-
-        time = 'ttt'#str(json_str["created_at"])
-        city = 'test'#str(json_str["place"]["name"])
-        country = clean_string(str(json_str['text']))
-        session.execute(prepared_write_query, (time, city, country))
+        try:
+            time = 'ttt'#str(json_str["created_at"])
+            city = 'test'#str(json_str["place"]["name"])
+            country = clean_string(str(json_str['text']))
+            session.execute(prepared_write_query, (time, city, country))
+        except KeyError:
+            continue
 
 def process(rdd):
     rdd.foreachPartition(lambda record: write_into_cassandra(record))
