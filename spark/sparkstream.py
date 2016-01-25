@@ -47,7 +47,15 @@ def clean_string(text):
     text.replace("\t", " ")
     text = " ".join(text.split())
     text = text.lower()
+    if text == "":
+        raise BlankError('empty tweet')
     return text
+
+class BlankError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
 
 def write_into_cassandra(record):
     from cassandra.cluster import Cluster
@@ -67,7 +75,7 @@ def write_into_cassandra(record):
             city = 'test'#str(json_str["place"]["name"])
             country = clean_string(json_str['text'].encode('ascii','ignore'))
             session.execute(prepared_write_query, (time, city, country))
-        except KeyError:
+        except (KeyError, BlankError):
             continue
 
 def process(rdd):
