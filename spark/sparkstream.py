@@ -25,7 +25,7 @@ def define_the_search(word):
     #""")
 
 def clean_string(text):
-    """input: string. output is a "clean" string:
+    """input: string (u''). output is a "clean" string:
             1: spaces at end and beginning are removed:
                                 ' input ' -> 'input'
             2: replacements:    "\/" -> "/"
@@ -38,6 +38,7 @@ def clean_string(text):
                                 "input      string" -> "input string"
             """
     text.strip()
+    text = text.encode('ascii','ignore')
     text.replace("\/", "/")
     text.replace("\\", "\ ")
     text.replace("\'", "'")
@@ -64,7 +65,7 @@ def write_into_cassandra(record):
 
         time = 'ttt'#str(json_str["created_at"])
         city = 'test'#str(json_str["place"]["name"])
-        country = str(json_str["text"])
+        country = clean_string(str(json_str["text"]))
         session.execute(prepared_write_query, (time, city, country))
 
 def process(rdd):
