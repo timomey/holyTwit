@@ -1,0 +1,15 @@
+{
+    "purchase_type": "on_demand",
+    "region": "us-west-2",
+    "subnet": "subnet-fc445899",
+    "image": "ami-9abea4fb",
+    "price": "0.25",
+    "num_instances": 1,
+    "key_name": "timo-meyer",
+    "security_group_ids": [
+        "sg-30a74e57"
+    ],
+    "instance_type": "t2.micro",
+    "tag_name": "timo-flask",
+    "vol_size": 100
+}
