@@ -60,7 +60,7 @@ if __name__ == "__main__":
             #print (json_str)
             time = 'ttt'#str(json_str["created_at"])
             city = 'test'#str(json_str["place"]["name"])
-            country = json_str #str(json_str["text"])
+            country = str(json_str['text']) #str(json_str["text"])
             session.execute(prepared_write_query, (time, city, country))
 
 
