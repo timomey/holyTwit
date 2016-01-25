@@ -65,7 +65,7 @@ def write_into_cassandra(record):
 
         time = 'ttt'#str(json_str["created_at"])
         city = 'test'#str(json_str["place"]["name"])
-        country = clean_string(str(json_str["text"]))
+        country = clean_string(str(json_str['text']))
         session.execute(prepared_write_query, (time, city, country))
 
 def process(rdd):
