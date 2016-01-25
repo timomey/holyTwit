@@ -37,7 +37,7 @@ def clean_string(text):
             3: multiple spaces are replaced by one.
                                 "input      string" -> "input string"
             """
-    text = text.encode('ascii','ignore')
+    #text = text.encode('ascii','ignore')
     text.strip()
     text.replace("\/", "/")
     text.replace("\\", "\ ")
