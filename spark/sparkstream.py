@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from __future__ import print_function
 import sys
 import json
@@ -71,7 +72,7 @@ def write_into_cassandra(record):
         json_str = json.loads(i)
         #print (json_str)
         try:
-            time = str(json_str["timestamp_ms"])
+            time = str(json_str["created_at"])
             city = str(json_str["place"]["name"])
             country = clean_string(json_str['text'].encode('ascii','ignore'))
             session.execute(prepared_write_query, (time, city, country))
