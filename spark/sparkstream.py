@@ -42,7 +42,8 @@ def clean_string(text):
     text.replace('\"', '"')
     text.replace("\n", " ")
     text.replace("\t", " ")
-    text = " ".join(text.split())
+    #text = " ".join(text.split())
+    text.strip()
     text = text.lower()
     if text == "":
         raise BlankError('empty tweet')
