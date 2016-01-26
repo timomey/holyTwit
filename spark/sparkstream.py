@@ -77,6 +77,10 @@ def write_into_cassandra(record):
             country = clean_string(json_str['text'].encode('ascii','ignore'))
             session.execute(prepared_write_query, (time, city, country))
         except (KeyError, BlankError):
+            #could implement counter here
+            continue
+        except TypeError:
+            #this basically occurs when place.name does not exist. 
             continue
 
 def process(rdd):
