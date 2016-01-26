@@ -99,7 +99,7 @@ def cassandra_create_table(keyspacename, tablename):
 
 if __name__ == "__main__":
 
-    findword = define_the_search(wordofinterest)
+    #findword = define_the_search(wordofinterest)
 
     sc = SparkContext(appName="TwitterImpact")
     ssc = StreamingContext(sc, .1)
