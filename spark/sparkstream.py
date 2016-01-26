@@ -42,11 +42,10 @@ def clean_string(text):
     text.replace('\"', '"')
     text.replace("\n", " ")
     text.replace("\t", " ")
-    #text = " ".join(text.split())
-    text.strip()
+    text = " ".join(text.split())
     text = text.lower()
-    if text == "":
-        raise BlankError('empty tweet')
+    #if text == "":
+    #    raise BlankError('empty tweet')
     return text
 
 class BlankError(Exception):
