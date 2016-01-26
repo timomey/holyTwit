@@ -10,7 +10,7 @@ from pyspark.sql import SQLContext, Row
 from pyspark.sql.types import *
 from cassandra.cluster import Cluster
 from cassandra import ConsistencyLevel
-from datetime import datetime
+import time
 from operator import add
 
 def define_the_search(word):
@@ -20,10 +20,6 @@ def define_the_search(word):
         else:
             return 0
     return findword
-
-#session.execute("""
-    #CREATE TABLE demostream (time text, city text PRIMARY KEY, country text);
-    #""")
 
 def clean_string(text):
     """input: string (u''). output is a "clean" string:
@@ -61,36 +57,48 @@ class BlankError(Exception):
 def write_into_cassandra(record):
     from cassandra.cluster import Cluster
     from cassandra import ConsistencyLevel
-
+    keyspacename = 'twitterimpact'
+    tablename = 'realtime'
+    wordofinterest = '#justinbieber'
     # connect to cassandra
-    cluster = Cluster(['ec2-52-35-24-163.us-west-2.compute.amazonaws.com'])
-    session = cluster.connect("demo")
-
-    prepared_write_query = session.prepare("INSERT INTO demostream (time, city, country) VALUES (?,?,?)")
+    cluster = Cluster(['ec2-52-35-24-163.us-west-2.compute.amazonaws.com','ec2-52-89-22-134.us-west-2.compute.amazonaws.com','ec2-52-34-117-127.us-west-2.compute.amazonaws.com','ec2-52-89-0-97.us-west-2.compute.amazonaws.com'])
+    session = cluster.connect()
+    cassandra_create_table()
+    prepared_write_query = session.prepare("INSERT INTO "+keyspacename.tablename+" (wordofinterest, time, date, location, cowords_firstdegree) VALUES (?,?,?,?,?)")
     for i in record:
-        #print (i)
         json_str = json.loads(i)
-        #print (json_str)
+
         try:
+            wordofinterest
             time = clean_string(json_str["timestamp_ms"])
-            city = clean_string(json_str["place"]["name"])
-            country = clean_string(json_str['text'].encode('ascii','ignore'))
-            session.execute(prepared_write_query, (time, city, country))
+            date = time.strftime('%Y-%m-%d %H:%M:%S',  time.gmtime(time/1000.))
+            location = clean_string(json_str["place"]["name"])', '+clean_string(json_str["place"]["country_code"])
+            cowords_firstdegree = clean_string(json_str['text'].encode('ascii','ignore')).split()
+            session.execute(prepared_write_query, (wordofinterest, time, date, location, cowords_firstdegree))
         except (KeyError, BlankError):
             #could implement counter here
             continue
         except TypeError:
-            #this basically occurs when place.name does not exist. 
+            #this basically occurs when place.name does not exist.
             continue
+
 
 def process(rdd):
     rdd.foreachPartition(lambda record: write_into_cassandra(record))
+
+#cassandra stuff:
+def cassandra_create_keyspace(keyspacename):
+    session.execute("CREATE KEYSPACE IF NOT EXISTS "+keyspacename+" WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor' : 3};")
+
+def cassandra_create_table(keyspacename, tablename):
+    session.execute("CREATE KEYSPACE IF NOT EXISTS "+keyspacename+" WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor' : 3};")
+    session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename.tablename+" (wordofinterest text, time text, date text, location text, cowords_firstdegree text, PRIMARY KEY ((wordofinterest, location, date), time))) WITH CLUSTERING ORDER BY (time DESC);")
 
 
 
 
 if __name__ == "__main__":
-    wordofinterest = "#justinbieber"
+
     findword = define_the_search(wordofinterest)
 
     sc = SparkContext(appName="TwitterImpact")
