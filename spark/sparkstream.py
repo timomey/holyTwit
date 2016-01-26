@@ -64,17 +64,19 @@ def write_into_cassandra(record):
     cluster = Cluster(['ec2-52-35-24-163.us-west-2.compute.amazonaws.com','ec2-52-89-22-134.us-west-2.compute.amazonaws.com','ec2-52-34-117-127.us-west-2.compute.amazonaws.com','ec2-52-89-0-97.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
     cassandra_create_table(keyspacename,tablename, session)
-    prepared_write_query = session.prepare("INSERT INTO "+keyspacename+"."+tablename+" (wordofinterest, time, date, location, cowords_firstdegree) VALUES (?,?,?,?,?)")
+    prepared_write_query = session.prepare("INSERT INTO "+keyspacename+"."+tablename+" (wordofinterest, time, date, location, cowords_firstdegree, tweet) VALUES (?,?,?,?,?,?)")
     for i in record:
         json_str = json.loads(i)
 
         try:
-            wordofinterest
-            time = clean_string(json_str["timestamp_ms"])
-            date = timepackage.strftime('%Y-%m-%d %H:%M:%S',  timepackage.gmtime(int(time)/1000.))
-            location = clean_string(json_str["place"]["name"])+', '+clean_string(json_str["place"]["country_code"])
-            cowords_firstdegree = str(clean_string(json_str['text'].encode('ascii','ignore')).split())
-            session.execute(prepared_write_query, (wordofinterest, time, date, location, cowords_firstdegree))
+            if wordofinterest in json_str['text']:
+                wordofinterest
+                time = clean_string(json_str["timestamp_ms"])
+                date = timepackage.strftime('%Y-%m-%d %H:%M:%S',  timepackage.gmtime(int(time)/1000.))
+                location = clean_string(json_str["place"]["name"])+', '+clean_string(json_str["place"]["country_code"])
+                cowords_firstdegree = str(clean_string(json_str['text'].encode('ascii','ignore')).split())
+                tweet = str(clean_string(json_str['text'].encode('ascii','ignore')))
+                session.execute(prepared_write_query, (wordofinterest, time, date, location, cowords_firstdegree))
         except (KeyError, BlankError):
             #could implement counter here
             continue
@@ -92,7 +94,7 @@ def cassandra_create_keyspace(keyspacename,session):
 
 def cassandra_create_table(keyspacename, tablename, session):
     session.execute("CREATE KEYSPACE IF NOT EXISTS "+keyspacename+" WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor' : 3};")
-    session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" (wordofinterest text, time text, date text, location text, cowords_firstdegree text, PRIMARY KEY ((wordofinterest, location, date), time)) WITH CLUSTERING ORDER BY (time DESC);")
+    session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" (wordofinterest text, time text, date text, location text, cowords_firstdegree text,tweet text, PRIMARY KEY ((wordofinterest, location, date), time)) WITH CLUSTERING ORDER BY (time DESC);")
 
 
 
