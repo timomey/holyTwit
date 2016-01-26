@@ -92,7 +92,7 @@ def cassandra_create_keyspace(keyspacename,session):
 
 def cassandra_create_table(keyspacename, tablename, session):
     session.execute("CREATE KEYSPACE IF NOT EXISTS "+keyspacename+" WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor' : 3};")
-    session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" (wordofinterest text, time text, date text, location text, cowords_firstdegree text, PRIMARY KEY ((wordofinterest, location, date), time))) WITH CLUSTERING ORDER BY (time DESC);")
+    session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" (wordofinterest text, time text, date text, location text, cowords_firstdegree text, PRIMARY KEY ((wordofinterest, location, date), time)) WITH CLUSTERING ORDER BY (time DESC);")
 
 
 
