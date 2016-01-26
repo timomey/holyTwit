@@ -68,19 +68,19 @@ def write_into_cassandra(record):
     for i in record:
         json_str = json.loads(i)
 
-        try:
+        #try:
             wordofinterest
             time = clean_string(json_str["timestamp_ms"])
             date = timepackage.strftime('%Y-%m-%d %H:%M:%S',  timepackage.gmtime(time/1000.))
             location = clean_string(json_str["place"]["name"])+', '+clean_string(json_str["place"]["country_code"])
             cowords_firstdegree = clean_string(json_str['text'].encode('ascii','ignore')).split()
             session.execute(prepared_write_query, (wordofinterest, time, date, location, cowords_firstdegree))
-        except (KeyError, BlankError):
+        #except (KeyError, BlankError):
             #could implement counter here
-            continue
-        except TypeError:
+        #    continue
+        #except TypeError:
             #this basically occurs when place.name does not exist.
-            continue
+        #    continue
 
 
 def process(rdd):
