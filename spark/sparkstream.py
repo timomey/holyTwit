@@ -10,7 +10,7 @@ from pyspark.sql import SQLContext, Row
 from pyspark.sql.types import *
 from cassandra.cluster import Cluster
 from cassandra import ConsistencyLevel
-import time
+import time as timepackage
 from operator import add
 
 def define_the_search(word):
@@ -71,7 +71,7 @@ def write_into_cassandra(record):
         try:
             wordofinterest
             time = clean_string(json_str["timestamp_ms"])
-            date = time.strftime('%Y-%m-%d %H:%M:%S',  str(time.gmtime(time/1000.)))
+            date = timepackage.strftime('%Y-%m-%d %H:%M:%S',  time.gmtime(time/1000.))
             location = clean_string(json_str["place"]["name"])+', '+clean_string(json_str["place"]["country_code"])
             cowords_firstdegree = clean_string(json_str['text'].encode('ascii','ignore')).split()
             session.execute(prepared_write_query, (wordofinterest, time, date, location, cowords_firstdegree))
