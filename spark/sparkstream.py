@@ -55,15 +55,15 @@ class BlankError(Exception):
         return repr(self.value)
 
 def write_into_cassandra(record):
-    from cassandra.cluster import Cluster
-    from cassandra import ConsistencyLevel
+    #from cassandra.cluster import Cluster
+    #from cassandra import ConsistencyLevel
     keyspacename = 'twitterimpact'
     tablename = 'realtime'
     wordofinterest = '#justinbieber'
     # connect to cassandra
     cluster = Cluster(['ec2-52-35-24-163.us-west-2.compute.amazonaws.com','ec2-52-89-22-134.us-west-2.compute.amazonaws.com','ec2-52-34-117-127.us-west-2.compute.amazonaws.com','ec2-52-89-0-97.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
-    cassandra_create_table(keyspacename,tablename)
+    cassandra_create_table(keyspacename,tablename, session)
     prepared_write_query = session.prepare("INSERT INTO "+keyspacename.tablename+" (wordofinterest, time, date, location, cowords_firstdegree) VALUES (?,?,?,?,?)")
     for i in record:
         json_str = json.loads(i)
@@ -87,10 +87,10 @@ def process(rdd):
     rdd.foreachPartition(lambda record: write_into_cassandra(record))
 
 #cassandra stuff:
-def cassandra_create_keyspace(keyspacename):
+def cassandra_create_keyspace(keyspacename,session):
     session.execute("CREATE KEYSPACE IF NOT EXISTS "+keyspacename+" WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor' : 3};")
 
-def cassandra_create_table(keyspacename, tablename):
+def cassandra_create_table(keyspacename, tablename, session):
     session.execute("CREATE KEYSPACE IF NOT EXISTS "+keyspacename+" WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor' : 3};")
     session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename.tablename+" (wordofinterest text, time text, date text, location text, cowords_firstdegree text, PRIMARY KEY ((wordofinterest, location, date), time))) WITH CLUSTERING ORDER BY (time DESC);")
 
