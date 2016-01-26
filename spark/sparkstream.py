@@ -72,7 +72,7 @@ def write_into_cassandra(record):
             wordofinterest
             time = clean_string(json_str["timestamp_ms"])
             date = time.strftime('%Y-%m-%d %H:%M:%S',  time.gmtime(time/1000.))
-            location = clean_string(json_str["place"]["name"])', '+clean_string(json_str["place"]["country_code"])
+            location = clean_string(json_str["place"]["name"])+', '+clean_string(json_str["place"]["country_code"])
             cowords_firstdegree = clean_string(json_str['text'].encode('ascii','ignore')).split()
             session.execute(prepared_write_query, (wordofinterest, time, date, location, cowords_firstdegree))
         except (KeyError, BlankError):
