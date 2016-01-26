@@ -76,7 +76,7 @@ def write_into_cassandra(record):
                 location = clean_string(json_str["place"]["name"])+', '+clean_string(json_str["place"]["country_code"])
                 cowords_firstdegree = str(clean_string(json_str['text'].encode('ascii','ignore')).split())
                 tweet = str(clean_string(json_str['text'].encode('ascii','ignore')))
-                session.execute(prepared_write_query, (wordofinterest, time, date, location, cowords_firstdegree))
+                session.execute(prepared_write_query, (wordofinterest, time, date, location, cowords_firstdegree, tweet))
         except (KeyError, BlankError):
             #could implement counter here
             continue
