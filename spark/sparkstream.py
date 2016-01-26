@@ -63,7 +63,7 @@ def write_into_cassandra(record):
     # connect to cassandra
     cluster = Cluster(['ec2-52-35-24-163.us-west-2.compute.amazonaws.com','ec2-52-89-22-134.us-west-2.compute.amazonaws.com','ec2-52-34-117-127.us-west-2.compute.amazonaws.com','ec2-52-89-0-97.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
-    cassandra_create_table()
+    cassandra_create_table(keyspacename,tablename)
     prepared_write_query = session.prepare("INSERT INTO "+keyspacename.tablename+" (wordofinterest, time, date, location, cowords_firstdegree) VALUES (?,?,?,?,?)")
     for i in record:
         json_str = json.loads(i)
