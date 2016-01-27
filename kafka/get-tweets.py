@@ -63,7 +63,11 @@ class KafkaListener(StreamListener):
         #tweet = data.strip()
             prod = self.producer
             prod.send_messages(topic, json.dumps(json_dict))#tweet.encode('utf-8'))
+        except:
+            pass
 
+
+            
     # this is the event handler for errors
     def on_error(self, status):
         print('ERRORSTATUS')
