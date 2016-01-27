@@ -29,7 +29,7 @@ def clean_string(text):
                                 "\\" -> "\ "
                                 "\'" -> "'"
                                 '\"' -> '"'
-                                "\n" -> " ")
+                                "\n" -> " "
                                 "\t" -> " "
             3: multiple spaces are replaced by one.
                                 "input      string" -> "input string"
