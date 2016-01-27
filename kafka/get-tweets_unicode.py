@@ -55,18 +55,11 @@ class KafkaListener(StreamListener):
 
     #event handler for new data
     def on_data(self, data):
+        #next 2 lines might be better to put outside of the listener? YEAH! <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         topic = "tweets"
-        try:
-            json_dict = json.loads(line.strip())
-            json_dict['created_at']
-
-        #tweet = data.strip()
-            prod = self.producer
-            prod.send_messages(topic, json.dumps(json_dict))#tweet.encode('utf-8'))
-        except:
-            print 'exception'
-
-
+        tweet = data.strip()
+        prod = self.producer
+        prod.send_messages(topic, tweet.encode('utf-8'))
 
     # this is the event handler for errors
     def on_error(self, status):
@@ -78,14 +71,14 @@ class KafkaListener(StreamListener):
             f.close()
         with open(logfilename, 'ab') as f:
             f.write(datetime.now())
-	        f.write(status)
+            f.write(status)
 
 
 
 if __name__ == '__main__':
     #kafka cluster and producer
-    cluster = kafka.KafkaClient("ip-172-31-2-200:9092,ip-172-31-2-201:9092,ip-172-31-2-202:9092,ip-172-31-2-203:9092")
-    prod = kafka.SimpleProducer(cluster, async = True, batch_send_every_n=20)
+    cluster = kafka.KafkaClient("localhost:9092")
+    prod = kafka.SimpleProducer(cluster, async = False, batch_send_every_n=20)
 
     #listener = StdOutListener(file_dir + "/tweets.txt")
     listener = KafkaListener(prod)
