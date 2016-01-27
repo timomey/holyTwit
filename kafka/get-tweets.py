@@ -57,7 +57,7 @@ class KafkaListener(StreamListener):
     def on_data(self, data):
         topic = "tweets"
         try:
-            json_dict = json.loads(line.strip())
+            json_dict = json.loads(data.strip())
             json_dict['created_at']
 
         #tweet = data.strip()
@@ -66,7 +66,7 @@ class KafkaListener(StreamListener):
 
         except:
             print 'exception'
-            print json.loads(line.strip())
+            print json.loads(data.strip())
 
 
 
