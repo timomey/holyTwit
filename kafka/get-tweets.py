@@ -63,22 +63,11 @@ class KafkaListener(StreamListener):
         #tweet = data.strip()
             prod = self.producer
             prod.send_messages(topic, json.dumps(json_dict))#tweet.encode('utf-8'))
+
         except:
             print 'exception'
+            print json.loads(line.strip())
 
-
-
-    # this is the event handler for errors
-    def on_error(self, status):
-        print('ERRORSTATUS')
-        print(status)
-        logfilename = 'tweetslog.txt'
-        if not os.path.isfile(logfilename):    # check if file doesn't exist
-            f = file(logfilename, 'w')
-            f.close()
-        with open(logfilename, 'ab') as f:
-            f.write(datetime.now())
-	        f.write(status)
 
 
 
