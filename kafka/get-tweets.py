@@ -78,7 +78,7 @@ class KafkaListener(StreamListener):
 
 if __name__ == '__main__':
     #kafka cluster and producer
-    cluster = kafka.KafkaClient("localhost:9092")
+    cluster = kafka.KafkaClient("ip-172-31-2-200:9092,ip-172-31-2-201:9092,ip-172-31-2-202:9092,ip-172-31-2-203:9092")
     prod = kafka.SimpleProducer(cluster, async = False, batch_send_every_n=20)
 
     #listener = StdOutListener(file_dir + "/tweets.txt")
