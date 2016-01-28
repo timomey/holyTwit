@@ -71,6 +71,7 @@ def write_into_cassandra(record):
     prepared_write_query = session.prepare("INSERT INTO "+keyspacename+"."+tablename+" (wordofinterest, time, date, location, cowords_firstdegree, tweet) VALUES (?,?,?,?,?,?)")
     for i in record:
         json_str = json.loads(i)
+        error_dict = {"keyerror": 0, "typeerror":0}
 
         try:
             if wordofinterest in json_str['text']:
@@ -83,9 +84,13 @@ def write_into_cassandra(record):
                 session.execute(prepared_write_query, (wordofinterest, time, date, location, cowords_firstdegree, tweet))
         except (KeyError, BlankError):
             #could implement counter here
+            error_dict["keyerror"] += 1
+            print json_str
             continue
         except TypeError:
             #this basically occurs when place.name does not exist.
+            error_dict["typeerror"] += 1
+            print json_str
             continue
 
 
