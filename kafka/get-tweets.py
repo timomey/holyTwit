@@ -60,9 +60,9 @@ class KafkaListener(StreamListener):
             json_dict = json.loads(data.strip())
             json_dict['created_at']
 
-        #tweet = data.strip()
+            tweet = data.strip()
             prod = self.producer
-            prod.send_messages(topic, json.dumps(json_dict))#tweet.encode('utf-8'))
+            prod.send_messages(topic, tweet.encode('utf-8'))#json.dumps(json_dict))
 
         except:
             print 'exception'
