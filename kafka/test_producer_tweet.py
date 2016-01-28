@@ -9,6 +9,6 @@ time = 1453766525705
 
 while 1:
     time += 1
-    exampletweet = '{"created_at": "Tue Jan 26 00:02:05 +0000 2016", "text": "trump is an idiot", "timestamp_ms":'+str(time) +', "place": {"id": "5e02a0f0d91c76d2", "place_type": "city", "name": "\u0130stanbul", "full_name": "\u0130stanbul, T\u00fcrkiye", "country_code": "TR"} }' 
-    print exampletweet
+    exampletweet = '{"created_at": "Tue Jan 26 00:02:05 +0000 2016", "text": "trump is an idiot", "timestamp_ms":'+str(time) +', "place": {"id": "5e02a0f0d91c76d2", "place_type": "city", "name": "\u0130stanbul", "full_name": "\u0130stanbul, T\u00fcrkiye", "country_code": "TR"} }'
+    #print exampletweet
     prod.send_messages(topic, exampletweet)

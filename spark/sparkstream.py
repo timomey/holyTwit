@@ -84,12 +84,12 @@ def write_into_cassandra(record):
                 session.execute(prepared_write_query, (wordofinterest, time, date, location, cowords_firstdegree, tweet))
         except (KeyError, BlankError):
             #could implement counter here
-            error_dict["keyerror"] += 1
+            #error_dict["keyerror"] += 1
             #print json_str
             continue
         except TypeError:
             #this basically occurs when place.name does not exist.
-            error_dict["typeerror"] += 1
+            #error_dict["typeerror"] += 1
             #print json_str
             continue
 
@@ -109,7 +109,7 @@ if __name__ == "__main__":
 
     zkQuorum = "52.34.117.127:2181,52.89.22.134:2181,52.35.24.163:2181,52.89.0.97:2181"
     topic = "twitterdump_timo"
-    kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-consumer", {topic: 2})
+    kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-consumer", {topic: 6})
     lines = kvs.map(lambda x: x[1])
     lines.foreachRDD(process)
 
