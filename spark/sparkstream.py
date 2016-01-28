@@ -63,7 +63,7 @@ def write_into_cassandra(record):
     #from cassandra import ConsistencyLevel
     keyspacename = 'twitterimpact'
     tablename = 'fakerealtime'
-    wordofinterest = 'feelthebern'
+    wordofinterest = ' '
 
     # connect to cassandra
     cluster = Cluster(['ec2-52-35-24-163.us-west-2.compute.amazonaws.com','ec2-52-89-22-134.us-west-2.compute.amazonaws.com','ec2-52-34-117-127.us-west-2.compute.amazonaws.com','ec2-52-89-0-97.us-west-2.compute.amazonaws.com'])
