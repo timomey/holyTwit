@@ -58,7 +58,7 @@ def cassandra_create_table(keyspacename, tablename, session):
     session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" (wordofinterest text, time text, date text, location text, cowords_firstdegree text,tweet text, PRIMARY KEY ((wordofinterest, location, date), time)) WITH CLUSTERING ORDER BY (time DESC);")
 
 
-def write_into_cassandra(record,wordofinterest):
+def write_into_cassandra(record):
     #from cassandra.cluster import Cluster
     #from cassandra import ConsistencyLevel
     keyspacename = 'twitterimpact'
@@ -90,7 +90,7 @@ def write_into_cassandra(record,wordofinterest):
 
 
 def process(rdd,wordofinterest):
-    rdd.foreachPartition(lambda record: write_into_cassandra(record,wordofinterest))
+    rdd.foreachPartition(lambda record: write_into_cassandra(record))
 
 
 
@@ -106,7 +106,7 @@ if __name__ == "__main__":
     topic = "twitterdump_timo"
     kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-consumer", {topic: 2})
     lines = kvs.map(lambda x: x[1])
-    lines.foreachRDD(process(wordofinterest))
+    lines.foreachRDD(process)
 
     ssc.start()
     ssc.awaitTermination()
