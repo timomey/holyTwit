@@ -89,7 +89,7 @@ def write_into_cassandra(record):
             continue
 
 
-def process(rdd,wordofinterest):
+def process(rdd):
     rdd.foreachPartition(lambda record: write_into_cassandra(record))
 
 
