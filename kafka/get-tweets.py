@@ -55,7 +55,7 @@ class KafkaListener(StreamListener):
 
     #event handler for new data
     def on_data(self, data):
-        topic = "tweets"
+        topic = "tweets2"
         try:
             json_dict = json.loads(data.strip())
             json_dict['created_at']
