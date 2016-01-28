@@ -103,7 +103,7 @@ if __name__ == "__main__":
     ssc = StreamingContext(sc, .5)
 
     zkQuorum = "52.34.117.127:2181,52.89.22.134:2181,52.35.24.163:2181,52.89.0.97:2181"
-    topic = "my-topic"
+    topic = "twitterdump_timo"
     kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-consumer", {topic: 2})
     lines = kvs.map(lambda x: x[1])
     lines.foreachRDD(process)
