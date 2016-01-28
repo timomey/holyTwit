@@ -11,5 +11,5 @@
     ],
     "instance_type": "m4.xlarge",
     "tag_name": "timo-spark",
-    "vol_size": 200
+    "vol_size": 1000
 }
