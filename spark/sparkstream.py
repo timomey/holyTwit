@@ -63,7 +63,7 @@ def write_into_cassandra(record):
     #from cassandra import ConsistencyLevel
     keyspacename = 'twitterimpact'
     tablename = 'fakerealtime'
-    wordofinterest = 'cool'
+    wordofinterest = 'feeltheburn'
 
     # connect to cassandra
     cluster = Cluster(['ec2-52-35-24-163.us-west-2.compute.amazonaws.com','ec2-52-89-22-134.us-west-2.compute.amazonaws.com','ec2-52-34-117-127.us-west-2.compute.amazonaws.com','ec2-52-89-0-97.us-west-2.compute.amazonaws.com'])
@@ -100,10 +100,10 @@ if __name__ == "__main__":
     #findword = define_the_search(wordofinterest)
 
     sc = SparkContext(appName="TwitterImpact")
-    ssc = StreamingContext(sc, .1)
+    ssc = StreamingContext(sc, .5)
 
     zkQuorum = "52.34.117.127:2181,52.89.22.134:2181,52.35.24.163:2181,52.89.0.97:2181"
-    topic = "twitterdump_timo"
+    topic = "my-topic"
     kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-consumer", {topic: 2})
     lines = kvs.map(lambda x: x[1])
     lines.foreachRDD(process)
