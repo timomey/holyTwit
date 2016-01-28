@@ -85,12 +85,12 @@ def write_into_cassandra(record):
         except (KeyError, BlankError):
             #could implement counter here
             error_dict["keyerror"] += 1
-            print json_str
+            #print json_str
             continue
         except TypeError:
             #this basically occurs when place.name does not exist.
             error_dict["typeerror"] += 1
-            print json_str
+            #print json_str
             continue
 
 
