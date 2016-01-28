@@ -62,8 +62,8 @@ def write_into_cassandra(record):
     #from cassandra.cluster import Cluster
     #from cassandra import ConsistencyLevel
     keyspacename = 'twitterimpact'
-    tablename = 'realtime'
-    wordofinterest = 'cool'
+    tablename = 'fakerealtime'
+    wordofinterest = 'feelthebern'
 
     # connect to cassandra
     cluster = Cluster(['ec2-52-35-24-163.us-west-2.compute.amazonaws.com','ec2-52-89-22-134.us-west-2.compute.amazonaws.com','ec2-52-34-117-127.us-west-2.compute.amazonaws.com','ec2-52-89-0-97.us-west-2.compute.amazonaws.com'])
@@ -103,7 +103,7 @@ if __name__ == "__main__":
     ssc = StreamingContext(sc, .1)
 
     zkQuorum = "52.34.117.127:2181,52.89.22.134:2181,52.35.24.163:2181,52.89.0.97:2181"
-    topic = "tweets"
+    topic = "twitterdump_timo"
     kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-consumer", {topic: 2})
     lines = kvs.map(lambda x: x[1])
     lines.foreachRDD(process )
