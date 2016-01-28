@@ -58,7 +58,7 @@ def cassandra_create_table(keyspacename, tablename, session):
     session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" (wordofinterest text, time text, date text, location text, cowords_firstdegree text,tweet text, PRIMARY KEY ((wordofinterest, location, date), time)) WITH CLUSTERING ORDER BY (time DESC);")
 
 
-def write_into_cassandra(record):
+def write_into_cassandra(record,wordofinterest):
     #from cassandra.cluster import Cluster
     #from cassandra import ConsistencyLevel
     keyspacename = 'twitterimpact'
