@@ -90,7 +90,7 @@ def write_into_cassandra(record,wordofinterest):
 
 
 def process(rdd,wordofinterest):
-    rdd.foreachPartition(lambda record: write_into_cassandra(record, wordofinterest))
+    rdd.foreachPartition(lambda record: write_into_cassandra(record,wordofinterest))
 
 
 
@@ -106,7 +106,7 @@ if __name__ == "__main__":
     topic = "twitterdump_timo"
     kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-consumer", {topic: 2})
     lines = kvs.map(lambda x: x[1])
-    lines.foreachRDD(process,wordofinterest)
+    lines.foreachRDD(process(wordofinterest))
 
     ssc.start()
     ssc.awaitTermination()
