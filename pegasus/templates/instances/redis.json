@@ -1,0 +1,15 @@
+{
+    "purchase_type": "on_demand",
+    "region": "us-west-2",
+    "subnet": "subnet-fc445899",
+    "image": "ami-5189a661",
+    "price": "0.25",
+    "num_instances": 1,
+    "key_name": "timo-meyer",
+    "security_group_ids": [
+        "sg-30a74e57"
+    ],
+    "instance_type": "m4.xlarge",
+    "tag_name": "timo-redis",
+    "vol_size": 200
+}
