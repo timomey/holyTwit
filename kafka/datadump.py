@@ -7,7 +7,7 @@ import json
 
 topic = 'twitterdump_timo'
 cluster = kafka.KafkaClient("ip-172-31-2-200:9092,ip-172-31-2-201:9092,ip-172-31-2-202:9092,ip-172-31-2-203:9092")
-prod = kafka.SimpleProducer(cluster, async = True, batch_send_every_n = 50)
+prod = kafka.SimpleProducer(cluster, async = True, batch_send_every_n = 5)
 
 
 
