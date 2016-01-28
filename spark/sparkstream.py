@@ -76,9 +76,9 @@ def write_into_cassandra(record):
         try:
             if wordofinterest in json_str['text']:
                 wordofinterest
-                time = clean_string(json_str["timestamp_ms"])
+                time = clean_string(str(json_str["timestamp_ms"]))
                 date = timepackage.strftime('%Y-%m-%d %H:%M:%S',  timepackage.gmtime(int(time)/1000.))
-                location = clean_string(json_str["place"]["name"])+', '+clean_string(json_str["place"]["country_code"])
+                location = str(clean_string(json_str["place"]["name"])+', '+clean_string(json_str["place"]["country_code"]))
                 cowords_firstdegree = str(clean_string(json_str['text'].encode('ascii','ignore')).split())
                 tweet = str(clean_string(json_str['text'].encode('ascii','ignore')))
                 session.execute(prepared_write_query, (wordofinterest, time, date, location, cowords_firstdegree, tweet))
