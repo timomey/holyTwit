@@ -56,7 +56,7 @@ class KafkaListener(StreamListener):
     #event handler for new data
     def on_data(self, data):
         #next 2 lines might be better to put outside of the listener? YEAH! <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        topic = "tweets"
+        topic = "tweets_afterdeatunicode"
         tweet = data.strip()
         prod = self.producer
         prod.send_messages(topic, tweet.encode('utf-8'))

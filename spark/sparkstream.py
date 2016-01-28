@@ -106,7 +106,7 @@ if __name__ == "__main__":
     topic = "tweets2"
     kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-consumer", {topic: 2})
     lines = kvs.map(lambda x: x[1])
-    lines.foreachRDD(process )
+    lines.foreachRDD(process)
 
     ssc.start()
     ssc.awaitTermination()

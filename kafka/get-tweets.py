@@ -62,7 +62,7 @@ class KafkaListener(StreamListener):
 
             tweet = data.strip()
             prod = self.producer
-            prod.send_messages(topic, tweet.encode('utf-8'))#json.dumps(json_dict))
+            prod.send_messages(topic, json.dumps(json_dict))#tweet.encode('utf-8'))
 
         except:
             print 'exception'
