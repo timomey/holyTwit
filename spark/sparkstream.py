@@ -48,11 +48,15 @@ def clean_string(text):
     #    raise BlankError('empty tweet')
     return text
 
-class BlankError(Exception):
-    def __init__(self, value):
-        self.value = value
-    def __str__(self):
-        return repr(self.value)
+
+#cassandra stuff:
+def cassandra_create_keyspace(keyspacename,session):
+    session.execute("CREATE KEYSPACE IF NOT EXISTS "+keyspacename+" WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor' : 3};")
+
+def cassandra_create_table(keyspacename, tablename, session):
+    session.execute("CREATE KEYSPACE IF NOT EXISTS "+keyspacename+" WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor' : 3};")
+    session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" (wordofinterest text, time text, date text, location text, cowords_firstdegree text,tweet text, PRIMARY KEY ((wordofinterest, location, date), time)) WITH CLUSTERING ORDER BY (time DESC);")
+
 
 def write_into_cassandra(record):
     #from cassandra.cluster import Cluster
@@ -60,6 +64,7 @@ def write_into_cassandra(record):
     keyspacename = 'twitterimpact'
     tablename = 'realtime'
     wordofinterest = 'cool'
+
     # connect to cassandra
     cluster = Cluster(['ec2-52-35-24-163.us-west-2.compute.amazonaws.com','ec2-52-89-22-134.us-west-2.compute.amazonaws.com','ec2-52-34-117-127.us-west-2.compute.amazonaws.com','ec2-52-89-0-97.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
@@ -87,15 +92,6 @@ def write_into_cassandra(record):
 
 def process(rdd):
     rdd.foreachPartition(lambda record: write_into_cassandra(record))
-
-#cassandra stuff:
-def cassandra_create_keyspace(keyspacename,session):
-    session.execute("CREATE KEYSPACE IF NOT EXISTS "+keyspacename+" WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor' : 3};")
-
-def cassandra_create_table(keyspacename, tablename, session):
-    session.execute("CREATE KEYSPACE IF NOT EXISTS "+keyspacename+" WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor' : 3};")
-    session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" (wordofinterest text, time text, date text, location text, cowords_firstdegree text,tweet text, PRIMARY KEY ((wordofinterest, location, date), time)) WITH CLUSTERING ORDER BY (time DESC);")
-
 
 
 
