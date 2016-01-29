@@ -125,10 +125,10 @@ if __name__ == "__main__":
     #4. map it to ((place.name, place.country_code),1).
     #5. reducebykey add a+b -> sum for each place.
     output = lines.filter(lambda l: wordofinterest in json.loads(l)["text"] \
-                    .filter(lambda l: slen(json.loads(l)["places"]["name"]) > 0 ) \
-                    .filter(lambda l: len(json.loads(l)["places"]["country_code"]) > 0) \
-                    .map(lambda l: ( (json.loads(l)["places"]["name"], json.loads(l)["places"]["country_code"] ), 1) \
-                    .reducebykey(lambda a,b: a+b)
+                    #.filter(lambda l: slen(json.loads(l)["places"]["name"]) > 0 )
+                    #.filter(lambda l: len(json.loads(l)["places"]["country_code"]) > 0) 
+                    #.map(lambda l: ( (json.loads(l)["places"]["name"], json.loads(l)["places"]["country_code"] ), 1)
+                    #.reducebykey(lambda a,b: a+b)
 
     output.pprint()
     #pprint(type(lines))
