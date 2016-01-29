@@ -12,6 +12,7 @@ from cassandra.cluster import Cluster
 from cassandra import ConsistencyLevel
 import time as timepackage
 from operator import add
+import argparse
 
 def define_the_search(word):
     def findword(row):
@@ -62,8 +63,8 @@ def write_into_cassandra(record):
     #from cassandra.cluster import Cluster
     #from cassandra import ConsistencyLevel
     keyspacename = 'twitterimpact'
-    tablename = 'fakerealtime'
-
+    #tablename = 'fakerealtime'
+    tablename = wordofinterest
     # connect to cassandra
     #THIS ONE IS timo-kafka-cluster: cluster = Cluster(['ec2-52-35-24-163.us-west-2.compute.amazonaws.com','ec2-52-89-22-134.us-west-2.compute.amazonaws.com','ec2-52-34-117-127.us-west-2.compute.amazonaws.com','ec2-52-89-0-97.us-west-2.compute.amazonaws.com'])
     cluster = Cluster(['ec2-52-89-218-166.us-west-2.compute.amazonaws.com','ec2-52-88-157-153.us-west-2.compute.amazonaws.com','ec2-52-35-98-229.us-west-2.compute.amazonaws.com','ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
@@ -102,9 +103,18 @@ def process(rdd):
 
 
 if __name__ == "__main__":
-
+    #parser = argparse.ArgumentParser(description='Word of interest for TwitterImpact.')
+    #parser.add.argument('word')
     #findword = define_the_search(wordofinterest)
-    wordofinterest = 'trump'
+
+    if len(sys.argv) !=2:
+        print 'dude, you need to input a word!'
+        sys.exit()
+
+    wordofinterest = sys.argv[1]
+    print wordofinterest
+
+    #wordofinterest = 'trump'
 
     sc = SparkContext(appName="TwitterImpact")
     ssc = StreamingContext(sc, .5)
