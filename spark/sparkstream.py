@@ -104,7 +104,8 @@ def process(rdd):
     rdd.foreachPartition(lambda record: write_into_cassandra(record))
 
 def citycount_to_cassandra(rdd):
-    rdd.pprint()
+    rdd.take(10).foreach(println)
+    
     def update_to_cassandra(record):
         for element in record:
             key = str(element[0][0]) + str(element[0][1])
