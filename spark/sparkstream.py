@@ -114,7 +114,9 @@ def citycount_to_cassandra(rdd):
         # ths is in there: ((placename,country),count)
         place = str(i[0][0]) + ',' + str(i[0][1])
         count = i[1]
-
+        with open('test.txt','a') as f:
+            f.write(place)
+            f.write(count)
         session.execute(prepared_write_query, (place, count))
 
 
