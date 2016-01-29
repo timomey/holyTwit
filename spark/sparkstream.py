@@ -106,9 +106,9 @@ def process(rdd):
 def citycount_to_cassandra(rdd):
     def update_to_cassandra(record):
         for element in record:
-            print element[0][0]
-            print element[0][1]
-            print element[1]
+            pprint(element[0][0])
+            pprint(element[0][1])
+            pprint(element[1])
             key = str(element[0][0]) + str(element[0][1])
             count = element[1]
             session.execute(prepared_write_query, (count, key) )
