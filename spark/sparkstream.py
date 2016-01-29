@@ -148,7 +148,7 @@ if __name__ == "__main__":
         .filter(lambda l: slen(json.loads(l)["places"]["name"]) > 0 )\
         .filter(lambda l: len(json.loads(l)["places"]["country_code"]) > 0)\
         .map(lambda l: ( (json.loads(l)["places"]["name"], json.loads(l)["places"]["country_code"] ), 1))\
-        .reducebykey(lambda a,b: a+b)
+        .reduceByKey(lambda a,b: a+b)
 
 
     output.foreachRDD(citycount_to_cassandra)
