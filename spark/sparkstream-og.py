@@ -73,7 +73,7 @@ def write_into_cassandra(record):
     prepared_write_query = session.prepare("INSERT INTO "+keyspacename+"."+tablename+" (wordofinterest, time, date, location, cowords_firstdegree, tweet) VALUES (?,?,?,?,?,?)")
     for i in record:
         json_str = json.loads(i)
-        #error_dict = {"keyerror": 0, "typeerror":0}
+        error_dict = {"keyerror": 0, "typeerror":0}
 
         try:
             if wordofinterest in json_str['text']:
@@ -120,14 +120,7 @@ if __name__ == "__main__":
     topic = "twitterdump_timo"
     kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-consumer", {topic: 4})
     lines = kvs.map(lambda x: x[1])
-
-    output = lines.filter(lambda l: json.loads(l)["places"]["country_code"]>0 )\
-                    .filter(lambda l: wordofinterest in json.loads(l)["text"]
-                    .map(lambda l: (,) )
-
-
     lines.foreachRDD(process)
-
 
     ssc.start()
     ssc.awaitTermination()
