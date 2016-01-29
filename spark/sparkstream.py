@@ -130,9 +130,9 @@ if __name__ == "__main__":
                     .map(lambda l: ( (json.loads(l)["places"]["name"], json.loads(l)["places"]["country_code"] ), 1) \
                     .reducebykey(lambda a,b: a+b)
 
-    pprint(type(output))
-    pprint(type(lines))
-    pprint(type(kvs))
+    output.pprint()
+    #pprint(type(lines))
+    #pprint(type(kvs))
 
 
     #lines.foreachRDD(process)
