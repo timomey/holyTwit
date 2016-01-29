@@ -1,3 +1,4 @@
+*.pem
 *.twitter*
 .DS_STORE
 tweets*
