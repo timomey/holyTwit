@@ -104,14 +104,11 @@ def process(rdd):
     rdd.foreachPartition(lambda record: write_into_cassandra(record))
 
 def citycount_to_cassandra(rdd):
-    rdd.take(10).foreachPartition(println)
-
     def update_to_cassandra(record):
             for element in record:
                 key = str(element[0][0]) + str(element[0][1])
                 count = element[1]
                 session.execute(prepared_write_query, (count, key) )
-
     keyspacename = 'twitterimpact'
     tablename = wordofinterest
     cluster = Cluster(['ec2-52-89-218-166.us-west-2.compute.amazonaws.com','ec2-52-88-157-153.us-west-2.compute.amazonaws.com','ec2-52-35-98-229.us-west-2.compute.amazonaws.com','ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
