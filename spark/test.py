@@ -2,7 +2,11 @@
 
 import sys
 
-print len(sys.argv)
+if __name__=="__main__":
+	
 
-for i in sys.argv:
-	print i
+
+	print len(sys.argv)
+
+	for i in sys.argv:
+		print i
