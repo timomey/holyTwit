@@ -116,7 +116,7 @@ def citycount_to_cassandra(rdd):
     cassandra_create_citycount_table(keyspacename,tablename, session)
     prepared_write_query = session.prepare("UPDATE "+keyspacename+"."+tablename+" SET count = count + ? WHERE place=?")
     #prepared_write_query = session.prepare("INSERT INTO "+keyspacename+"."+tablename+" (place, count) VALUES (?,?)")
-    rdd.foreachPartition(update_to_cassandra)
+    rdd.foreachPartition(lambda ele: update_to_cassandra(ele))
 
 
 
