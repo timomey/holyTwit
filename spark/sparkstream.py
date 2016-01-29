@@ -156,8 +156,18 @@ if __name__ == "__main__":
         .reduceByKey(lambda a,b: a+b)
 
 
+    keyspacename = 'twitterimpact'
+    tablename = wordofinterest
+    cluster = Cluster(['ec2-52-89-218-166.us-west-2.compute.amazonaws.com','ec2-52-88-157-153.us-west-2.compute.amazonaws.com','ec2-52-35-98-229.us-west-2.compute.amazonaws.com','ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
+    session = cluster.connect()
+    cassandra_create_citycount_table(keyspacename,tablename, session)
+    prepared_write_query = session.prepare("UPDATE "+keyspacename+"."+tablename+" SET count = count + ? WHERE place=?")
 
-    output.foreachRDD(citycount_to_cassandra)
+    count = output[1]
+    key = str(output[0][0]) + str(output[0][1])
+    session.execute(prepared_write_query, (count, key) )
+
+    #output.foreachRDD(citycount_to_cassandra)
     #output.pprint()
 
 
