@@ -104,7 +104,7 @@ def process(rdd):
     rdd.foreachPartition(lambda record: write_into_cassandra(record))
 
 def citycount_to_cassandra(rdd):
-    rdd.take(10).foreach(println)
+    rdd.take(10).foreachPartition(println)
 
     def update_to_cassandra(record):
             for element in record:
@@ -157,9 +157,7 @@ if __name__ == "__main__":
 
     #output.pprint()
 
-
     output.foreachRDD(citycount_to_cassandra)
-    #output.pprint()
 
 
     ssc.start()
