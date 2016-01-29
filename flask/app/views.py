@@ -21,13 +21,13 @@ def index():
 #	jsonresponse = [{"Topic": x.topic, "connections": x.connections, "country": x.country, "time": x.time,} for x in response_list]
 #	return jsonify(emails=jsonresponse)
 
-@app.route('/api/streamtweetcount/<wordofinterest>')
+@app.route('/api/citycount/<wordofinterest>')
 def get_stream(wordofinterest):
-        stmt = "SELECT count(*) FROM "+str(wordofinterest)
+        stmt = "SELECT * FROM "+str(wordofinterest)
         response = session.execute(stmt)
         response_list = []
         for val in response:
                 response_list.append(val)
         #jsonresponse = [{"city": x.city, "tweet": x.country, "time": x.time,} for x in response_list]
-        jsonresponse = [{"count": x.count} for x in response_list]
-        return jsonify(tweet=jsonresponse)
+        jsonresponse = [{"city": x.place, "count": x.count} for x in response_list]
+        return jsonify(wordofinterest=jsonresponse)
