@@ -106,6 +106,9 @@ def process(rdd):
 def citycount_to_cassandra(rdd):
     def update_to_cassandra(record):
         for element in record:
+            print element[0][0]
+            print element[0][1]
+            print element[1]
             key = str(element[0][0]) + str(element[0][1])
             count = element[1]
             session.execute(prepared_write_query, (count, key) )
@@ -135,7 +138,7 @@ if __name__ == "__main__":
     #wordofinterest = 'trump'
 
     sc = SparkContext(appName="TwitterImpact")
-    ssc = StreamingContext(sc, 1)
+    ssc = StreamingContext(sc, 5)
 
     zkQuorum = "52.34.117.127:2181,52.89.22.134:2181,52.35.24.163:2181,52.89.0.97:2181"
     topic = "twitterdump_timo"
