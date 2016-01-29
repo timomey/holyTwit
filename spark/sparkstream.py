@@ -84,7 +84,7 @@ def write_into_cassandra(record):
                 cowords_firstdegree = str(clean_string(json_str['text'].encode('ascii','ignore')).split())
                 tweet = str(clean_string(json_str['text'].encode('ascii','ignore')))
                 session.execute(prepared_write_query, (wordofinterest, time, date, location, cowords_firstdegree, tweet))
-        except (KeyError, BlankError):
+        except (KeyError):
             #could implement counter here
             #error_dict["keyerror"] += 1
             #print json_str
