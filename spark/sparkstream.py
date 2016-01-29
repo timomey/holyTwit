@@ -59,7 +59,7 @@ def cassandra_create_table(keyspacename, tablename, session):
 
 def cassandra_create_citycount_table(keyspacename, tablename, session):
     session.execute("CREATE KEYSPACE IF NOT EXISTS "+keyspacename+" WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor' : 3};")
-    session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" (place text, count counter, PRIMARY KEY (place); ")
+    session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" (place text, count counter, PRIMARY KEY (place)); ")
 
 
 def write_into_cassandra(record):
@@ -148,10 +148,11 @@ if __name__ == "__main__":
         .filter(lambda l: len(json.loads(l)["place"]["name"]) > 0 )\
         .filter(lambda l: len(json.loads(l)["place"]["country_code"]) > 0)\
         .map(lambda l: ( (json.loads(l)["place"]["name"], json.loads(l)["place"]["country_code"] ), 1))\
-        .reduceByKey(lambda a,b: a+b).pprint()
+        .reduceByKey(lambda a,b: a+b)
 
 
-    #output.foreachRDD(citycount_to_cassandra)
+
+    output.foreachRDD(citycount_to_cassandra)
 
 
 
