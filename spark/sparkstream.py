@@ -110,10 +110,12 @@ def citycount_to_cassandra(rdd):
     session = cluster.connect()
     cassandra_create_citycount_table(keyspacename,tablename, session)
     prepared_write_query = session.prepare("INSERT INTO "+keyspacename+"."+tablename+" (place, count) VALUES (?,?)")
-    for i in rdd:
+    rdd.map(lambda l:   ( place = str(l[0][0]) + ',' + str(l[0][1]),
+                        count = i[1] )
+                        )
         # ths is in there: ((placename,country),count)
-        place = str(i[0][0]) + ',' + str(i[0][1])
-        count = i[1]
+
+
         with open('test.txt','a') as f:
             f.write(place)
             f.write(count)
