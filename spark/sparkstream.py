@@ -111,7 +111,7 @@ def update_to_cassandra(record):
     cassandra_create_citycount_table(keyspacename,tablename, session)
     prepared_write_query = session.prepare("UPDATE "+keyspacename+"."+tablename+" SET count = count + ? WHERE place=?")
     for element in record:
-        key = str(element[0][0]) + str(element[0][1])
+        key = str(element[0][0])+", "+ str(element[0][1])
         count = element[1]
         session.execute(prepared_write_query, (count, key) )
 
