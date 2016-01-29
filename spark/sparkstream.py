@@ -153,7 +153,7 @@ if __name__ == "__main__":
 
 
     output.foreachRDD(citycount_to_cassandra)
-
+    output.pprint()
 
 
     ssc.start()
