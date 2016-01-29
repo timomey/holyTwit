@@ -104,13 +104,13 @@ def process(rdd):
     rdd.foreachPartition(lambda record: write_into_cassandra(record))
 
 def citycount_to_cassandra(rdd):
-    rdd.take(10).foreach(println)
-    
+    #rdd.take(10).foreach(println)
+
     def update_to_cassandra(record):
-        for element in record:
-            key = str(element[0][0]) + str(element[0][1])
-            count = int(element[1])
-            session.execute(prepared_write_query, (count, key) )
+            for element in record:
+                key = str(element[0][0]) + str(element[0][1])
+                count = element[1]
+                session.execute(prepared_write_query, (count, key) )
 
     keyspacename = 'twitterimpact'
     tablename = wordofinterest
@@ -120,7 +120,7 @@ def citycount_to_cassandra(rdd):
     prepared_write_query = session.prepare("UPDATE "+keyspacename+"."+tablename+" SET count = count + ? WHERE place=?")
     #prepared_write_query = session.prepare("INSERT INTO "+keyspacename+"."+tablename+" (place, count) VALUES (?,?)")
 
-    rdd.foreach(update_to_cassandra)
+    rdd.foreachPartition(update_to_cassandra)
 
 
 
