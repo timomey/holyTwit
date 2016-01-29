@@ -133,7 +133,7 @@ if __name__ == "__main__":
     #wordofinterest = 'trump'
 
     sc = SparkContext(appName="TwitterImpact")
-    ssc = StreamingContext(sc, .5)
+    ssc = StreamingContext(sc, 10)
 
     zkQuorum = "52.34.117.127:2181,52.89.22.134:2181,52.35.24.163:2181,52.89.0.97:2181"
     topic = "twitterdump_timo"
@@ -148,7 +148,7 @@ if __name__ == "__main__":
         .filter(lambda l: len(json.loads(l)["places"]["name"]) > 0 )\
         .filter(lambda l: len(json.loads(l)["places"]["country_code"]) > 0)\
         .map(lambda l: ( (json.loads(l)["places"]["name"], json.loads(l)["places"]["country_code"] ), 1))\
-        .reduceByKey(lambda a,b: a+b).pprint
+        .reduceByKey(lambda a,b: a+b).pprint()
 
 
     #output.foreachRDD(citycount_to_cassandra)
