@@ -1,10 +1,10 @@
-from app import app 
+from app import app
 from flask import jsonify
 from cassandra.cluster import Cluster
 
 cluster = Cluster(['ec2-52-89-218-166.us-west-2.compute.amazonaws.com','ec2-52-88-157-153.us-west-2.compute.amazonaws.com','ec2-52-35-98-229.us-west-2.compute.amazonaws.com','ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
-#cluster = Cluster(['ec2-52-35-24-163.us-west-2.compute.amazonaws.com']) 
-session = cluster.connect('demo')
+#cluster = Cluster(['ec2-52-35-24-163.us-west-2.compute.amazonaws.com'])
+session = cluster.connect('twitterimpact')
 
 @app.route('/')
 @app.route('/index')
