@@ -157,7 +157,7 @@ if __name__ == "__main__":
         .map(lambda l: ( (json.loads(l)["place"]["name"], json.loads(l)["place"]["country_code"] ), 1))\
         .reduceByKey(lambda a,b: a+b)
 
-    #output.pprint()
+    output.pprint()
 
     output.foreachRDD(citycount_to_cassandra)
 
