@@ -21,9 +21,9 @@ def index():
 #	jsonresponse = [{"Topic": x.topic, "connections": x.connections, "country": x.country, "time": x.time,} for x in response_list]
 #	return jsonify(emails=jsonresponse)
 
-@app.route('/api/streamtweetcount')
-def get_stream():
-        stmt = "SELECT count(*) FROM fakerealtime"
+@app.route('/api/streamtweetcount/<wordofinterest>')
+def get_stream(wordofinterest):
+        stmt = "SELECT count(*) FROM "+str(wordofinterest)
         response = session.execute(stmt)
         response_list = []
         for val in response:
