@@ -109,8 +109,8 @@ def citycount_to_cassandra(rdd):
     cluster = Cluster(['ec2-52-89-218-166.us-west-2.compute.amazonaws.com','ec2-52-88-157-153.us-west-2.compute.amazonaws.com','ec2-52-35-98-229.us-west-2.compute.amazonaws.com','ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
     cassandra_create_citycount_table(keyspacename,tablename, session)
-    prepared_write_query = session.prepare("UPDATE "+keyspacename+"."+tablename+" SET count = count + ? WHERE place=?")
-
+    #prepared_write_query = session.prepare("UPDATE "+keyspacename+"."+tablename+" SET count = count + ? WHERE place=?")
+    prepared_write_query = session.prepare("INSERT INTO "+keyspacename+"."+tablename+" (place, count) VALUES (?,?)")
 
     rdd.foreach(update_to_cassandra)
 
