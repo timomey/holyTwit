@@ -155,7 +155,8 @@ if __name__ == "__main__":
         .map(lambda l: ( (json.loads(l)["place"]["name"], json.loads(l)["place"]["country_code"] ), 1))\
         .reduceByKey(lambda a,b: a+b)
 
-
+    output.pprint()
+    
     keyspacename = 'twitterimpact'
     tablename = wordofinterest
     cluster = Cluster(['ec2-52-89-218-166.us-west-2.compute.amazonaws.com','ec2-52-88-157-153.us-west-2.compute.amazonaws.com','ec2-52-35-98-229.us-west-2.compute.amazonaws.com','ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
