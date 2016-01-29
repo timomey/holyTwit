@@ -12,7 +12,6 @@ from cassandra.cluster import Cluster
 from cassandra import ConsistencyLevel
 import time as timepackage
 from operator import add
-import argparse
 
 def define_the_search(word):
     def findword(row):
@@ -109,13 +108,10 @@ if __name__ == "__main__":
 
     #main(sys.argv)
 
-    print str(sys.argv[1])
-    print 'dude, you need to input a word!'
-    sys.exit()
-    
+
     wordofinterest = str(sys.argv[1])
     print wordofinterest
-
+    sys.exit()
     #wordofinterest = 'trump'
 
     sc = SparkContext(appName="TwitterImpact")
