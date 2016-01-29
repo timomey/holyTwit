@@ -104,7 +104,7 @@ def process(rdd):
     rdd.foreachPartition(lambda record: write_into_cassandra(record))
 
 def citycount_to_cassandra(rdd):
-    #rdd.take(10).foreach(println)
+    rdd.take(10).foreach(println)
 
     def update_to_cassandra(record):
             for element in record:
@@ -119,7 +119,6 @@ def citycount_to_cassandra(rdd):
     cassandra_create_citycount_table(keyspacename,tablename, session)
     prepared_write_query = session.prepare("UPDATE "+keyspacename+"."+tablename+" SET count = count + ? WHERE place=?")
     #prepared_write_query = session.prepare("INSERT INTO "+keyspacename+"."+tablename+" (place, count) VALUES (?,?)")
-
     rdd.foreachPartition(update_to_cassandra)
 
 
@@ -156,7 +155,7 @@ if __name__ == "__main__":
         .map(lambda l: ( (json.loads(l)["place"]["name"], json.loads(l)["place"]["country_code"] ), 1))\
         .reduceByKey(lambda a,b: a+b)
 
-    output.pprint()
+    #output.pprint()
 
 
     output.foreachRDD(citycount_to_cassandra)
