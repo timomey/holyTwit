@@ -114,10 +114,10 @@ def citycount_to_cassandra(rdd):
         # ths is in there: ((placename,country),count)
 
 
-        with open('test.txt','a') as f:
-            f.write(place)
-            f.write(count)
-        session.execute(prepared_write_query, (place, count))
+    with open('test.txt','a') as f:
+        f.write(place)
+        f.write(count)
+    session.execute(prepared_write_query, (place, count))
 
 
 if __name__ == "__main__":
