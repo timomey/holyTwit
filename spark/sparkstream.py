@@ -107,11 +107,11 @@ if __name__ == "__main__":
     #parser.add.argument('word')
     #findword = define_the_search(wordofinterest)
 
-    if len(sys.argv) !=2:
-        print 'dude, you need to input a word!'
-        sys.exit()
+    print len(sys.argv)
+    print 'dude, you need to input a word!'
+    sys.exit()
 
-    wordofinterest = sys.argv[1]
+    wordofinterest = str(sys.argv[1])
     print wordofinterest
 
     #wordofinterest = 'trump'
