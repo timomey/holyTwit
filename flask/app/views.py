@@ -23,7 +23,7 @@ def index():
 
 @app.route('/api/streamtweetcount')
 def get_stream():
-        stmt = "SELECT count(*) FROM twitterimpact"
+        stmt = "SELECT count(*) FROM fakerealtime"
         response = session.execute(stmt)
         response_list = []
         for val in response:
