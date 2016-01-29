@@ -110,8 +110,7 @@ if __name__ == "__main__":
 
 
     wordofinterest = str(sys.argv[1])
-    print(wordofinterest)
-    sys.exit()
+
     #wordofinterest = 'trump'
 
     sc = SparkContext(appName="TwitterImpact")
