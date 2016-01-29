@@ -114,6 +114,7 @@ def citycount_to_cassandra(rdd):
 
     rdd.foreachPartition(update_to_cassandra)
     rdd.pprint()
+    
 def update_to_cassandra(record):
     for element in record:
         key = str(element[0][0]) + str(element[0][1])
@@ -155,7 +156,7 @@ if __name__ == "__main__":
 
 
     output.foreachRDD(citycount_to_cassandra)
-    output.pprint()
+    #output.pprint()
 
 
     ssc.start()
