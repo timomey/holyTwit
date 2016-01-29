@@ -57,6 +57,10 @@ def cassandra_create_table(keyspacename, tablename, session):
     session.execute("CREATE KEYSPACE IF NOT EXISTS "+keyspacename+" WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor' : 3};")
     session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" (wordofinterest text, time text, date text, location text, cowords_firstdegree text,tweet text, PRIMARY KEY ((wordofinterest, location, date), time)) WITH CLUSTERING ORDER BY (time DESC);")
 
+def cassandra_create_citycount_table(keyspacename, tablename, session):
+    session.execute("CREATE KEYSPACE IF NOT EXISTS "+keyspacename+" WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor' : 3};")
+    session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" (place text, count int, PRIMARY KEY (place); ")
+
 
 def write_into_cassandra(record):
     #from cassandra.cluster import Cluster
@@ -99,6 +103,19 @@ def write_into_cassandra(record):
 def process(rdd):
     rdd.foreachPartition(lambda record: write_into_cassandra(record))
 
+def citycount_to_cassandra(rdd):
+    keyspacename = 'twitterimpact'
+    tablename = wordofinterest
+    cluster = Cluster(['ec2-52-89-218-166.us-west-2.compute.amazonaws.com','ec2-52-88-157-153.us-west-2.compute.amazonaws.com','ec2-52-35-98-229.us-west-2.compute.amazonaws.com','ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
+    session = cluster.connect()
+    cassandra_create_citycount_table(keyspacename,tablename, session)
+    prepared_write_query = session.prepare("INSERT INTO "+keyspacename+"."+tablename+" (place, count) VALUES (?,?)")
+        for i in rdd:
+            # ths is in there: ((placename,country),count)
+            place = str(i[0][0]) + ',' + str(i[0][1])
+            count = i[1]
+
+            session.execute(prepared_write_query, (place, count))
 
 
 if __name__ == "__main__":
@@ -130,13 +147,11 @@ if __name__ == "__main__":
             .filter(lambda l: len(json.loads(l)["places"]["country_code"]) > 0)\
             .map(lambda l: ( (json.loads(l)["places"]["name"], json.loads(l)["places"]["country_code"] ), 1))\
             .reducebykey(lambda a,b: a+b)
-
-    #output.pprint()
-    #print(type(lines))
-    #print(type(kvs))
+        citycount_to_cassandra(output)
 
 
     lines.foreachRDD(countcity)
+
 
 
     ssc.start()
