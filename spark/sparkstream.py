@@ -13,14 +13,6 @@ from cassandra import ConsistencyLevel
 import time as timepackage
 from operator import add
 
-def define_the_search(word):
-    def findword(row):
-        if word in row.text:
-            return (row.name, 1)
-        else:
-            return 0
-    return findword
-
 def clean_string(text):
     """input: string (u''). output is a "clean" string:
             1: spaces at end and beginning are removed:
@@ -54,12 +46,12 @@ def cassandra_create_keyspace(keyspacename,session):
     session.execute("CREATE KEYSPACE IF NOT EXISTS "+keyspacename+" WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor' : 3};")
 
 def cassandra_create_table(keyspacename, tablename, session):
-    session.execute("CREATE KEYSPACE IF NOT EXISTS "+keyspacename+" WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor' : 3};")
+    cassandra_create_keyspace(keyspacename, session)
     session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" (wordofinterest text, time text, date text, location text, cowords_firstdegree text,tweet text, PRIMARY KEY ((wordofinterest, location, date), time)) WITH CLUSTERING ORDER BY (time DESC);")
 
 def cassandra_create_citycount_table(keyspacename, tablename, session):
-    session.execute("CREATE KEYSPACE IF NOT EXISTS "+keyspacename+" WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor' : 3};")
-    session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" (place text, count counter, PRIMARY KEY (place) ); ")
+    cassandra_create_keyspace(keyspacename, session)
+    session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" (place text, count counter, PRIMARY KEY (place, count)  ) WITH CLUSTERING ORDER BY (count DESC); ")
 
 
 def write_into_cassandra(record):
@@ -125,16 +117,8 @@ def citycount_to_cassandra(rdd):
 
 
 if __name__ == "__main__":
-    #parser = argparse.ArgumentParser(description='Word of interest for TwitterImpact.')
-    #parser.add.argument('word')
-    #findword = define_the_search(wordofinterest)
-
-    #main(sys.argv)
-
 
     wordofinterest = str(sys.argv[1])
-
-    #wordofinterest = 'trump'
 
     sc = SparkContext(appName="TwitterImpact")
     ssc = StreamingContext(sc, 2)
@@ -157,7 +141,6 @@ if __name__ == "__main__":
     output.pprint()
 
     output.foreachRDD(citycount_to_cassandra)
-
 
     ssc.start()
     ssc.awaitTermination()

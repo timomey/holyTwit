@@ -7,10 +7,12 @@ cluster = Cluster(['ec2-52-89-218-166.us-west-2.compute.amazonaws.com','ec2-52-8
 session = cluster.connect('twitterimpact')
 
 @app.route('/')
+#@app.route('/index')
+#def index():
+#   return "Hello, World!"
 @app.route('/index')
 def index():
-   return "Hello, World!"
-
+    return render_template("base.html")
 #@app.route('/api/demo1/<topic>')
 #def get_topic(topic):
 #	stmt = "SELECT * FROM demo WHERE topic='#"+topic+"'"
