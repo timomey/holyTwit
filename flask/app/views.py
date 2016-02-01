@@ -29,13 +29,13 @@ def index():
 
 @app.route('/api/citycount/<wordofinterest>')
 def get_stream(wordofinterest):
-        try:
-            stmt = "SELECT * FROM "+str(wordofinterest)
-        except:
-            call(["../spark/run_sparkstream.sh", str(wordofinterest)])
-            stmt = "SELECT * FROM "+str(wordofinterest)
+        #try:
+        stmt = "SELECT * FROM "+str(wordofinterest)
+        #except:
+        #    call(["../spark/run_sparkstream.sh", str(wordofinterest)])
+        #   stmt = "SELECT * FROM "+str(wordofinterest)
 
-        time.sleep(5)
+        #time.sleep(5)
         response = session.execute(stmt)
         response_list = []
         for val in response:
