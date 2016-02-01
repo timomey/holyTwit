@@ -54,8 +54,8 @@ def cassandra_create_citycount_table(keyspacename, tablename, session):
     cassandra_create_keyspace(keyspacename, session)
     # if not exists create table with following schema
     session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" \
-                        (wordofinterest text, place text, count int, \
-                        PRIMARY KEY ((wordofinterest,place), count) ) \
+                        (place text, count int, \
+                        PRIMARY KEY ((place), count) ) \
                         WITH CLUSTERING ORDER BY (count DESC); ")
 
 
