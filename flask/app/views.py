@@ -2,6 +2,9 @@ from app import app
 from flask import jsonify
 from cassandra.cluster import Cluster
 from flask import render_template
+from subprocess import call
+import time
+
 
 
 cluster = Cluster(['ec2-52-89-218-166.us-west-2.compute.amazonaws.com','ec2-52-88-157-153.us-west-2.compute.amazonaws.com','ec2-52-35-98-229.us-west-2.compute.amazonaws.com','ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
@@ -26,7 +29,13 @@ def index():
 
 @app.route('/api/citycount/<wordofinterest>')
 def get_stream(wordofinterest):
-        stmt = "SELECT * FROM "+str(wordofinterest)
+        try:
+            stmt = "SELECT * FROM "+str(wordofinterest)
+        except:
+            call(["../spark/run_sparkstream.sh", str(wordofinterest)])
+            stmt = "SELECT * FROM "+str(wordofinterest)
+
+        time.sleep(5)
         response = session.execute(stmt)
         response_list = []
         for val in response:
