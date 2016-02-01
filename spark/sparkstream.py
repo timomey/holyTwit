@@ -50,29 +50,56 @@ def cassandra_create_table(keyspacename, tablename, session):
     session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" (wordofinterest text, time text, date text, location text, cowords_firstdegree text,tweet text, PRIMARY KEY ((wordofinterest, location, date), time)) WITH CLUSTERING ORDER BY (time DESC);")
 
 def cassandra_create_citycount_table(keyspacename, tablename, session):
+    #it not exists create the keyspace
     cassandra_create_keyspace(keyspacename, session)
-    session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" (wordofinterest text, place text, count counter, PRIMARY KEY ((wordofinterest,place), count)) WITH CLUSTERING ORDER BY (count DESC); ")
+    # if not exists create table with following schema
+    session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" \
+                        (wordofinterest text, place text, count int, \
+                        PRIMARY KEY ((wordofinterest,place), count) ) \
+                        WITH CLUSTERING ORDER BY (count DESC); ")
 
-
-def process(rdd):
-    rdd.foreachPartition(lambda record: write_into_cassandra(record))
 
 def update_to_cassandra(record):
-    keyspacename = 'twitterimpact'
+    #There is a problem with counter variable count. ; maybe counter can not be ordered by?!?
     tablename = wordofinterest
-    cluster = Cluster(['ec2-52-89-218-166.us-west-2.compute.amazonaws.com','ec2-52-88-157-153.us-west-2.compute.amazonaws.com','ec2-52-35-98-229.us-west-2.compute.amazonaws.com','ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
+    cluster = Cluster([
+        'ec2-52-89-218-166.us-west-2.compute.amazonaws.com',
+        'ec2-52-88-157-153.us-west-2.compute.amazonaws.com',
+        'ec2-52-35-98-229.us-west-2.compute.amazonaws.com',
+        'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
-    cassandra_create_citycount_table(keyspacename,tablename, session)
-    prepared_write_query = session.prepare("UPDATE "+keyspacename+"."+tablename+" SET count = count + ? WHERE place=? and wordofinterest=?")
+    prepared_write_query = session.prepare(
+        "UPDATE "+keyspacename+"."+tablename+" SET count = count + ? WHERE place=? and wordofinterest=?")
     for element in record:
         key = str(element[0][0])+", "+ str(element[0][1])
         count = element[1]
         session.execute(prepared_write_query, (count, key, wordofinterest) )
 
+def update_to_cassandra_readandwrite(record):
+    previous_count = 0
+    keyspacename = 'twitterimpact'
+    tablename = wordofinterest
+    cluster = Cluster([
+        'ec2-52-89-218-166.us-west-2.compute.amazonaws.com',
+        'ec2-52-88-157-153.us-west-2.compute.amazonaws.com',
+        'ec2-52-35-98-229.us-west-2.compute.amazonaws.com',
+        'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
+    session = cluster.connect()
+    prepared_write_query = session.prepare("INSERT INTO "+keyspacename+"."+tablename+" (wordofinterest, place, count) VALUES (?,?,?)")
+    for element in record:
+        place = str(element[0][0])+", "+ str(element[0][1])
+        count = element[1]
+        read_stmt = "SELECT * FROM "+keyspacename+"."+tablename+" \
+            WHERE wordofinterest="+str(wordofinterest)+" AND place="+str(place)  #% (wordofinterest,place)
+        response = session.execute(read_stmt)
+        session.execute(prepared_write_query, (count, place, wordofinterest) )
+
+
 
 def citycount_to_cassandra(rdd):
-    #prepared_write_query = session.prepare("INSERT INTO "+keyspacename+"."+tablename+" (place, count) VALUES (?,?)")
-    rdd.foreachPartition(lambda record: update_to_cassandra(record))
+    #each RDD consists of a bunch of partitions which themselves are local on a single machine (each)
+    #so for each partition, do what you wanna do ->
+    rdd.foreachPartition(lambda record: update_to_cassandra_readandwrite(record))
 
 
 
@@ -82,11 +109,18 @@ if __name__ == "__main__":
 
     wordofinterest = str(sys.argv[1])
 
+    #cassandra keyspace name
+    keyspacename = 'twitterimpact'
+
+    #spark streaming objects
     sc = SparkContext(appName="TwitterImpact")
     ssc = StreamingContext(sc, 2)
 
+    #zookeeper quorum for to connect to kafka (local ips for faster access)
     zkQuorum = "52.34.117.127:2181,52.89.22.134:2181,52.35.24.163:2181,52.89.0.97:2181"
+    #kafka topic to consume from:
     topic = "twitterdump_timo"
+    #topic and number of partitions (check with kafka)
     kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-consumer", {topic: 4})
     lines = kvs.map(lambda x: x[1])
 
@@ -101,9 +135,11 @@ if __name__ == "__main__":
         .map(lambda l: ( (json.loads(l)["place"]["name"], json.loads(l)["place"]["country_code"] ), 1))\
         .reduceByKey(lambda a,b: a+b)
 
-    output.pprint()
-
+    #before doing the stuff, create the table if necessary (schema defined here too)
+    cassandra_create_citycount_table(keyspacename,tablename, session)
+    #output is a DStream object containing a bunch of RDDs. for each rdd go ->
     output.foreachRDD(citycount_to_cassandra)
 
+    #start the stream and keep it running - await for termination too.
     ssc.start()
     ssc.awaitTermination()
