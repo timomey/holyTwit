@@ -15,7 +15,7 @@ from operator import add
 
 def clean_string(text):
     """input: string (u''). output is a "clean" string:
-            1: spaces at end and beginning are removed:
+           1: spaces at end and beginning are removed:
                                 ' input ' -> 'input'
             2: replacements:    "\/" -> "/"
                                 "\\" -> "\ "
