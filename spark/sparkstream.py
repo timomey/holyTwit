@@ -64,8 +64,7 @@ def cassandra_create_citycount_table_count(keyspacename, tablename, session):
     # if not exists create table with following schema
     session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" \
                         (wordofinterest text, place text, count counter, \
-                        PRIMARY KEY ((wordofinterest, place), count) ) \
-                        WITH CLUSTERING ORDER BY (count DESC); ")
+                        PRIMARY KEY (wordofinterest, place) ); ")
 
 def update_to_cassandra(record):
     #There is a problem with counter variable count. ; maybe counter can not be ordered by?!?
