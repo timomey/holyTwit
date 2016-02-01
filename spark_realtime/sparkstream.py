@@ -36,8 +36,6 @@ def clean_string(text):
     text.replace("\t", " ")
     text = " ".join(text.split())
     text = text.lower()
-    #if text == "":
-    #    raise BlankError('empty tweet')
     return text
 
 
@@ -49,14 +47,6 @@ def cassandra_create_table(keyspacename, tablename, session):
     cassandra_create_keyspace(keyspacename, session)
     session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" (wordofinterest text, time text, date text, location text, cowords_firstdegree text,tweet text, PRIMARY KEY ((wordofinterest, location, date), time)) WITH CLUSTERING ORDER BY (time DESC);")
 
-def cassandra_create_citycount_table(keyspacename, tablename, session):
-    #it not exists create the keyspace
-    cassandra_create_keyspace(keyspacename, session)
-    # if not exists create table with following schema
-    session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" \
-                        (place text, count int, \
-                        PRIMARY KEY ((place), count) ) \
-                        WITH CLUSTERING ORDER BY (count DESC); ")
 
 def cassandra_create_citycount_table_count(keyspacename, tablename, session):
     #it not exists create the keyspace
@@ -83,28 +73,6 @@ def update_to_cassandra(record):
         count = element[1]
         session.execute(prepared_write_query, (count, key) )
 
-def update_to_cassandra_readandwrite(record):
-    previous_count = 0
-    keyspacename = 'twitterimpact'
-    tablename = wordofinterest
-    cluster = Cluster([
-        'ec2-52-89-218-166.us-west-2.compute.amazonaws.com',
-        'ec2-52-88-157-153.us-west-2.compute.amazonaws.com',
-        'ec2-52-35-98-229.us-west-2.compute.amazonaws.com',
-        'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
-    session = cluster.connect()
-
-    cassandra_create_citycount_table(keyspacename,tablename, session)
-
-    prepared_write_query = session.prepare("INSERT INTO "+keyspacename+"."+tablename+" (place, count) VALUES (?,?)")
-    for element in record:
-        place = str(element[0][0])+", "+ str(element[0][1])
-        count = element[1]
-        try:
-            read_stmt = "SELECT * FROM "+keyspacename+"."+tablename+" WHERE place="+str(place)  #% (wordofinterest,place)
-            response = session.execute(read_stmt)
-        except:
-            session.execute(prepared_write_query, (place,count) )
 
 
 
