@@ -71,7 +71,7 @@ def update_to_cassandra(record):
     for element in record:
         key = str(element[0][0])+", "+ str(element[0][1])
         count = element[1]
-        session.execute(prepared_write_query, (count, key, wordofinterest) )
+        session.execute(prepared_write_query, (count, key, wordofinterest232) )
 
 
 
