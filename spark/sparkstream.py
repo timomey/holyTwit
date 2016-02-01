@@ -91,10 +91,11 @@ def update_to_cassandra_readandwrite(record):
     for element in record:
         place = str(element[0][0])+", "+ str(element[0][1])
         count = element[1]
-        read_stmt = "SELECT * FROM "+keyspacename+"."+tablename+" \
-            WHERE place="+str(place)  #% (wordofinterest,place)
-        response = session.execute(read_stmt)
-        session.execute(prepared_write_query, (count, place, wordofinterest) )
+        try:
+            read_stmt = "SELECT * FROM "+keyspacename+"."+tablename+" WHERE place="+str(place)  #% (wordofinterest,place)
+            response = session.execute(read_stmt)
+        except:
+            session.execute(prepared_write_query, (place,count) )
 
 
 
