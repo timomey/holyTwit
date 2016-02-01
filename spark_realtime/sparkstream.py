@@ -48,13 +48,13 @@ def cassandra_create_table(keyspacename, tablename, session):
     session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" (wordofinterest text, time text, date text, location text, cowords_firstdegree text,tweet text, PRIMARY KEY ((wordofinterest, location, date), time)) WITH CLUSTERING ORDER BY (time DESC);")
 
 
-def cassandra_create_citycount_table_count(keyspacename, tablename, session):
+def cassandra_create_citycount_table(keyspacename, tablename, session):
     #it not exists create the keyspace
     cassandra_create_keyspace(keyspacename, session)
     # if not exists create table with following schema
     session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" \
-                        (place text, count counter, \
-                        PRIMARY KEY ((place)) ); ")
+                        (wordofinterest text, place text, count counter, \
+                        PRIMARY KEY (wordofinterest,place) ); ")
 
 def update_to_cassandra(record):
     #There is a problem with counter variable count. ; maybe counter can not be ordered by?!?
@@ -65,13 +65,13 @@ def update_to_cassandra(record):
         'ec2-52-35-98-229.us-west-2.compute.amazonaws.com',
         'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
-    cassandra_create_citycount_table_count(keyspacename,tablename, session)
+    cassandra_create_citycount_table(keyspacename,tablename, session)
 
-    prepared_write_query = session.prepare("UPDATE "+keyspacename+"."+tablename+" SET count = count + ? WHERE place=?")
+    prepared_write_query = session.prepare("UPDATE "+keyspacename+"."+tablename+" SET count = count + ? WHERE place=? AND wordofinterest=?")
     for element in record:
         key = str(element[0][0])+", "+ str(element[0][1])
         count = element[1]
-        session.execute(prepared_write_query, (count, key) )
+        session.execute(prepared_write_query, (count, key, wordofinterest) )
 
 
 
@@ -90,12 +90,12 @@ if __name__ == "__main__":
     wordofinterest = str(sys.argv[1])
 
     #cassandra keyspace name
-    keyspacename = 'twitterimpact'
-    tablename = wordofinterest
+    keyspacename = 'holytwit'
+    tablename = 'citycount'
 
     #spark streaming objects
     sc = SparkContext(appName="TwitterImpact")
-    ssc = StreamingContext(sc, 2)
+    ssc = StreamingContext(sc, 1)
 
     #zookeeper quorum for to connect to kafka (local ips for faster access)
     zkQuorum = "52.34.117.127:2181,52.89.22.134:2181,52.35.24.163:2181,52.89.0.97:2181"
