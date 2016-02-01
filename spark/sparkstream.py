@@ -76,6 +76,8 @@ def update_to_cassandra(record):
         'ec2-52-35-98-229.us-west-2.compute.amazonaws.com',
         'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
+    cassandra_create_citycount_table_count(keyspacename,tablename, session)
+
     prepared_write_query = session.prepare("UPDATE "+keyspacename+"."+tablename+" SET count = count + ? WHERE place=? and wordofinterest=?")
     for element in record:
         key = str(element[0][0])+", "+ str(element[0][1])
