@@ -51,45 +51,7 @@ def cassandra_create_table(keyspacename, tablename, session):
 
 def cassandra_create_citycount_table(keyspacename, tablename, session):
     cassandra_create_keyspace(keyspacename, session)
-    session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" (place text, count counter, PRIMARY KEY (place, count)  ) WITH CLUSTERING ORDER BY (count DESC); ")
-
-
-def write_into_cassandra(record):
-    #from cassandra.cluster import Cluster
-    #from cassandra import ConsistencyLevel
-    keyspacename = 'twitterimpact'
-    #tablename = 'fakerealtime'
-    tablename = wordofinterest
-    # connect to cassandra
-    #THIS ONE IS timo-kafka-cluster: cluster = Cluster(['ec2-52-35-24-163.us-west-2.compute.amazonaws.com','ec2-52-89-22-134.us-west-2.compute.amazonaws.com','ec2-52-34-117-127.us-west-2.compute.amazonaws.com','ec2-52-89-0-97.us-west-2.compute.amazonaws.com'])
-    cluster = Cluster(['ec2-52-89-218-166.us-west-2.compute.amazonaws.com','ec2-52-88-157-153.us-west-2.compute.amazonaws.com','ec2-52-35-98-229.us-west-2.compute.amazonaws.com','ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
-
-    session = cluster.connect()
-    cassandra_create_table(keyspacename,tablename, session)
-    prepared_write_query = session.prepare("INSERT INTO "+keyspacename+"."+tablename+" (wordofinterest, time, date, location, cowords_firstdegree, tweet) VALUES (?,?,?,?,?,?)")
-    for i in record:
-        json_str = json.loads(i)
-        #error_dict = {"keyerror": 0, "typeerror":0}
-
-        try:
-            if wordofinterest in json_str['text']:
-                wordofinterest
-                time = clean_string(str(json_str["timestamp_ms"]))
-                date = timepackage.strftime('%Y-%m-%d %H:%M:%S',  timepackage.gmtime(int(time)/1000.))
-                location = str(clean_string(json_str["place"]["name"])+', '+clean_string(json_str["place"]["country_code"]))
-                cowords_firstdegree = str(clean_string(json_str['text'].encode('ascii','ignore')).split())
-                tweet = str(clean_string(json_str['text'].encode('ascii','ignore')))
-                session.execute(prepared_write_query, (wordofinterest, time, date, location, cowords_firstdegree, tweet))
-        except (KeyError):
-            #could implement counter here
-            #error_dict["keyerror"] += 1
-            #print json_str
-            continue
-        except TypeError:
-            #this basically occurs when place.name does not exist.
-            #error_dict["typeerror"] += 1
-            #print json_str
-            continue
+    session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" (wordofinterest text, place text, count counter, PRIMARY KEY ((wordofinterest,place), count)) WITH CLUSTERING ORDER BY (count DESC); ")
 
 
 def process(rdd):
@@ -101,11 +63,11 @@ def update_to_cassandra(record):
     cluster = Cluster(['ec2-52-89-218-166.us-west-2.compute.amazonaws.com','ec2-52-88-157-153.us-west-2.compute.amazonaws.com','ec2-52-35-98-229.us-west-2.compute.amazonaws.com','ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
     cassandra_create_citycount_table(keyspacename,tablename, session)
-    prepared_write_query = session.prepare("UPDATE "+keyspacename+"."+tablename+" SET count = count + ? WHERE place=?")
+    prepared_write_query = session.prepare("UPDATE "+keyspacename+"."+tablename+" SET count = count + ? WHERE place=? and wordofinterest=?")
     for element in record:
         key = str(element[0][0])+", "+ str(element[0][1])
         count = element[1]
-        session.execute(prepared_write_query, (count, key) )
+        session.execute(prepared_write_query, (count, key, wordofinterest) )
 
 
 def citycount_to_cassandra(rdd):
@@ -135,6 +97,7 @@ if __name__ == "__main__":
     output = lines.filter(lambda l: wordofinterest in json.loads(l)["text"])\
         .filter(lambda l: len(json.loads(l)["place"]["name"]) > 0 )\
         .filter(lambda l: len(json.loads(l)["place"]["country_code"]) > 0)\
+        .filter(lambda l: len(json.loads(l)["timestamp_ms"]) >0  )\
         .map(lambda l: ( (json.loads(l)["place"]["name"], json.loads(l)["place"]["country_code"] ), 1))\
         .reduceByKey(lambda a,b: a+b)
 
