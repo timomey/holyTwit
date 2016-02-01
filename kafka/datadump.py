@@ -5,7 +5,7 @@ import json
 import sys
 
 	
-tweetdump_file = 'filteredtweets.txt'
+tweetfile = 'filteredtweets.txt'
 
 
 topic = 'twitterdump_timo'
