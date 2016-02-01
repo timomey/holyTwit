@@ -58,6 +58,14 @@ def cassandra_create_citycount_table(keyspacename, tablename, session):
                         PRIMARY KEY ((place), count) ) \
                         WITH CLUSTERING ORDER BY (count DESC); ")
 
+def cassandra_create_citycount_table_count(keyspacename, tablename, session):
+    #it not exists create the keyspace
+    cassandra_create_keyspace(keyspacename, session)
+    # if not exists create table with following schema
+    session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" \
+                        (wordofinterest text, place text, count counter, \
+                        PRIMARY KEY ((wordofinterest, place), count) ) \
+                        WITH CLUSTERING ORDER BY (count DESC); ")
 
 def update_to_cassandra(record):
     #There is a problem with counter variable count. ; maybe counter can not be ordered by?!?
@@ -68,8 +76,7 @@ def update_to_cassandra(record):
         'ec2-52-35-98-229.us-west-2.compute.amazonaws.com',
         'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
-    prepared_write_query = session.prepare(
-        "UPDATE "+keyspacename+"."+tablename+" SET count = count + ? WHERE place=? and wordofinterest=?")
+    prepared_write_query = session.prepare("UPDATE "+keyspacename+"."+tablename+" SET count = count + ? WHERE place=? and wordofinterest=?")
     for element in record:
         key = str(element[0][0])+", "+ str(element[0][1])
         count = element[1]
@@ -102,7 +109,7 @@ def update_to_cassandra_readandwrite(record):
 def citycount_to_cassandra(rdd):
     #each RDD consists of a bunch of partitions which themselves are local on a single machine (each)
     #so for each partition, do what you wanna do ->
-    rdd.foreachPartition(lambda record: update_to_cassandra_readandwrite(record))
+    rdd.foreachPartition(lambda record: update_to_cassandra(record))
 
 
 
