@@ -87,12 +87,12 @@ def update_to_cassandra_readandwrite(record):
     session = cluster.connect()
     cassandra_create_citycount_table(keyspacename,tablename, session)
 
-    prepared_write_query = session.prepare("INSERT INTO "+keyspacename+"."+tablename+" (wordofinterest, place, count) VALUES (?,?,?)")
+    prepared_write_query = session.prepare("INSERT INTO "+keyspacename+"."+tablename+" (place, count) VALUES (?,?)")
     for element in record:
         place = str(element[0][0])+", "+ str(element[0][1])
         count = element[1]
         read_stmt = "SELECT * FROM "+keyspacename+"."+tablename+" \
-            WHERE wordofinterest="+str(wordofinterest)+" AND place="+str(place)  #% (wordofinterest,place)
+            WHERE place="+str(place)  #% (wordofinterest,place)
         response = session.execute(read_stmt)
         session.execute(prepared_write_query, (count, place, wordofinterest) )
 
