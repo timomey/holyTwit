@@ -111,6 +111,7 @@ if __name__ == "__main__":
 
     #cassandra keyspace name
     keyspacename = 'twitterimpact'
+    tablename = wordofinterest
 
     #spark streaming objects
     sc = SparkContext(appName="TwitterImpact")
