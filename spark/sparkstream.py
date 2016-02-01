@@ -85,6 +85,8 @@ def update_to_cassandra_readandwrite(record):
         'ec2-52-35-98-229.us-west-2.compute.amazonaws.com',
         'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
+    cassandra_create_citycount_table(keyspacename,tablename, session)
+
     prepared_write_query = session.prepare("INSERT INTO "+keyspacename+"."+tablename+" (wordofinterest, place, count) VALUES (?,?,?)")
     for element in record:
         place = str(element[0][0])+", "+ str(element[0][1])
@@ -137,7 +139,6 @@ if __name__ == "__main__":
         .reduceByKey(lambda a,b: a+b)
 
     #before doing the stuff, create the table if necessary (schema defined here too)
-    cassandra_create_citycount_table(keyspacename,tablename, session)
     #output is a DStream object containing a bunch of RDDs. for each rdd go ->
     output.foreachRDD(citycount_to_cassandra)
 
