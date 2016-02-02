@@ -25,7 +25,7 @@ def clean_string(text):
                                 "\t" -> " "
             3: multiple spaces are replaced by one.
                                 "input      string" -> "input string"
-            """
+    """
     #text = text.encode('ascii','ignore')
     text.strip()
     text.replace("\/", "/")
@@ -54,11 +54,10 @@ def cassandra_create_citycount_table(keyspacename, tablename, session):
     # if not exists create table with following schema
     session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" \
                         (wordofinterest text, place text, count counter, \
-                        PRIMARY KEY (wordofinterest,place) ); ")
+                        PRIMARY KEY (place,wordofinterest)) with clustering order by (wordofinterest desc); ")
 
 def update_to_cassandra(record):
     #There is a problem with counter variable count. ; maybe counter can not be ordered by?!?
-    tablename = wordofinterest
     cluster = Cluster([
         'ec2-52-89-218-166.us-west-2.compute.amazonaws.com',
         'ec2-52-88-157-153.us-west-2.compute.amazonaws.com',
@@ -71,7 +70,7 @@ def update_to_cassandra(record):
     for element in record:
         key = str(element[0][0])+", "+ str(element[0][1])
         count = element[1]
-        session.execute(prepared_write_query, (count, key, wordofinterest232) )
+        session.execute(prepared_write_query, (count, key, wordofinterest))
 
 
 
