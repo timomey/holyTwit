@@ -34,8 +34,8 @@ def get_stream(wordofinterest):
         #except:
         #    call(["../spark/run_sparkstream.sh", str(wordofinterest)])
         #   stmt = "SELECT * FROM "+str(wordofinterest)
-
         #time.sleep(5)
+        
         response = session.execute(stmt)
         response_list = []
         for val in response:
