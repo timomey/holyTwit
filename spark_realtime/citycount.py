@@ -59,7 +59,7 @@ def cassandra_create_citycount_table_readwrite(keyspacename, tablename, session)
                         PRIMARY KEY ((wordofinterest, place), count)) with clustering order by (count desc); ")
 
 def read_write_to_cassandra(record):
-    #equivalent to update_to_cassandra, but: pro: result is sorted in count; con: need to read and write every time.
+    #equivalent to update_to_cassandra, but: pro: result is sorted in count; con: need to read and write every time. AND POSSIBLE DUPLICATES IN TABLE
     cluster = Cluster([
         'ec2-52-89-218-166.us-west-2.compute.amazonaws.com',
         'ec2-52-88-157-153.us-west-2.compute.amazonaws.com',
@@ -104,7 +104,7 @@ def update_to_cassandra(record):
 def citycount_to_cassandra(rdd):
     #each RDD consists of a bunch of partitions which themselves are local on a single machine (each)
     #so for each partition, do what you wanna do ->
-    rdd.foreachPartition(lambda record: read_write_to_cassandra(record))
+    rdd.foreachPartition(lambda record: update_to_cassandra(record))
 
 
 
