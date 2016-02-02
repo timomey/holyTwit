@@ -43,21 +43,17 @@ def clean_string(text):
 def cassandra_create_keyspace(keyspacename,session):
     session.execute("CREATE KEYSPACE IF NOT EXISTS "+keyspacename+" WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor' : 3};")
 
-def cassandra_create_table(keyspacename, tablename, session):
-    cassandra_create_keyspace(keyspacename, session)
-    session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" (wordofinterest text, time text, date text, location text, cowords_firstdegree text,tweet text, PRIMARY KEY ((wordofinterest, location, date), time)) WITH CLUSTERING ORDER BY (time DESC);")
-
-
 def cassandra_create_citycount_table(keyspacename, tablename, session):
     #it not exists create the keyspace
     cassandra_create_keyspace(keyspacename, session)
     # if not exists create table with following schema
     session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" \
                         (wordofinterest text, place text, count counter, \
-                        PRIMARY KEY (place,wordofinterest)) with clustering order by (wordofinterest desc); ")
+                        PRIMARY KEY (wordofinterest, place)) with clustering order by (place desc); ")
+
+
 
 def update_to_cassandra(record):
-    #There is a problem with counter variable count. ; maybe counter can not be ordered by?!?
     cluster = Cluster([
         'ec2-52-89-218-166.us-west-2.compute.amazonaws.com',
         'ec2-52-88-157-153.us-west-2.compute.amazonaws.com',
@@ -75,7 +71,7 @@ def update_to_cassandra(record):
 
 
 
-def citycount_to_cassandra(rdd):
+def topicgraph_to_cassandra(rdd):
     #each RDD consists of a bunch of partitions which themselves are local on a single machine (each)
     #so for each partition, do what you wanna do ->
     rdd.foreachPartition(lambda record: update_to_cassandra(record))
@@ -90,10 +86,10 @@ if __name__ == "__main__":
 
     #cassandra keyspace name
     keyspacename = 'holytwit'
-    tablename = 'citycount'
+    tablename = 'topicgraph'
 
     #spark streaming objects
-    sc = SparkContext(appName="TwitterImpact")
+    sc = SparkContext(appName="topicgraph")
     ssc = StreamingContext(sc, 1)
 
     #zookeeper quorum for to connect to kafka (local ips for faster access)
@@ -101,7 +97,7 @@ if __name__ == "__main__":
     #kafka topic to consume from:
     topic = "twitterdump_timo"
     #topic and number of partitions (check with kafka)
-    kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-consumer", {topic: 4})
+    kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-topicgraph", {topic: 4})
     lines = kvs.map(lambda x: x[1])
 
     #1. filter: is the word in the tweet. 2.filter does it have a place name 3. filter does it have country country_code
@@ -109,15 +105,19 @@ if __name__ == "__main__":
     #5. reducebykey add a+b -> sum for each place.
     #def countcity(lines):
     output = lines.filter(lambda l: wordofinterest in json.loads(l)["text"])\
-        .filter(lambda l: len(json.loads(l)["place"]["name"]) > 0 )\
-        .filter(lambda l: len(json.loads(l)["place"]["country_code"]) > 0)\
         .filter(lambda l: len(json.loads(l)["timestamp_ms"]) >0  )\
-        .map(lambda l: ( (json.loads(l)["place"]["name"], json.loads(l)["place"]["country_code"] ), 1))\
-        .reduceByKey(lambda a,b: a+b)
+        .flatmap(lambda l: (    intermediateset = set(json.loads(l)["text"].split())
+                                intermediateset.remove(wordofinterest)
+                                return list(intermediateset)
+                            )\
+        .map(lambda l: (l,1))\
+        .reduceByKey(lambda a,b: a+b) #\
+        #.map(lambda l: (l[1],l[0]))\
+        #.transform(sortByKey)
 
     #before doing the stuff, create the table if necessary (schema defined here too)
     #output is a DStream object containing a bunch of RDDs. for each rdd go ->
-    output.foreachRDD(citycount_to_cassandra)
+    output.foreachRDD(topicgraph_to_cassandra)
 
     #start the stream and keep it running - await for termination too.
     ssc.start()
