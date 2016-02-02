@@ -106,7 +106,7 @@ def update_to_cassandra(record):
 def citycount_to_cassandra(rdd):
     #each RDD consists of a bunch of partitions which themselves are local on a single machine (each)
     #so for each partition, do what you wanna do ->
-    rdd.foreachPartition(lambda record: read_write_to_cassandra(record))
+    rdd.foreachPartition(lambda record: update_to_cassandra(record))
 
 
 
