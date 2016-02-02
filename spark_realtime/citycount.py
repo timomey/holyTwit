@@ -75,7 +75,7 @@ def read_write_to_cassandra(record):
         response = session.execute(read_stmt)
         oldcount =0
         if len(response[:]) >0:
-            for res in response
+            for res in response:
                 oldcount += res.count
             session.execute("delete from "+keyspacename+"."+tablename+" where wordofinterest='"+wordofinterest+"' and place='"+place+"';")
         else:
@@ -106,7 +106,7 @@ def update_to_cassandra(record):
 def citycount_to_cassandra(rdd):
     #each RDD consists of a bunch of partitions which themselves are local on a single machine (each)
     #so for each partition, do what you wanna do ->
-    rdd.foreachPartition(lambda record: update_to_cassandra(record))
+    rdd.foreachPartition(lambda record: read_write_to_cassandra(record))
 
 
 
