@@ -56,7 +56,7 @@ def cassandra_create_citycount_table_readwrite(keyspacename, tablename, session)
     cassandra_create_keyspace(keyspacename, session)
     session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" \
                         (wordofinterest text, place text, count int, \
-                        PRIMARY KEY (wordofinterest, place,count)) with clustering order by (count desc, place desc); ")
+                        PRIMARY KEY (wordofinterest, count, place)) with clustering order by (count desc, place desc); ")
 
 def read_write_to_cassandra(record):
     #equivalent to update_to_cassandra, but: pro: result is sorted in count; con: need to read and write every time. AND POSSIBLE DUPLICATES IN TABLE
