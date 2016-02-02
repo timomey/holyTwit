@@ -73,11 +73,12 @@ def read_write_to_cassandra(record):
         count = element[1]
         read_stmt = "select count from "+keyspacename+"."+tablename+" where wordofinterest='"+wordofinterest+"' and place='"+place+"';"
         response = session.execute(read_stmt)
-        if len(resonse[:]) ==1:
+        if len(response[:]) ==1:
             oldcount = response[0].count
             session.execute("delete from "+keyspacename+"."+tablename+" where wordofinterest='"+wordofinterest+"' and place='"+place+"';")
-        #elif len(resonse[:]) > 1:
-        session.execute(prepared_write_query, (count+oldcount, place, wordofinterest))
+        else:
+            oldcount=0
+        session.execute(prepared_write_query, (wordofinterest, place, count+oldcount))
 
 
 def update_to_cassandra(record):
