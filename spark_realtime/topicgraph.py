@@ -115,7 +115,7 @@ if __name__ == "__main__":
         #.transform(sortByKey)
 
 
-    output.pprint()
+    output.take(10).pprint()
     #before doing the stuff, create the table if necessary (schema defined here too)
     #output is a DStream object containing a bunch of RDDs. for each rdd go ->
     #output.foreachRDD(topicgraph_to_cassandra)
