@@ -108,7 +108,7 @@ if __name__ == "__main__":
         .filter(lambda l: len(json.loads(l)["timestamp_ms"]) >0  )\
         .map(lambda l: set(json.loads(l)["text"].split()) ) \
         .map(lambda l:  l.remove(wordofinterest) )\
-        .flatmap(lambda l: list(l) )\
+        .flatMap(lambda l: list(l) )\
         .map(lambda l: (l,1))\
         .reduceByKey(lambda a,b: a+b) #\
         #.map(lambda l: (l[1],l[0]))\
