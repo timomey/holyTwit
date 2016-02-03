@@ -73,7 +73,7 @@
       {% for citytuple in citycounttuplelist  %}
       <div class="panel panel-primary" id="{{loop.index}}">
         <div class="panel-heading">
-          <h3 class="panel-title"> {{ citytuple[0]}}{{ citytuple[1] }} </h3>
+          <h3 class="panel-title"> {{ citytuple[0]}}  reacts with  {{ citytuple[1] }} messages </h3>
         </div>
         <div class="panel-body">
           first degree connection
@@ -98,7 +98,7 @@
     <script>
     function anyFunction()
     {
-        window.location.reload(false); 
+        window.location.reload(false);
     }
 
     $(function () {
