@@ -27,10 +27,9 @@ def citycount():
     return render_template("citycount.html")
 
 
-@app.route('/citycount/<wordofinterest>/<maxnumpanels>')
-def get_stream(wordofinterest,maxnumpanels):
-
-    #maxnumpanels = 10
+@app.route('/citycount/<wordofinterest>')
+def get_stream(wordofinterest):
+    maxnumpanels = 10
     stmt = "SELECT * FROM holytwit.citycount WHERE wordofinterest='"+str(wordofinterest)+"';"
 
     response = session.execute(stmt)
