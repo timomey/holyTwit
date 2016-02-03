@@ -31,7 +31,7 @@ def citycount():
 def get_stream(wordofinterest,maxnumpanels):
 
     #maxnumpanels = 10
-    stmt = "SELECT * FROM citycount WHERE wordofinterest="+str(wordofinterest)+";"
+    stmt = "SELECT * FROM citycount WHERE wordofinterest="+str(wordofinterest[0])+";"
 
     response = session.execute(stmt)
     response_list = []
