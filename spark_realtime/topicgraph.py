@@ -106,7 +106,7 @@ if __name__ == "__main__":
     #def countcity(lines):
     output = lines.filter(lambda l: wordofinterest in json.loads(l)["text"])\
         .filter(lambda l: len(json.loads(l)["timestamp_ms"]) >0  )\
-        .map(lambda l: set(json.loads(l)["text"].split()) )
+        .map(lambda l: set(json.loads(l)["text"].split()) ) \
         #.map(lambda l:  l.remove(wordofinterest) )\
         #.flatmap(lambda l: list(l) )\
         #.map(lambda l: (l,1))\
@@ -115,7 +115,7 @@ if __name__ == "__main__":
         #.transform(sortByKey)
 
 
-    output.take(10).pprint()
+    output.pprint()
     #before doing the stuff, create the table if necessary (schema defined here too)
     #output is a DStream object containing a bunch of RDDs. for each rdd go ->
     #output.foreachRDD(topicgraph_to_cassandra)
