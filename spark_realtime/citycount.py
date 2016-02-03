@@ -121,13 +121,12 @@ if __name__ == "__main__":
     sc = SparkContext(appName="TwitterImpact")
     ssc = StreamingContext(sc, 1)
 
+
     #zookeeper quorum for to connect to kafka (local ips for faster access)
     zkQuorum = "52.34.117.127:2181,52.89.22.134:2181,52.35.24.163:2181,52.89.0.97:2181"
     #kafka topic to consume from:
     topic = "twitterdump_timo"
-    #topic and number of partitions (check with kafka)
-    kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-consumer", {topic: 4})
-    lines = kvs.map(lambda x: x[1])
+
 
     #get wordlist
     cluster = Cluster([
@@ -140,6 +139,11 @@ if __name__ == "__main__":
     read_stmt = "select word,numberofwords from "+keyspacename+".listofwords ;"
     response = session.execute(read_stmt)
     wordlist = [row.word for row in response]
+
+    #topic and number of partitions (check with kafka)
+    kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-consumer", {topic: 4})
+    lines = kvs.map(lambda x: x[1])
+
 
     for wordofinterest in wordlist:
         #1. filter: is the word in the tweet. 2.filter does it have a place name 3. filter does it have country country_code
