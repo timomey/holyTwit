@@ -43,7 +43,7 @@ def clean_string(text):
 def cassandra_create_keyspace(keyspacename,session):
     session.execute("CREATE KEYSPACE IF NOT EXISTS "+keyspacename+" WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor' : 3};")
 
-def cassandra_create_citycount_table(keyspacename, tablename, session):
+def cassandra_create_topicgraph_table(keyspacename, tablename, session):
     #it not exists create the keyspace
     cassandra_create_keyspace(keyspacename, session)
     # if not exists create table with following schema
@@ -114,10 +114,10 @@ if __name__ == "__main__":
         .reduceByKey(lambda a,b: a+b) #\
         #.map(lambda l: (l[1],l[0]))\
         #.transform(sortByKey)
-
+    output.pprint()
     #before doing the stuff, create the table if necessary (schema defined here too)
     #output is a DStream object containing a bunch of RDDs. for each rdd go ->
-    output.foreachRDD(topicgraph_to_cassandra)
+    #output.foreachRDD(topicgraph_to_cassandra)
 
     #start the stream and keep it running - await for termination too.
     ssc.start()
