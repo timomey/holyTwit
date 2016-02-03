@@ -45,6 +45,8 @@ def get_stream(wordofinterest,maxnumpanels):
         citycountlist = responsetuple[:maxnumpanels]
     else:
         citycountlist = responsetuple[:len(responsetuple)]
+
+    return render_template("citycount.html", citycounttuplelist = citycountlist)
+
     #jsonresponse = [{"place": x.place, "count": x.count} for x in response_list]
     #return jsonify(wordofinterest=jsonresponse)
-    return render_template("citycount.html", citycounttuplelist = citycountlist)
