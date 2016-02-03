@@ -11,35 +11,40 @@ cluster = Cluster(['ec2-52-89-218-166.us-west-2.compute.amazonaws.com','ec2-52-8
 session = cluster.connect('twitterimpact')
 
 @app.route('/')
-#@app.route('/index')
-#def index():
-#   return "Hello, World!"
+def home():
+    return render_template("home.html")
+
 @app.route('/index')
 def index():
-    return render_template("base.html")
-#@app.route('/api/demo1/<topic>')
-#def get_topic(topic):
-#	stmt = "SELECT * FROM demo WHERE topic='#"+topic+"'"
-#	response = session.execute(stmt)
-#	response_list = []
-#	for val in response:
-#		response_list.append(val)
-#	jsonresponse = [{"Topic": x.topic, "connections": x.connections, "country": x.country, "time": x.time,} for x in response_list]
-#	return jsonify(emails=jsonresponse)
+    return render_template("home.html")
 
-@app.route('/api/citycount/<wordofinterest>')
-def get_stream(wordofinterest):
-        #try:
-        stmt = "SELECT * FROM "+str(wordofinterest)
-        #except:
-        #    call(["../spark/run_sparkstream.sh", str(wordofinterest)])
-        #   stmt = "SELECT * FROM "+str(wordofinterest)
-        #time.sleep(5)
-        
-        response = session.execute(stmt)
-        response_list = []
-        for val in response:
-                response_list.append(val)
-        #jsonresponse = [{"city": x.city, "tweet": x.country, "time": x.time,} for x in response_list]
-        jsonresponse = [{"city": x.place, "count": x.count} for x in response_list]
-        return jsonify(wordofinterest=jsonresponse)
+@app.route('/slides')
+def slides():
+    return render_template("slides.html")
+
+@app.route('/citycount')
+def citycount():
+    return render_template("citycount.html")
+
+
+@app.route('/citycount/<wordofinterest>/<maxnumpanels>')
+def get_stream(wordofinterest,maxnumpanels):
+
+    #maxnumpanels = 10
+    stmt = "SELECT * FROM "+str(wordofinterest)
+
+    response = session.execute(stmt)
+    response_list = []
+    for val in response:
+        response_list.append(val)
+    #responsetuple = [('sf',4),('nyc',3),('la',7),('lv',1),('sss',8),('pa',94),('b',24),('rrsf',14),('tai',22),('berlin',411),('toront',42123),('peter',987)]
+
+    responsetuple = [ (x.place, x.count) for x in response_list]
+    responsetuple.sort(key= lambda x: x[1], reverse=True)
+    if len(responsetuple)>maxnumpanels:
+        citycountlist = responsetuple[:maxnumpanels]
+    else:
+        citycountlist = responsetuple[:len(responsetuple)]
+    #jsonresponse = [{"place": x.place, "count": x.count} for x in response_list]
+    #return jsonify(wordofinterest=jsonresponse)
+    return render_template("citycount.html", citycounttuplelist = citycountlist)
