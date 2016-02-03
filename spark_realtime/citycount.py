@@ -101,7 +101,7 @@ def update_to_cassandra(record):
 
     prepared_write_query = session.prepare("UPDATE "+keyspacename+"."+citycounttablename+" SET count = count + ? WHERE place=? AND wordofinterest=?")
     for element in record:
-        place = str(element[0][0])+", "+ str(element[0][1])
+        place = str(element[0][0].encode('ascii','ignore'))+", "+ str(element[0][1].encode('ascii','ignore'))
         count = element[1]
         session.execute(prepared_write_query, (count, place, wordofinterest))
 
