@@ -49,7 +49,7 @@ def cassandra_create_citycount_table(keyspacename, tablename, session):
     # if not exists create table with following schema
     session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" \
                         (wordofinterest text, place text, count counter, \
-                        PRIMARY KEY (wordofinterest, place, count)) with clustering order by (place desc); ")
+                        PRIMARY KEY (wordofinterest, place)) with clustering order by (place desc); ")
 
 def cassandra_create_citycount_table_readwrite(keyspacename, tablename, session):
     #EQUIVALENT, BUT INSTEAD OF UPDATE, READ AND WRITE -> THIS WAY YOU CAN HAVE A SORTED OUTPUT
