@@ -106,9 +106,9 @@ if __name__ == "__main__":
     #def countcity(lines):
     output = lines.filter(lambda l: wordofinterest in json.loads(l)["text"])\
         .filter(lambda l: len(json.loads(l)["timestamp_ms"]) >0  )\
-        .map(lambda l: set(json.loads(l)["text"].split()) ) \
-        .map(lambda l:  l.remove(wordofinterest) )\
-        .flatMap(lambda l: list(l) )#\
+        .map(lambda l: set(json.loads(l)["text"].split()) ) #\
+        #.map(lambda l:  l.remove(wordofinterest) )\
+        #.flatMap(lambda l: list(l) )#\
         #.map(lambda l: (l,1))\
         #.reduceByKey(lambda a,b: a+b) #\
         #.map(lambda l: (l[1],l[0]))\
