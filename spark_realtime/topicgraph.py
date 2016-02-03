@@ -113,6 +113,8 @@ if __name__ == "__main__":
         .reduceByKey(lambda a,b: a+b) #\
         #.map(lambda l: (l[1],l[0]))\
         #.transform(sortByKey)
+
+
     output.pprint()
     #before doing the stuff, create the table if necessary (schema defined here too)
     #output is a DStream object containing a bunch of RDDs. for each rdd go ->
