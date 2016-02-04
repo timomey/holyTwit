@@ -147,7 +147,7 @@ if __name__ == "__main__":
 
 
     #lines.MEMORY_AND_DISK()
-    for wordofinterest in broadcastWordlist.values:
+    for wordofinterest in broadcastWordlist.value:
         #1. filter: is the word in the tweet. 2.filter does it have a place name 3. filter does it have country country_code#4. map it to ((place.name, place.country_code),1).#5. reducebykey add a+b -> sum for each place.#def countcity(lines):
         output = lines.filter(lambda l: wordofinterest in json.loads(l)["text"])\
             .filter(lambda l: len(json.loads(l)["place"]["name"]) > 0 )\
