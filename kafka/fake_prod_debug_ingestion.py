@@ -22,7 +22,7 @@ if __name__ == "__main__":
 
 	for tweetfile in tweetdump_filelist:
 
-		with open('../../tweets/'+tweetfile ,'r') as f:
+		with open('./'+tweetfile ,'r') as f:
 			counter = 0
 			for line in f:
 				counter += 1
