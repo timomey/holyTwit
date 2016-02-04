@@ -99,7 +99,7 @@ def update_to_cassandra(record):
     session = cluster.connect()
     cassandra_create_citycount_table(keyspacename,citycounttablename, session)
 
-    prepared_write_query = session.prepare("UPDATE "+keyspacename+"."+citycounttablename+" USING TTL 3600 SET count = count + ? WHERE place=? AND wordofinterest=? ")
+    prepared_write_query = session.prepare("UPDATE "+keyspacename+"."+citycounttablename+" SET count = count + ? WHERE place=? AND wordofinterest=? ")
     for element in record:
         place = str(element[0][0].encode('ascii','ignore'))+", "+ str(element[0][1].encode('ascii','ignore'))
         count = element[1]
