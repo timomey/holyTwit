@@ -153,9 +153,10 @@ if __name__ == "__main__":
             .filter(lambda l: len(json.loads(l)["timestamp_ms"]) >0  )\
             .map(lambda l: ( (json.loads(l)["place"]["name"], json.loads(l)["place"]["country_code"] ), 1))\
             .reduceByKey(lambda a,b: a+b)
+        output.foreachRDD(citycount_to_cassandra)
+
         #before doing the stuff, create the table if necessary (schema defined here too)
         #output is a DStream object containing a bunch of RDDs. for each rdd go ->
-        output.foreachRDD(citycount_to_cassandra)
 
     #UNPERSIST CHECK HOW -> spark does it automatically on a least used basis. can do it manually if wanted.
 
