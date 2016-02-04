@@ -144,7 +144,7 @@ if __name__ == "__main__":
     kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-consumer", {topic: 4})
     lines = kvs.map(lambda x: x[1])
 
-
+    lines.persist(StorageLevel.MEMORY_AND_DISK)
     for wordofinterest in wordlist:
         #1. filter: is the word in the tweet. 2.filter does it have a place name 3. filter does it have country country_code
         #4. map it to ((place.name, place.country_code),1).
@@ -159,6 +159,8 @@ if __name__ == "__main__":
         #before doing the stuff, create the table if necessary (schema defined here too)
         #output is a DStream object containing a bunch of RDDs. for each rdd go ->
         output.foreachRDD(citycount_to_cassandra)
+
+    #UNPERSIST CHECK HOW -> spark does it automatically on a least used basis. can do it manually if wanted.
 
     #start the stream and keep it running - await for termination too.
     ssc.start()
