@@ -109,7 +109,8 @@ if __name__ == "__main__":
         .map(lambda l: set(json.loads(l)["text"].split()) ) \
         .flatMap(lambda l: [e for e in l if e is not wordofinterest])\
         .map(lambda l: (l,1))\
-        .reduceByKey(lambda a,b: a+b) 
+        .reduceByKey(lambda a,b: a+b)
+        #this could be an attempt to sort; but makes sense maybe only in batch?!?
         #.map(lambda l: (l[1],l[0]))\
         #.transform(sortByKey)
 
