@@ -115,7 +115,7 @@ if __name__ == "__main__":
     #wordofinterest = str(sys.argv[1])
     #cassandra keyspace/table names
     keyspacename = 'holytwit'
-    citycounttablename = 'citycount'
+    citycounttablename = 'city_count'
 
     #spark streaming objects
     sc = SparkContext(appName="TwitterImpact")
