@@ -132,7 +132,7 @@ if __name__ == "__main__":
     kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-consumer", {topic: 4})
     lines = kvs.map(lambda x: x[1])
 
-    #get wordlist
+    #get wordlist from cassandra
     cluster = Cluster([
         'ec2-52-89-218-166.us-west-2.compute.amazonaws.com',
         'ec2-52-88-157-153.us-west-2.compute.amazonaws.com',
@@ -142,7 +142,7 @@ if __name__ == "__main__":
 
     read_stmt = "select word,numberofwords from "+keyspacename+".listofwords ;"
     response = session.execute(read_stmt)
-    wordlist = [row.word for row in response]
+    wordlist = [str(row.word) for row in response]
 
     #lines.MEMORY_AND_DISK()
     for wordofinterest in wordlist:
