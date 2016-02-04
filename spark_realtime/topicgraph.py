@@ -107,9 +107,7 @@ if __name__ == "__main__":
     output = lines.filter(lambda l: wordofinterest in json.loads(l)["text"])\
         .filter(lambda l: len(json.loads(l)["timestamp_ms"]) >0  )\
         .map(lambda l: set(json.loads(l)["text"].split()) ) \
-        .map(lambda l: [e for e in l if e is not wordofinterest])
-        #.map(lambda l:  list(l.remove(wordofinterest)) )\
-
+        .flatMap(lambda l: [e for e in l if e is not wordofinterest])
         #.flatMap(lambda l: l )#\
         #.map(lambda l: (l,1))\
         #.reduceByKey(lambda a,b: a+b) #\
