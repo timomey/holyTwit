@@ -73,7 +73,7 @@ def read_write_to_cassandra(record):
         'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
     cassandra_create_citycount_table_readwrite(keyspacename,citycounttablename, session)
-    prepared_write_query = session.prepare("INSERT INTO "+keyspacename+"."+citycounttablename+" (wordofinterest,place,count) VALUES (?,?,?) ")
+    prepared_write_query = session.prepare("INSERT INTO "+keyspacename+"."+citycounttablename+" (wordofinterest,place,count) VALUES (?,?,?) USING TTL 3600; ")
     for element in record:
         place = str(element[0][0])+", "+ str(element[0][1])
         count = element[1]
@@ -99,7 +99,7 @@ def update_to_cassandra(record):
     session = cluster.connect()
     cassandra_create_citycount_table(keyspacename,citycounttablename, session)
 
-    prepared_write_query = session.prepare("UPDATE "+keyspacename+"."+citycounttablename+" SET count = count + ? WHERE place=? AND wordofinterest=?")
+    prepared_write_query = session.prepare("UPDATE "+keyspacename+"."+citycounttablename+" SET count = count + ? WHERE place=? AND wordofinterest=? USING TTL 3600")
     for element in record:
         place = str(element[0][0].encode('ascii','ignore'))+", "+ str(element[0][1].encode('ascii','ignore'))
         count = element[1]
@@ -128,6 +128,10 @@ if __name__ == "__main__":
     topic = "twitterdump_timo"
 
 
+    #topic and number of partitions (check with kafka)
+    kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-consumer", {topic: 4})
+    lines = kvs.map(lambda x: x[1])
+
     #get wordlist
     cluster = Cluster([
         'ec2-52-89-218-166.us-west-2.compute.amazonaws.com',
@@ -140,16 +144,9 @@ if __name__ == "__main__":
     response = session.execute(read_stmt)
     wordlist = [row.word for row in response]
 
-    #topic and number of partitions (check with kafka)
-    kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-consumer", {topic: 4})
-    lines = kvs.map(lambda x: x[1])
-
     #lines.MEMORY_AND_DISK()
     for wordofinterest in wordlist:
-        #1. filter: is the word in the tweet. 2.filter does it have a place name 3. filter does it have country country_code
-        #4. map it to ((place.name, place.country_code),1).
-        #5. reducebykey add a+b -> sum for each place.
-        #def countcity(lines):
+        #1. filter: is the word in the tweet. 2.filter does it have a place name 3. filter does it have country country_code#4. map it to ((place.name, place.country_code),1).#5. reducebykey add a+b -> sum for each place.#def countcity(lines):
         output = lines.filter(lambda l: wordofinterest in json.loads(l)["text"])\
             .filter(lambda l: len(json.loads(l)["place"]["name"]) > 0 )\
             .filter(lambda l: len(json.loads(l)["place"]["country_code"]) > 0)\
