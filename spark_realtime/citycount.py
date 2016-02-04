@@ -132,30 +132,35 @@ if __name__ == "__main__":
     kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-consumer", {topic: 4})
     lines = kvs.map(lambda x: x[1])
 
-    #get wordlist from cassandra
-    cluster = Cluster([
-        'ec2-52-89-218-166.us-west-2.compute.amazonaws.com',
-        'ec2-52-88-157-153.us-west-2.compute.amazonaws.com',
-        'ec2-52-35-98-229.us-west-2.compute.amazonaws.com',
-        'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
-    session = cluster.connect()
-
-    read_stmt = "select word,numberofwords from "+keyspacename+".listofwords ;"
-    response = session.execute(read_stmt)
-    wordlist = [str(row.word) for row in response]
-    broadcastWordlist = sc.broadcast(wordlist)
-
+    def lambda_map_word_city(l):
+        #get wordlist from cassandra
+        cluster = Cluster([
+            'ec2-52-89-218-166.us-west-2.compute.amazonaws.com',
+            'ec2-52-88-157-153.us-west-2.compute.amazonaws.com',
+            'ec2-52-35-98-229.us-west-2.compute.amazonaws.com',
+            'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
+        session = cluster.connect()
+        read_stmt = "select word,numberofwords from "+keyspacename+".listofwords ;"
+        response = session.execute(read_stmt)
+        wordlist = [str(row.word) for row in response]
+        #broadcastWordlist = sc.broadcast(wordlist)
+        return_list_of_tuples = list()
+        for word in wordlist:
+            if word in json.loads(l)["text"]:
+                return_list_of_tuples.append(((word, json.loads(l)["place"]["name"], json.loads(l)["place"]["country_code"] ), 1))
+        return  return_list_of_tuples
 
     #lines.MEMORY_AND_DISK()
     for wordofinterest in broadcastWordlist.value:
         #1. filter: is the word in the tweet. 2.filter does it have a place name 3. filter does it have country country_code#4. map it to ((place.name, place.country_code),1).#5. reducebykey add a+b -> sum for each place.#def countcity(lines):
-        output = lines.filter(lambda l: wordofinterest in json.loads(l)["text"])\
-            .filter(lambda l: len(json.loads(l)["place"]["name"]) > 0 )\
+        #output = lines.filter(lambda l: wordofinterest in json.loads(l)["text"])\
+        output = lines.filter(lambda l: len(json.loads(l)["place"]["name"]) > 0 )\
             .filter(lambda l: len(json.loads(l)["place"]["country_code"]) > 0)\
-            .map(lambda l: ( (json.loads(l)["place"]["name"], json.loads(l)["place"]["country_code"] ), 1))\
-            .reduceByKey(lambda a,b: a+b)
-        output.foreachRDD(citycount_to_cassandra)
-
+            .filter(lambda l: len(json.loads(l)['text'])>0)\
+            .map(lambda l: lambda_map_word_city(l) )
+            #.reduceByKey(lambda a,b: a+b)
+        #output.foreachRDD(citycount_to_cassandra)
+        output.pprint()
         #.filter(lambda l: len(json.loads(l)["timestamp_ms"]) >0  )
         #before doing the stuff, create the table if necessary (schema defined here too)
         #output is a DStream object containing a bunch of RDDs. for each rdd go ->
