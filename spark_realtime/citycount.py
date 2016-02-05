@@ -155,7 +155,7 @@ if __name__ == "__main__":
 
 
     def lambda_map_word_city2(l):
-        wordlist = ['trump', 'feelthebern','cool']
+        wordlist = ['tweet', 'with','image']
         return_list_of_tuples=list()
         for word in wordlist:
             if word in json.loads(l)["text"]:
