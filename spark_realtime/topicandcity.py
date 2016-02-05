@@ -51,6 +51,13 @@ def cassandra_create_topicgraph_table(keyspacename, tablename, session):
                         (wordofinterest text, connection text, count int, time timestamp, \
                         PRIMARY KEY (wordofinterest, connection, time)) with clustering order by (connection desc, time desc); ")
 
+def cassandra_create_citycount_table(keyspacename, citycounttablename, session):
+    #it not exists create the keyspace
+    cassandra_create_keyspace(keyspacename, session)
+    # if not exists create table with following schema
+    session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+citycounttablename+" \
+                        (wordofinterest text, place text, count counter, \
+                        PRIMARY KEY (wordofinterest, place)) with clustering order by (place desc); ")
 
 
 def update_to_cassandra(record):
