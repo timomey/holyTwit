@@ -128,15 +128,9 @@ if __name__ == "__main__":
     #kafka topic to consume from:
     topic = "twitterdump_timo"
 
-
-
-
-
     #topic and number of partitions (check with kafka)
     kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-consumer", {topic: 4})
     lines = kvs.map(lambda x: x[1])
-
-
 
     cluster = Cluster([
         'ec2-52-89-218-166.us-west-2.compute.amazonaws.com',
@@ -156,14 +150,6 @@ if __name__ == "__main__":
                 return_list_of_tuples.append( ( (word, json.loads(l)["place"]["name"], json.loads(l)["place"]["country_code"] ) , 1))
         return  return_list_of_tuples
 
-
-    def lambda_map_word_city2(l):
-        wordlist = ['tweet', 'with','image']
-        return_list_of_tuples=list()
-        for word in wordlist:
-            if word in json.loads(l)["text"]:
-                return_list_of_tuples.append( ( (word, json.loads(l)["place"]["name"], json.loads(l)["place"]["country_code"] ) , 1))
-        return  return_list_of_tuples
 
     #lines.MEMORY_AND_DISK()
     #1. filter: is the word in the tweet. 2.filter does it have a place name 3. filter does it have country country_code#4. map it to ((place.name, place.country_code),1).#5. reducebykey add a+b -> sum for each place.#def countcity(lines):

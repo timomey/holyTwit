@@ -82,7 +82,7 @@ def topicgraph_to_cassandra(rdd):
 
 if __name__ == "__main__":
 
-    wordofinterest = str(sys.argv[1])
+    #wordofinterest = str(sys.argv[1])
 
     #cassandra keyspace name
     keyspacename = 'holytwit'
@@ -100,15 +100,34 @@ if __name__ == "__main__":
     kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-topicgraph", {topic: 4})
     lines = kvs.map(lambda x: x[1])
 
+    cluster = Cluster([
+        'ec2-52-89-218-166.us-west-2.compute.amazonaws.com',
+        'ec2-52-88-157-153.us-west-2.compute.amazonaws.com',
+        'ec2-52-35-98-229.us-west-2.compute.amazonaws.com',
+        'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
+    session = cluster.connect()
+    #get wordlist from cassandra
+    read_stmt = "select word,numberofwords from "+keyspacename+".listofwords ;"
+    response = session.execute(read_stmt)
+    wordlist2 = [str(row.word) for row in response]
+
+    def lambda_map_word_connections(l):
+        return_list_of_tuples=list()
+        for word_input in wordlist2:
+            if word_input in l:
+                for word_tweet in l:
+                    if word_tweet != word_input:
+                        return_list_of_tuples.append( ( (word_input, word_tweet) , 1))
+        return  return_list_of_tuples
+
     #1. filter: is the word in the tweet. 2.filter does it have a place name 3. filter does it have country country_code
     #4. map it to ((place.name, place.country_code),1).
     #5. reducebykey add a+b -> sum for each place.
     #def countcity(lines):
-    output = lines.filter(lambda l: wordofinterest in json.loads(l)["text"])\
+    output = lines.filter(lambda l: len(json.loads(l)['text'])>0 )\
         .filter(lambda l: len(json.loads(l)["timestamp_ms"]) >0  )\
-        .map(lambda l: set(json.loads(l)["text"].split()) ) \
-        .flatMap(lambda l: [e for e in l if e is not wordofinterest])\
-        .map(lambda l: (l,1))\
+        .map(lambda l: set(json.loads(l)["text"].split() ) \
+        .flatMap(lambda l: lambda_map_word_connections)\
         .reduceByKey(lambda a,b: a+b)
         #this could be an attempt to sort; but makes sense maybe only in batch?!?
         #.map(lambda l: (l[1],l[0]))\
