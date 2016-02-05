@@ -135,6 +135,7 @@ if __name__ == "__main__":
         'ec2-52-35-98-229.us-west-2.compute.amazonaws.com',
         'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
+    
 
     #topic and number of partitions (check with kafka)
     kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-consumer", {topic: 4})
@@ -145,7 +146,6 @@ if __name__ == "__main__":
         read_stmt = "select word,numberofwords from "+keyspacename+".listofwords ;"
         response = session.execute(read_stmt)
         wordlist = [str(row.word) for row in response]
-        #broadcastWordlist = sc.broadcast(wordlist)
         return_list_of_tuples = list()
         for word in wordlist:
             if word in json.loads(l)["text"]:
