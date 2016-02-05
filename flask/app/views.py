@@ -24,7 +24,7 @@ def slides():
 
 @app.route('/citycount')
 def citycount():
-    return render_template("citycount.html")
+    return render_template("citycountinput.html")
 
 
 @app.route('/citycount/<wordofinterest>')
