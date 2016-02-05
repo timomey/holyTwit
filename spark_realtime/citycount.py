@@ -146,9 +146,9 @@ if __name__ == "__main__":
         #get wordlist from cassandra
         read_stmt = "select word,numberofwords from "+keyspacename+".listofwords ;"
         response = session.execute(read_stmt)
-        wordlist = [str(row.word) for row in response]
+        wordlist2 = [str(row.word) for row in response]
         return_list_of_tuples=list()
-        for word in wordlist:
+        for word in wordlist2:
             if word in json.loads(l)["text"]:
                 return_list_of_tuples.append( ( (word, json.loads(l)["place"]["name"], json.loads(l)["place"]["country_code"] ) , 1))
         return  return_list_of_tuples
