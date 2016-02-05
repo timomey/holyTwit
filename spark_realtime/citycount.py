@@ -135,7 +135,7 @@ if __name__ == "__main__":
         'ec2-52-35-98-229.us-west-2.compute.amazonaws.com',
         'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
-    
+
 
     #topic and number of partitions (check with kafka)
     kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-consumer", {topic: 4})
@@ -161,7 +161,7 @@ if __name__ == "__main__":
         .map(lambda l: lambda_map_word_city(l) )\
         .reduceByKey(lambda a,b: a+b)
     #output.foreachRDD(citycount_to_cassandra)
-    #output.pprint()
+    output.pprint()
     #.filter(lambda l: len(json.loads(l)["timestamp_ms"]) >0  )
     #before doing the stuff, create the table if necessary (schema defined here too)
     #output is a DStream object containing a bunch of RDDs. for each rdd go ->
