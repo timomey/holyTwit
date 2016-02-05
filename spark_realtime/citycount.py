@@ -150,7 +150,7 @@ if __name__ == "__main__":
         return_list_of_tuples = list()
         for word in wordlist:
             if word in json.loads(l)["text"]:
-                return_list_of_tuples.append( ((word, json.loads(l)["place"]["name"], json.loads(l)["place"]["country_code"] ) , 1))
+                return_list_of_tuples.append( ((word, json.loads(l)["place"]["name"].encode('ascii','ignore'), json.loads(l)["place"]["country_code"].encode('ascii','ignore') ) , 1))
         return  return_list_of_tuples
 
 
@@ -169,7 +169,8 @@ if __name__ == "__main__":
     output = lines.filter(lambda l: len(json.loads(l)["place"]["name"]) > 0 )\
         .filter(lambda l: len(json.loads(l)["place"]["country_code"]) > 0)\
         .filter(lambda l: len(json.loads(l)['text'])>0)\
-        .map(lambda l: lambda_map_word_city2(l) )
+        .map(lambda l: lambda_map_word_city2(l) )\
+        .filter(lambda l: not not l)
         #.reduceByKey(lambda a,b: a+b)
     #output.foreachRDD(citycount_to_cassandra)
     output.pprint()
