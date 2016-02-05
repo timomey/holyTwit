@@ -103,7 +103,7 @@ def update_to_cassandra(record):
     for element in record:
         word = element[0][0]
         place = str(element[0][1].encode('ascii','ignore'))+", "+ str(element[0][2].encode('ascii','ignore'))
-        count = element[2]
+        count = element[1]
         session.execute(prepared_write_query, (count, place, word))
 
 
