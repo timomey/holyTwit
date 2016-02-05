@@ -148,7 +148,7 @@ if __name__ == "__main__":
         return_list_of_tuples = list()
         for word in wordlist:
             if word in json.loads(l)["text"]:
-                return_list_of_tuples.append(((word, json.loads(l)["place"]["name"], json.loads(l)["place"]["country_code"] ), 1))
+                return_list_of_tuples.append( ((word, json.loads(l)["place"]["name"], json.loads(l)["place"]["country_code"] ) , 1))
         return  return_list_of_tuples
 
     #lines.MEMORY_AND_DISK()
@@ -157,10 +157,10 @@ if __name__ == "__main__":
     output = lines.filter(lambda l: len(json.loads(l)["place"]["name"]) > 0 )\
         .filter(lambda l: len(json.loads(l)["place"]["country_code"]) > 0)\
         .filter(lambda l: len(json.loads(l)['text'])>0)\
-        .flatMap(lambda l: lambda_map_word_city(l) )\
-        .reduceByKey(lambda a,b: a+b)
-    output.foreachRDD(citycount_to_cassandra)
-    #output.pprint()
+        .map(lambda l: lambda_map_word_city(l) )
+        #.reduceByKey(lambda a,b: a+b)
+    #output.foreachRDD(citycount_to_cassandra)
+    output.pprint()
     #.filter(lambda l: len(json.loads(l)["timestamp_ms"]) >0  )
     #before doing the stuff, create the table if necessary (schema defined here too)
     #output is a DStream object containing a bunch of RDDs. for each rdd go ->
