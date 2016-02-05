@@ -68,7 +68,7 @@ def update_to_cassandra(record):
         word = str(element[0][0])
         connection = str(element[0][1])
         count = element[1]
-        session.execute(prepared_write_query, (word,connection,count, int(timepackage.time()) ))
+        session.execute(prepared_write_query, (word,connection,count, int(timepackage.time())*1000 ))
 
 
 
