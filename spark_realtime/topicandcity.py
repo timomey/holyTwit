@@ -43,51 +43,32 @@ def clean_string(text):
 def cassandra_create_keyspace(keyspacename,session):
     session.execute("CREATE KEYSPACE IF NOT EXISTS "+keyspacename+" WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor' : 3};")
 
-def cassandra_create_listofwords_table(keyspacename,session):
-    #list of words meintained in cassandra so that there can be multiple
-    session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+".listofwords \
-                    (word text, numberofwords int, time timestamp, \
-                    PRIMARY KEY (word, numberofwords));")
-
-def cassandra_create_citycount_table(keyspacename, citycounttablename, session):
+def cassandra_create_topicgraph_table(keyspacename, tablename, session):
     #it not exists create the keyspace
     cassandra_create_keyspace(keyspacename, session)
     # if not exists create table with following schema
-    session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+citycounttablename+" \
-                        (wordofinterest text, place text, count counter, \
-                        PRIMARY KEY (wordofinterest, place)) with clustering order by (place desc); ")
+    session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" \
+                        (wordofinterest text, connection text, count int, time timestamp, \
+                        PRIMARY KEY (wordofinterest, connection, time)) with clustering order by (connection desc, time desc); ")
 
-def cassandra_create_citycount_table_readwrite(keyspacename, citycounttablename, session):
-    #EQUIVALENT, BUT INSTEAD OF UPDATE, READ AND WRITE -> THIS WAY YOU CAN HAVE A SORTED OUTPUT
-    cassandra_create_keyspace(keyspacename, session)
-    session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+citycounttablename+" \
-                        (wordofinterest text, place text, count int, \
-                        PRIMARY KEY ((wordofinterest,place), count)) with clustering order by (count desc); ")
 
-def read_write_to_cassandra(record):
-    #equivalent to update_to_cassandra, but: pro: result is sorted in count; con: need to read and write every time. AND POSSIBLE DUPLICATES IN TABLE
+
+def update_to_cassandra(record):
     cluster = Cluster([
         'ec2-52-89-218-166.us-west-2.compute.amazonaws.com',
         'ec2-52-88-157-153.us-west-2.compute.amazonaws.com',
         'ec2-52-35-98-229.us-west-2.compute.amazonaws.com',
         'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
-    cassandra_create_citycount_table_readwrite(keyspacename,citycounttablename, session)
-    prepared_write_query = session.prepare("INSERT INTO "+keyspacename+"."+citycounttablename+" (wordofinterest,place,count) VALUES (?,?,?) USING TTL 3600; ")
-    for element in record:
-        place = str(element[0][0])+", "+ str(element[0][1])
-        count = element[1]
-        read_stmt = "select count from "+keyspacename+"."+citycounttablename+" where wordofinterest='"+wordofinterest+"' and place='"+place+"';"
-        response = session.execute(read_stmt)
-        oldcount =0
-        if len(response[:]) >0:
-            for res in response:
-                oldcount += res.count
-            session.execute("delete from "+keyspacename+"."+citycounttablename+" where wordofinterest='"+wordofinterest+"' and place='"+place+"';")
-        else:
-            oldcount=0
-        session.execute(prepared_write_query, (wordofinterest, place, count+oldcount))
+    cassandra_create_topicgraph_table(keyspacename,tablename, session)
 
+    #prepared_write_query = session.prepare("UPDATE "+keyspacename+"."+tablename+" SET count = count + ? WHERE connection=? AND wordofinterest=?")
+    prepared_write_query = session.prepare("INSERT INTO "+keyspacename+"."+tablename+" (wordofinterest, connection, count, time) VALUES (?,?,?,?) USING TTL 120;")
+    for element in record:
+        word = str(element[0][0])
+        connection = str(element[0][1])
+        count = element[1]
+        session.execute(prepared_write_query, (word,connection,count, int(timepackage.time())*1000 ))
 
 def update_to_cassandracity(record):
     #There is a problem with counter variable count. ; maybe counter can not be ordered by?!?
@@ -112,24 +93,36 @@ def citycount_to_cassandra(rdd):
     #so for each partition, do what you wanna do ->
     rdd.foreachPartition(lambda record: update_to_cassandracity(record))
 
+
+def topicgraph_to_cassandra(rdd):
+    #each RDD consists of a bunch of partitions which themselves are local on a single machine (each)
+    #so for each partition, do what you wanna do ->
+    rdd.foreachPartition(lambda record: update_to_cassandra(record))
+
+
+
+
+
 if __name__ == "__main__":
+
     #wordofinterest = str(sys.argv[1])
-    #cassandra keyspace/table names
+
+    #cassandra keyspace name
     keyspacename = 'holytwit'
+    tablename = 'topicgraph'
     citycounttablename = 'city_count'
 
-    #spark streaming objects
-    sc = SparkContext(appName="TwitterImpact")
-    ssc = StreamingContext(sc, 1)
 
+    #spark streaming objects
+    sc = SparkContext(appName="topicgraph")
+    ssc = StreamingContext(sc, 1)
 
     #zookeeper quorum for to connect to kafka (local ips for faster access)
     zkQuorum = "52.34.117.127:2181,52.89.22.134:2181,52.35.24.163:2181,52.89.0.97:2181"
     #kafka topic to consume from:
     topic = "twitterdump_timo"
-
     #topic and number of partitions (check with kafka)
-    kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-consumer", {topic: 4})
+    kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-topicgraph", {topic: 4})
     lines = kvs.map(lambda x: x[1])
 
     cluster = Cluster([
@@ -142,6 +135,34 @@ if __name__ == "__main__":
     read_stmt = "select word,numberofwords from "+keyspacename+".listofwords ;"
     response = session.execute(read_stmt)
     wordlist2 = [str(row.word) for row in response]
+
+    def lambda_map_word_connections(l):
+        return_list_of_tuples=list()
+        for word_input in wordlist2:
+            if word_input in l:
+                for word_tweet in l:
+                    if word_tweet != word_input:
+                        return_list_of_tuples.append( ( (word_input, str(word_tweet.encode('ascii','ignore')) ) , 1))
+        return  return_list_of_tuples
+
+    #1. filter: is the word in the tweet. 2.filter does it have a place name 3. filter does it have country country_code
+    #4. map it to ((place.name, place.country_code),1).
+    #5. reducebykey add a+b -> sum for each place.
+    #def countcity(lines):
+    output = lines.filter(lambda l: len(json.loads(l)['text'])>0 )\
+        .filter(lambda l: json.loads(l)["timestamp_ms"] >0  )\
+        .map(lambda l: set(json.loads(l)["text"].split() )) \
+        .flatMap(lambda l: lambda_map_word_connections(l)) \
+        .reduceByKey(lambda a,b: a+b)
+        #this could be an attempt to sort; but makes sense maybe only in batch?!?
+        #.map(lambda l: (l[1],l[0]))\
+        #.transform(sortByKey)
+
+    #output.pprint()
+    #before doing the stuff, create the table if necessary (schema defined here too)
+    #output is a DStream object containing a bunch of RDDs. for each rdd go ->
+    output.foreachRDD(topicgraph_to_cassandra)
+
 
     def lambda_map_word_city(l):
         return_list_of_tuples=list()

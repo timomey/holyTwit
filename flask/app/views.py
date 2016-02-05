@@ -31,7 +31,7 @@ def citycount():
 def get_stream(wordofinterest):
     maxnumpanels = 10
     stmt = "SELECT * FROM holytwit.city_count WHERE wordofinterest='"+str(wordofinterest)+"';"
-
+	
     response = session.execute(stmt)
     response_list = []
     for val in response:
