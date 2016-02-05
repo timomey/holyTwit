@@ -48,7 +48,7 @@ def cassandra_create_topicgraph_table(keyspacename, tablename, session):
     cassandra_create_keyspace(keyspacename, session)
     # if not exists create table with following schema
     session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" \
-                        (wordofinterest text, connection text, count counter, time timestamp, \
+                        (wordofinterest text, connection text, count int, time timestamp, \
                         PRIMARY KEY (wordofinterest, connection, time)) with clustering order by (connection desc, time desc); ")
 
 
