@@ -147,10 +147,10 @@ if __name__ == "__main__":
         read_stmt = "select word,numberofwords from "+keyspacename+".listofwords ;"
         response = session.execute(read_stmt)
         wordlist = [str(row.word) for row in response]
-        return_list_of_tuples = list()
+        return_list_of_tuples=list()
         for word in wordlist:
             if word in json.loads(l)["text"]:
-                return_list_of_tuples.append( ((word, json.loads(l)["place"]["name"].encode('ascii','ignore'), json.loads(l)["place"]["country_code"].encode('ascii','ignore') ) , 1))
+                return_list_of_tuples.append( ( (word, json.loads(l)["place"]["name"], json.loads(l)["place"]["country_code"] ) , 1))
         return  return_list_of_tuples
 
 
