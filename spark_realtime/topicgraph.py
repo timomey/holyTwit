@@ -65,8 +65,9 @@ def update_to_cassandra(record):
     #prepared_write_query = session.prepare("UPDATE "+keyspacename+"."+tablename+" SET count = count + ? WHERE connection=? AND wordofinterest=?")
     prepared_write_query = session.prepare("INSERT INTO "+keyspacename+"."+tablename+" (wordofinterest, connection, count, time) VALUES (?,?,?,?) USING TTL 120;")
     for element in record:
-        word = str(element[0][0])+", "+ str(element[0][1])
-        connection = element[1]
+        word = str(element[0][0])
+        connection = str(element[0][1])
+        count = element[1]
         session.execute(prepared_write_query, (word,connection,count, int(time.time()) ))
 
 
