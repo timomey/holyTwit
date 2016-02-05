@@ -168,8 +168,8 @@ if __name__ == "__main__":
     #output = lines.map(lambda l: json.loads(l)["place"]["name"] )
     output = lines.filter(lambda l: len(json.loads(l)['text'])>0 )\
         .filter(lambda l: len(json.loads(l)["place"]["country_code"]) > 0)\
-        .filter(lambda l: len(json.loads(l)["place"]["name"])>0 )
-        #.flatMap(lambda l: lambda_map_word_city2(l) )\
+        .filter(lambda l: len(json.loads(l)["place"]["name"])>0 )\
+        .flatMap(lambda l: lambda_map_word_city2(l) )\
         #.filter(lambda l: not not l)
         #.reduceByKey(lambda a,b: a+b)
     #output.foreachRDD(citycount_to_cassandra)
