@@ -126,14 +126,14 @@ if __name__ == "__main__":
     #def countcity(lines):
     output = lines.filter(lambda l: len(json.loads(l)['text'])>0 )\
         .filter(lambda l: len(json.loads(l)["timestamp_ms"]) >0  )\
-        .map(lambda l: set(json.loads(l)["text"].split() ) \
-        .flatMap(lambda l: lambda_map_word_connections)\
+        .map(lambda l: set(json.loads(l)["text"].split() )) \
+        .flatMap(lambda l: lambda_map_word_connections) \
         .reduceByKey(lambda a,b: a+b)
         #this could be an attempt to sort; but makes sense maybe only in batch?!?
         #.map(lambda l: (l[1],l[0]))\
         #.transform(sortByKey)
 
-    #output.pprint()
+    output.pprint()
     #before doing the stuff, create the table if necessary (schema defined here too)
     #output is a DStream object containing a bunch of RDDs. for each rdd go ->
     #output.foreachRDD(topicgraph_to_cassandra)
