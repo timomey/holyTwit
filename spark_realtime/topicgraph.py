@@ -125,7 +125,7 @@ if __name__ == "__main__":
     #5. reducebykey add a+b -> sum for each place.
     #def countcity(lines):
     output = lines.filter(lambda l: len(json.loads(l)['text'])>0 )\
-        .filter(lambda l: json.loads(l)["timestamp_ms"] >0  )\
+        .filter(lambda l: len(str(json.loads(l)["timestamp_ms"])) >0  )\
         .map(lambda l: set(json.loads(l)["text"].split() )) \
         .flatMap(lambda l: lambda_map_word_connections) \
         .reduceByKey(lambda a,b: a+b)
