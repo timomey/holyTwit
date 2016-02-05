@@ -146,10 +146,10 @@ if __name__ == "__main__":
     session = cluster.connect()
     #get wordlist from cassandra
     read_stmt = "select word,numberofwords from "+keyspacename+".listofwords ;"
+    response = session.execute(read_stmt)
+    wordlist2 = [str(row.word) for row in response]
 
     def lambda_map_word_city(l):
-        response = session.execute(read_stmt)
-        wordlist2 = [str(row.word) for row in response]
         return_list_of_tuples=list()
         for word in wordlist2:
             if word in json.loads(l)["text"]:
