@@ -48,8 +48,8 @@ def cassandra_create_topicgraph_table(keyspacename, tablename, session):
     cassandra_create_keyspace(keyspacename, session)
     # if not exists create table with following schema
     session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" \
-                        (wordofinterest text, place text, count counter, \
-                        PRIMARY KEY (wordofinterest, place)) with clustering order by (place desc); ")
+                        (wordofinterest text, connection text, count counter, time timestamp, \
+                        PRIMARY KEY (wordofinterest, connection, time)) with clustering order by (connection desc, time desc); ")
 
 
 
@@ -60,13 +60,14 @@ def update_to_cassandra(record):
         'ec2-52-35-98-229.us-west-2.compute.amazonaws.com',
         'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
-    cassandra_create_citycount_table(keyspacename,tablename, session)
+    cassandra_create_topicgraph_table(keyspacename,tablename, session)
 
-    prepared_write_query = session.prepare("UPDATE "+keyspacename+"."+tablename+" SET count = count + ? WHERE place=? AND wordofinterest=?")
+    #prepared_write_query = session.prepare("UPDATE "+keyspacename+"."+tablename+" SET count = count + ? WHERE connection=? AND wordofinterest=?")
+    prepared_write_query = session.prepare("INSERT INTO "+keyspacename+"."+tablename+" (wordofinterest, connection, count, time) VALUES (?,?,?,?) USING TTL 120";)
     for element in record:
-        key = str(element[0][0])+", "+ str(element[0][1])
-        count = element[1]
-        session.execute(prepared_write_query, (count, key, wordofinterest))
+        word = str(element[0][0])+", "+ str(element[0][1])
+        connection = element[1]
+        session.execute(prepared_write_query, (word,connection,count, int(time.time()) ))
 
 
 
@@ -117,7 +118,7 @@ if __name__ == "__main__":
             if word_input in l:
                 for word_tweet in l:
                     if word_tweet != word_input:
-                        return_list_of_tuples.append( ( (word_input, word_tweet) , 1))
+                        return_list_of_tuples.append( ( (word_input, str(word_tweet) ) , 1))
         return  return_list_of_tuples
 
     #1. filter: is the word in the tweet. 2.filter does it have a place name 3. filter does it have country country_code
@@ -133,10 +134,10 @@ if __name__ == "__main__":
         #.map(lambda l: (l[1],l[0]))\
         #.transform(sortByKey)
 
-    output.pprint()
+    #output.pprint()
     #before doing the stuff, create the table if necessary (schema defined here too)
     #output is a DStream object containing a bunch of RDDs. for each rdd go ->
-    #output.foreachRDD(topicgraph_to_cassandra)
+    output.foreachRDD(topicgraph_to_cassandra)
 
     #start the stream and keep it running - await for termination too.
     ssc.start()
