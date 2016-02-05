@@ -91,8 +91,6 @@ if __name__ == "__main__":
     tablename = 'topicgraph'
 
     #spark streaming objects
-    conf = new SparkConf().setAppName('topicgraph')
-    conf.set("spark.scheduler.mode", "FAIR")
     sc = SparkContext(appName="topicgraph")
     ssc = StreamingContext(sc, 1)
 

@@ -30,7 +30,7 @@ def citycount():
 @app.route('/citycount/<wordofinterest>')
 def get_stream(wordofinterest):
     maxnumpanels = 10
-    stmt = "SELECT * FROM holytwit.citycount WHERE wordofinterest='"+str(wordofinterest)+"';"
+    stmt = "SELECT * FROM holytwit.city_count WHERE wordofinterest='"+str(wordofinterest)+"';"
 
     response = session.execute(stmt)
     response_list = []
