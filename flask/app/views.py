@@ -1,7 +1,8 @@
 from app import app
 from flask import jsonify
 from cassandra.cluster import Cluster
-from flask import render_template
+from flask import render_template, Flask, flash, request
+from wtforms import Form, TextField, TextAreaField, validators, StringField, SubmitField
 from subprocess import call
 import time
 
@@ -9,6 +10,11 @@ import time
 
 cluster = Cluster(['ec2-52-89-218-166.us-west-2.compute.amazonaws.com','ec2-52-88-157-153.us-west-2.compute.amazonaws.com','ec2-52-35-98-229.us-west-2.compute.amazonaws.com','ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
 session = cluster.connect('twitterimpact')
+
+
+class ReusableForm(Form):
+    input = TextField('Input:', validators=[validators.required()])
+
 
 @app.route('/')
 def home():
@@ -22,16 +28,28 @@ def index():
 def slides():
     return render_template("slides.html")
 
-@app.route('/citycount')
+@app.route('/citycount', methods=['GET', 'POST'])
 def citycount():
-    return render_template("citycountinput.html")
+    form = ReusableForm(request.form)
+
+    print form.errors
+    if request.method == 'POST':
+        input=request.form['input']
+        print 'looking for ' + input +' in the incoming twitterstream'
+
+        if form.validate():
+            # Save the comment here.
+            flash('looking for ' + input +' in the incoming twitterstream')
+        else:
+            flash('Error: All the form fields are required. ')
+    return render_template("citycountinput.html", form=form)
 
 
 @app.route('/citycount/<wordofinterest>')
 def get_stream(wordofinterest):
     maxnumpanels = 10
     stmt = "SELECT * FROM holytwit.city_count WHERE wordofinterest='"+str(wordofinterest)+"';"
-	
+
     response = session.execute(stmt)
     response_list = []
     for val in response:

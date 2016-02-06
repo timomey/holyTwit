@@ -43,6 +43,13 @@ def clean_string(text):
 def cassandra_create_keyspace(keyspacename,session):
     session.execute("CREATE KEYSPACE IF NOT EXISTS "+keyspacename+" WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor' : 3};")
 
+def cassandra_create_table_listofwords(keyspacename,tablename,session):
+    cassandra_create_keyspace(keyspacename, session)
+    session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" \
+        (word text, deg1 text, count int, ts timestamp, \
+        PRIMARY KEY ((word, deg1), count) with clustering order by (count desc);" )
+
+
 def cassandra_create_topicgraph_table(keyspacename, tablename, session):
     #it not exists create the keyspace
     cassandra_create_keyspace(keyspacename, session)
@@ -111,14 +118,12 @@ def topicgraph_to_cassandra(rdd):
 
 
 if __name__ == "__main__":
-
     #wordofinterest = str(sys.argv[1])
 
     #cassandra keyspace name
     keyspacename = 'holytwit'
     tablename = 'topicgraph'
     citycounttablename = 'city_count'
-
 
     #spark streaming objects
     sc = SparkContext(appName="topicgraph")
@@ -139,15 +144,16 @@ if __name__ == "__main__":
         'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
     #get wordlist from cassandra
-    read_stmt = "select word,numberofwords from "+keyspacename+".listofwords ;"
+    read_stmt = "select word from "+keyspacename+".listofwords ;"
     response = session.execute(read_stmt)
-    wordlist2 = [str(row.word) for row in response]
+    wordlist = [str(row.word) for row in response]
+    broadcasted_wordlist = sc.broadcast(wordlist)
 
-    def lambda_map_word_connections(l):
+    def lambda_map_word_connections(splitted_text):
         return_list_of_tuples=list()
-        for word_input in wordlist2:
-            if word_input in l:
-                for word_tweet in l:
+        for word_input in wordlist:
+            if word_input in splitted_text:
+                for word_tweet in splitted_text:
                     if word_tweet != word_input:
                         return_list_of_tuples.append( ( (word_input, str(word_tweet.encode('ascii','ignore')) ) , 1))
         return  return_list_of_tuples
@@ -171,11 +177,11 @@ if __name__ == "__main__":
     output.foreachRDD(topicgraph_to_cassandra)
 
 
-    def lambda_map_word_city(l):
+    def lambda_map_word_city(tweet):
         return_list_of_tuples=list()
         for word in wordlist2:
-            if word in json.loads(l)["text"]:
-                return_list_of_tuples.append( ( (word, json.loads(l)["place"]["name"], json.loads(l)["place"]["country_code"] ) , 1))
+            if word in json.loads(tweet)["text"]:
+                return_list_of_tuples.append( ( (word, json.loads(tweet)["place"]["name"], json.loads(tweet)["place"]["country_code"] ) , 1))
         return  return_list_of_tuples
 
 
