@@ -39,34 +39,6 @@ def clean_string(text):
     return text
 
 
-#cassandra stuff:
-def cassandra_create_keyspace(keyspacename,session):
-    session.execute("CREATE KEYSPACE IF NOT EXISTS "+keyspacename+" WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor' : 3};")
-
-def cassandra_create_table_listofwords(keyspacename,tablename,session):
-    cassandra_create_keyspace(keyspacename, session)
-    session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" \
-        (word text, deg1 text, count int, ts timestamp, \
-        PRIMARY KEY ((word, deg1), count) with clustering order by (count desc);" )
-
-
-def cassandra_create_topicgraph_table(keyspacename, tablename, session):
-    #it not exists create the keyspace
-    cassandra_create_keyspace(keyspacename, session)
-    # if not exists create table with following schema
-    session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" \
-                        (wordofinterest text, connection text, count int, time timestamp, \
-                        PRIMARY KEY (wordofinterest, connection, time)) with clustering order by (connection desc, time desc); ")
-
-def cassandra_create_citycount_table(keyspacename, citycounttablename, session):
-    #it not exists create the keyspace
-    cassandra_create_keyspace(keyspacename, session)
-    # if not exists create table with following schema
-    session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+citycounttablename+" \
-                        (wordofinterest text, place text, count counter, \
-                        PRIMARY KEY (wordofinterest, place)) with clustering order by (place desc); ")
-
-
 def update_to_cassandra(record):
     cluster = Cluster([
         'ec2-52-89-218-166.us-west-2.compute.amazonaws.com',
@@ -92,7 +64,7 @@ def update_to_cassandracity(record):
         'ec2-52-35-98-229.us-west-2.compute.amazonaws.com',
         'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
-    cassandra_create_citycount_table(keyspacename,citycounttablename, session)
+    #cassandra_create_citycount_table(keyspacename,citycounttablename, session)
 
     prepared_write_query = session.prepare("UPDATE "+keyspacename+"."+citycounttablename+" SET count = count + ? WHERE place=? AND wordofinterest=? ")
     for element in record:
@@ -106,7 +78,6 @@ def citycount_to_cassandra(rdd):
     #each RDD consists of a bunch of partitions which themselves are local on a single machine (each)
     #so for each partition, do what you wanna do ->
     rdd.foreachPartition(lambda record: update_to_cassandracity(record))
-
 
 def topicgraph_to_cassandra(rdd):
     #each RDD consists of a bunch of partitions which themselves are local on a single machine (each)

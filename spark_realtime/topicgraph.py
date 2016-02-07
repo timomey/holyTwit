@@ -39,20 +39,6 @@ def clean_string(text):
     return text
 
 
-#cassandra stuff:
-def cassandra_create_keyspace(keyspacename,session):
-    session.execute("CREATE KEYSPACE IF NOT EXISTS "+keyspacename+" WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor' : 3};")
-
-def cassandra_create_topicgraph_table(keyspacename, tablename, session):
-    #it not exists create the keyspace
-    cassandra_create_keyspace(keyspacename, session)
-    # if not exists create table with following schema
-    session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+tablename+" \
-                        (wordofinterest text, connection text, count int, time timestamp, \
-                        PRIMARY KEY (wordofinterest, connection, time)) with clustering order by (connection desc, time desc); ")
-
-
-
 def update_to_cassandra(record):
     cluster = Cluster([
         'ec2-52-89-218-166.us-west-2.compute.amazonaws.com',
@@ -60,7 +46,7 @@ def update_to_cassandra(record):
         'ec2-52-35-98-229.us-west-2.compute.amazonaws.com',
         'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
-    cassandra_create_topicgraph_table(keyspacename,tablename, session)
+    #cassandra_create_topicgraph_table(keyspacename,tablename, session)
 
     #prepared_write_query = session.prepare("UPDATE "+keyspacename+"."+tablename+" SET count = count + ? WHERE connection=? AND wordofinterest=?")
     prepared_write_query = session.prepare("INSERT INTO "+keyspacename+"."+tablename+" (wordofinterest, connection, count, time) VALUES (?,?,?,?) USING TTL 120;")

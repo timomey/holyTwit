@@ -40,23 +40,6 @@ def clean_string(text):
 
 
 #cassandra stuff:
-def cassandra_create_keyspace(keyspacename,session):
-    session.execute("CREATE KEYSPACE IF NOT EXISTS "+keyspacename+" WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor' : 3};")
-
-def cassandra_create_citycount_table(keyspacename, citycounttablename, session):
-    #it not exists create the keyspace
-    cassandra_create_keyspace(keyspacename, session)
-    # if not exists create table with following schema
-    session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+citycounttablename+" \
-                        (wordofinterest text, place text, count counter, \
-                        PRIMARY KEY (wordofinterest, place)) with clustering order by (place desc); ")
-
-def cassandra_create_citycount_table_readwrite(keyspacename, citycounttablename, session):
-    #EQUIVALENT, BUT INSTEAD OF UPDATE, READ AND WRITE -> THIS WAY YOU CAN HAVE A SORTED OUTPUT
-    cassandra_create_keyspace(keyspacename, session)
-    session.execute("CREATE TABLE IF NOT EXISTS "+keyspacename+"."+citycounttablename+" \
-                        (wordofinterest text, place text, count int, \
-                        PRIMARY KEY ((wordofinterest,place), count)) with clustering order by (count desc); ")
 
 def read_write_to_cassandra(record):
     #equivalent to update_to_cassandra, but: pro: result is sorted in count; con: need to read and write every time. AND POSSIBLE DUPLICATES IN TABLE
@@ -66,7 +49,6 @@ def read_write_to_cassandra(record):
         'ec2-52-35-98-229.us-west-2.compute.amazonaws.com',
         'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
-    cassandra_create_citycount_table_readwrite(keyspacename,citycounttablename, session)
     prepared_write_query = session.prepare("INSERT INTO "+keyspacename+"."+citycounttablename+" (wordofinterest,place,count) VALUES (?,?,?) USING TTL 3600; ")
     for element in record:
         place = str(element[0][0])+", "+ str(element[0][1])
@@ -91,7 +73,7 @@ def update_to_cassandracity(record):
         'ec2-52-35-98-229.us-west-2.compute.amazonaws.com',
         'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
-    cassandra_create_citycount_table(keyspacename,citycounttablename, session)
+    #cassandra_create_citycount_table(keyspacename,citycounttablename, session)
 
     prepared_write_query = session.prepare("UPDATE "+keyspacename+"."+citycounttablename+" SET count = count + ? WHERE place=? AND wordofinterest=? ")
     for element in record:
