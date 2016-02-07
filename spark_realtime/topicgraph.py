@@ -110,7 +110,8 @@ if __name__ == "__main__":
                         return_list_of_tuples.append( ( (word_input, str(word_tweet.encode('ascii','ignore')) ) , 1))
         if len(return_list_of_tuples) ==0:
             return 0
-        return  return_list_of_tuples
+        else:
+            return  return_list_of_tuples
 
 
 
