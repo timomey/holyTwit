@@ -117,10 +117,10 @@ if __name__ == "__main__":
     #4. map it to ((place.name, place.country_code),1).
     #5. reducebykey add a+b -> sum for each place.
     #def countcity(lines):
-    output = lines.filter(lambda l: len(json.loads(l)['text'])>0 )\
+    output = lines.filter(lambda l: len(json.loads(l)['text'])>5 )\
         .filter(lambda l: json.loads(l)["timestamp_ms"] >0  )\
-        .map(lambda l: set(json.loads(l)["text"].split() ))
-        #.flatMap(lambda l: lambda_map_word_connections(l)) \
+        .map(lambda l: set(json.loads(l)["text"].split() ))\
+        .flatMap(lambda l: lambda_map_word_connections(l)) \
         #.reduceByKey(lambda a,b: a+b)
         #this could be an attempt to sort; but makes sense maybe only in batch?!?
         #.map(lambda l: (l[1],l[0]))\
