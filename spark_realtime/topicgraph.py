@@ -86,7 +86,7 @@ def newwords_and_tuple_part(record):
     return  return_list_of_tuples
 
 
-def newwords_and_tuple(rdd)
+def newwords_and_tuple(rdd):
     rdd.foreachPartition(lambda record: newwords_and_tuple_part)
 
 
