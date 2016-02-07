@@ -189,12 +189,13 @@ if __name__ == "__main__":
         return_list_of_tuples=[]
         splitted_text = tuuple[0][0]
         if splitted_text != 'error':
-            for word_input in wordlist:
-                if word_input in splitted_text:
-                    for word_tweet in splitted_text:
-                        if word_tweet != word_input:
-                            return_list_of_tuples.append( ( (word_input, str(word_tweet.encode('ascii','ignore')), tuuple[1] ) , 1) )
-            return  return_list_of_tuples
+            #for word_input in wordlist:
+            #    if word_input in splitted_text:
+            #        for word_tweet in splitted_text:
+            #            if word_tweet != word_input:
+            #                return_list_of_tuples.append( ( (word_input, str(word_tweet.encode('ascii','ignore')), tuuple[1] ) , 1) )
+            return splitted_text
+            #return  return_list_of_tuples
         else:
             return [tuuple]
 
