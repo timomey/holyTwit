@@ -138,12 +138,13 @@ if __name__ == "__main__":
         #.map(lambda l: (l[1],l[0]))\
         #.transform(sortByKey)
 
-    #broadcasted_wordlist.unpersist(blocking=True)
     #output.pprint()
     #before doing the stuff, create the table if necessary (schema defined here too)
     #output is a DStream object containing a bunch of RDDs. for each rdd go ->
     output.foreachRDD(topicgraph_to_cassandra)
 
+
+    broadcasted_wordlist.unpersist(blocking=False)
     #start the stream and keep it running - await for termination too.
     ssc.start()
     ssc.awaitTermination()
