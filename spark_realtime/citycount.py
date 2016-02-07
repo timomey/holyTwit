@@ -40,6 +40,8 @@ def clean_string(text):
 
 
 #cassandra stuff:
+def cassandra_create_keyspace(keyspacename,session):
+    session.execute("CREATE KEYSPACE IF NOT EXISTS "+keyspacename+" WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor' : 3};")
 
 def cassandra_create_citycount_table(keyspacename, citycounttablename, session):
     #it not exists create the keyspace
