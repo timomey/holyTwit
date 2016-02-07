@@ -13,9 +13,8 @@ CREATE TABLE holytwit.topicgraph (
     connection text,
     count int,
     time timestamp,
-    PRIMARY KEY (wordofinterest, connection, time)
+    PRIMARY KEY (word, connection, time)
 ) WITH CLUSTERING ORDER BY (connection desc, time desc);
-
 
 
 
