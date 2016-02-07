@@ -7,7 +7,6 @@ CREATE TABLE holytwit.listofwords (
     PRIMARY KEY (word,time )
     );
 
-
 CREATE TABLE holytwit.city_count (
     wordofinterest text,
     place text,
@@ -23,6 +22,18 @@ CREATE TABLE holytwit.topicgraph (
     PRIMARY KEY (word, connection, time)
 ) WITH CLUSTERING ORDER BY (connection desc, time desc);
 
+
+CREATE TABLE holytwit.word_d1_place (
+    word text,
+    conn1 text,
+    year int,
+    month int,
+    day int,
+    hour int,
+    min int,
+    halfmin int,
+    tensec int,
+)
 
 
 CREATE MATERIALIZED VIEW holytwit.name AS

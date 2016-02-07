@@ -95,7 +95,7 @@ if __name__ == "__main__":
             'ec2-52-35-98-229.us-west-2.compute.amazonaws.com',
             'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
         session = cluster.connect()
-        #get wordlist from cassandra
+        #get wordlist from cassandrax
         read_stmt = "select word,numberofwords from "+keyspacename+".listofwords ;"
         response = session.execute(read_stmt)
         wordlist = [str(row.word) for row in response]
@@ -105,11 +105,8 @@ if __name__ == "__main__":
                 for word_tweet in splitted_text:
                     if word_tweet != word_input:
                         return_list_of_tuples.append( ( (word_input, str(word_tweet.encode('ascii','ignore')) ) , 1))
-        if len(return_list_of_tuples) ==0:
-            return 0
-        else:
-            return  return_list_of_tuples
 
+        
 
 
     def checkNone(x):
@@ -125,9 +122,6 @@ if __name__ == "__main__":
         .filter(lambda l: json.loads(l)["timestamp_ms"] >0  )\
         .map(lambda l: list(set(json.loads(l)["text"].split())) )\
         .foreachRDD(lambda rdd: rdd.foreachPartition(lambda_map_word_connections))\
-        .filter(lambda l: l != 0)\
-        .flatMap(lambda l: l)\
-        .reduceByKey(lambda a,b: a+b)
         #this could be an attempt to sort; but makes sense maybe only in batch?!?
         #.map(lambda l: (l[1],l[0]))\
         #.transform(sortByKey)
