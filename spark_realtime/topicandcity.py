@@ -206,7 +206,15 @@ if __name__ == "__main__":
         #.map(lambda l: (set(json.loads(l)["text"].split()), json.loads(l)["place"]["name"]+","+json.loads(l)["place"]["country_code"] ) ) \
         #.flatMap(lambda l: lambda_map_word_connections(l)) \
         #.reduceByKey(lambda a,b: a+b)
-    output = lines.map(lambda l: (set(json.loads(l)["text"].split()), json.loads(l)["place"]["name"]+","+json.loads(l)["place"]["country_code"] ) ) \
+    def textsplit_placetuple(tweet):
+        try:
+            splittextset = set(json.loads(l)["text"].split())
+            place = json.loads(l)["place"]["name"]+","+json.loads(l)["place"]["country_code"]
+            return ((splittextset,place),1)
+        except:
+            return ('error',0)
+
+    output = lines.map(lambda l: textsplit_placetuple ) \
         .flatMap(lambda l: lambda_map_word_connections(l)) \
         .reduceByKey(lambda a,b: a+b)
         #.map(lambda l: (l[1],l[0]))\
