@@ -111,7 +111,7 @@ if __name__ == "__main__":
         return  return_list_of_tuples
 
 
-    def domyshit(rdd):
+
 
     #1. filter: is the word in the tweet. 2.filter does it have a place name 3. filter does it have country country_code
     #4. map it to ((place.name, place.country_code),1).
