@@ -127,9 +127,9 @@ def update_to_cassandracity2(record):
     session = cluster.connect()
     #cassandra_create_citycount_table(keyspacename,citycounttablename, session)
 
-    prepared_write_query = session.prepare("INSERT INTO "+keyspacename+"."+citycounttablename+" (word,place,count) VALUES (?,?,?) USING TTL 120")
+    prepared_write_query = session.prepare("INSERT INTO "+keyspacename+"."+citycounttablename+" (wordofinterest,place,count) VALUES (?,?,?) USING TTL 120")
     prepared_write_query.consistency_level = ConsistencyLevel.QUORUM
-    prepared_read_query = session.prepare("SELECT count FROM "+keyspacename+"."+citycounttablename+" WHERE word=? AND place =?")
+    prepared_read_query = session.prepare("SELECT count FROM "+keyspacename+"."+citycounttablename+" WHERE wordofinterest=? AND place =?")
     prepared_read_query.consistency_level = ConsistencyLevel.QUORUM
     for element in record:
         word = element[0][0]
