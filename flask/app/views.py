@@ -4,7 +4,7 @@ from cassandra.cluster import Cluster
 from flask import render_template, Flask, flash, request
 from wtforms import Form, TextField, TextAreaField, validators, StringField, SubmitField
 from subprocess import call
-import time
+import time as timepackage
 
 
 # App config.
@@ -32,7 +32,7 @@ def write_input_to_cass(inp):
     for inputword in inputlist:
         word = inputword
         numberofwords = 1
-        time = int(time.time()*1000)
+        time = int(timepackage.time()*1000)
         session.execute(prepared_write_query,(word,numberofwords,time))
 
 
