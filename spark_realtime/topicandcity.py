@@ -86,7 +86,7 @@ def write_to_cassandra(record):
                     countarray[-1] -= [(i+1)%(len(countarray)-1)]
                     countarray[(i+1)%(len(countarray)-1)] = 0
                     break
-            session.execute(write_query,(word, degree1, place, date) + countarray[::-1] )
+            session.execute(write_query,(word, degree1, place, date) + tuple(countarray[::-1]) )
         else:
             now = datetime.datetime.now()
             countarray= [0,] * 13
@@ -96,7 +96,7 @@ def write_to_cassandra(record):
                     countarray[i] = count
                     countarray[-1]= count
                     break
-            session.execute(write_query,(word, degree1, place, date) + countarray[::-1])
+            session.execute(write_query,(word, degree1, place, date) + tuple(countarray[::-1]))
 
 
 
@@ -193,12 +193,12 @@ if __name__ == "__main__":
                 if word_input in splitted_text:
                     for word_tweet in splitted_text:
                         if word_tweet != word_input:
-                            return_list_of_tuples.append( ( (word_input, str(word_tweet.encode('ascii','ignore')), tuuple[1] ) , 1) )
+                            return_list_of_tuples.append( ( (str(word_input), str(word_tweet.encode('ascii','ignore')), tuuple[0][1] ) , 1) )
                             return  return_list_of_tuples
                         else:
                             return [((word_input,'intweet','noplace'),1)]
                 else:
-                    return [((word_input,'notintweet','noplace'),1)]
+                    return [((word_input,'notintweet','noplace'),1) ]
         else:
             return [tuuple]
 
