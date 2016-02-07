@@ -120,9 +120,9 @@ if __name__ == "__main__":
     output = lines.filter(lambda l: len(json.loads(l)['text'])>5 )\
         .filter(lambda l: json.loads(l)["timestamp_ms"] >0  )\
         .map(lambda l: list(set(json.loads(l)["text"].split())) )\
-        .foreachRDD(lambda rdd: rdd.foreachPartition(lambda_map_word_connections))
-        #.flatMap(lambda l: lambda_map_word_connections(l))
-        #.reduceByKey(lambda a,b: a+b)
+        .foreachRDD(lambda rdd: rdd.foreachPartition(lambda_map_word_connections))\
+        .flatMap(lambda l: l)\
+        .reduceByKey(lambda a,b: a+b)
         #this could be an attempt to sort; but makes sense maybe only in batch?!?
         #.map(lambda l: (l[1],l[0]))\
         #.transform(sortByKey)
