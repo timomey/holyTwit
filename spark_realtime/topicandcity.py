@@ -195,6 +195,10 @@ if __name__ == "__main__":
                         if word_tweet != word_input:
                             return_list_of_tuples.append( ( (word_input, str(word_tweet.encode('ascii','ignore')), tuuple[1] ) , 1) )
                             return  return_list_of_tuples
+                        else:
+                            return [((word_input,'skip'),1)]
+                else:
+                    return [((word_input,'not in tweet'),1)]
         else:
             return [tuuple]
 
@@ -204,7 +208,7 @@ if __name__ == "__main__":
             place = str(json.loads(tweet)["place"]["name"].encode('ascii','ignore')+","+json.loads(tweet)["place"]["country_code"].encode('ascii','ignore'))
             return ((splittextset,place),1)
         except TypeError:
-            return (('error','error'),0)
+            return (('error','error'),1)
 
     output = lines.map(lambda l: textsplit_placetuple(l) )\
         .map(lambda l: lambda_map_word_connections(l))
