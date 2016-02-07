@@ -102,15 +102,15 @@ if __name__ == "__main__":
         read_stmt = "select word,numberofwords from "+keyspacename+".listofwords ;"
         response = session.execute(read_stmt)
         wordlist = [str(row.word) for row in response]
-        broadcasted_wordlist = sc.broadcast(wordlist)
+        #broadcasted_wordlist = sc.broadcast(wordlist)
+        #broadcasted_wordlist.unpersist(blocking=False)
 
         return_list_of_tuples=list()
-        for word_input in broadcasted_wordlist.value:
+        for word_input in wordlist:
             if word_input in splitted_text:
                 for word_tweet in splitted_text:
                     if word_tweet != word_input:
                         return_list_of_tuples.append( ( (word_input, str(word_tweet.encode('ascii','ignore')) ) , 1))
-        broadcasted_wordlist.unpersist(blocking=False)
         return  return_list_of_tuples
 
     #1. filter: is the word in the tweet. 2.filter does it have a place name 3. filter does it have country country_code
