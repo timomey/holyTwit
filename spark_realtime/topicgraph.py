@@ -108,6 +108,8 @@ if __name__ == "__main__":
                 for word_tweet in splitted_text:
                     if word_tweet != word_input:
                         return_list_of_tuples.append( ( (word_input, str(word_tweet.encode('ascii','ignore')) ) , 1))
+        if len(return_list_of_tuples) ==0:
+            return 0
         return  return_list_of_tuples
 
 
@@ -125,7 +127,7 @@ if __name__ == "__main__":
         .filter(lambda l: json.loads(l)["timestamp_ms"] >0  )\
         .map(lambda l: list(set(json.loads(l)["text"].split())) )\
         .foreachRDD(lambda rdd: rdd.foreachPartition(lambda_map_word_connections))\
-        .filter(lambda l: checkNone(l))\
+        .filter(lambda l: l != 0)\
         .flatMap(lambda l: l)\
         .reduceByKey(lambda a,b: a+b)
         #this could be an attempt to sort; but makes sense maybe only in batch?!?
