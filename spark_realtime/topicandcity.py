@@ -178,7 +178,7 @@ if __name__ == "__main__":
         .filter(lambda l: json.loads(l)["timestamp_ms"] >0  )\
         .filter(lambda l: len(json.loads(l)["place"]["country_code"]) > 0)\
         .filter(lambda l: len(json.loads(l)["place"]["name"])>0 )\
-        .map(lambda l: (set(json.loads(l)["text"].split(), json.loads(l)["place"]["name"]+","+json.loads(l)["place"]["country_code"]) ) ) \
+        .map(lambda l: (set(json.loads(l)["text"].split()), json.loads(l)["place"]["name"]+","+json.loads(l)["place"]["country_code"] ) ) \
         .flatMap(lambda l: lambda_map_word_connections(l)) \
         .reduceByKey(lambda a,b: a+b)
         #.map(lambda l: (l[1],l[0]))\
