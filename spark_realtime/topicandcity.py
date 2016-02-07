@@ -187,13 +187,16 @@ if __name__ == "__main__":
 
     def lambda_map_word_connections(tuuple):
         return_list_of_tuples=list()
-        splitted_text = tuuple[0]
-        for word_input in wordlist:
-            if word_input in splitted_text:
-                for word_tweet in splitted_text:
-                    if word_tweet != word_input:
-                        return_list_of_tuples.append( ( (word_input, str(word_tweet.encode('ascii','ignore')), tuuple[1] ) , 1) )
-        return  return_list_of_tuples
+        splitted_text = tuuple[0][0]
+        if splitted_text != 'error':
+            for word_input in wordlist:
+                if word_input in splitted_text:
+                    for word_tweet in splitted_text:
+                        if word_tweet != word_input:
+                            return_list_of_tuples.append( ( (word_input, str(word_tweet.encode('ascii','ignore')), tuuple[1] ) , 1) )
+            return  return_list_of_tuples
+        else:
+            return tuuple
 
     #1. filter: is the word in the tweet. 2.filter does it have a place name 3. filter does it have country country_code
     #4. map it to ((place.name, place.country_code),1).
@@ -208,11 +211,11 @@ if __name__ == "__main__":
         #.reduceByKey(lambda a,b: a+b)
     def textsplit_placetuple(tweet):
         try:
-            splittextset = set(json.loads(l)["text"].split())
-            place = json.loads(l)["place"]["name"]+","+json.loads(l)["place"]["country_code"]
+            splittextset = [set(json.loads(l)["text"].split())]
+            place = str(json.loads(l)["place"]["name"]+","+json.loads(l)["place"]["country_code"])
             return ((splittextset,place),1)
         except:
-            return ('error',0)
+            return (('error','error'),0)
 
     output = lines.map(lambda l: textsplit_placetuple ) \
         .flatMap(lambda l: lambda_map_word_connections(l)) \
