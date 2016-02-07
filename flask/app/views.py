@@ -9,8 +9,8 @@ import time
 
 # App config.
 #DEBUG = True
-app = Flask(__name__)
-from app import views
+#app = Flask(__name__)
+#from app import views
 app.config.from_object(__name__)
 app.config['SECRET_KEY'] = '7d441f27d441f27567d441f2b6176a123'
 
