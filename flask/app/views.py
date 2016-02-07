@@ -13,23 +13,9 @@ import time as timepackage
 #app.config.from_object(__name__)
 #app.config['SECRET_KEY'] = '7d441f27d441f27567d441f2b6176a'
 
-
-def cassandra_create_keyspace(keyspacename,session):
-    session.execute("CREATE KEYSPACE IF NOT EXISTS "+keyspacename+" WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor' : 3};")
-
-
-def cassandra_create_listofwords_table():
-    #list of words meintained in cassandra so that there can be multiple
-    cluster = Cluster(['ec2-52-89-218-166.us-west-2.compute.amazonaws.com','ec2-52-88-157-153.us-west-2.compute.amazonaws.com','ec2-52-35-98-229.us-west-2.compute.amazonaws.com','ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
-    session = cluster.connect('twitterimpact')
-    cassandra_create_keyspace('holytwit', session)
-    session.execute("CREATE TABLE IF NOT EXISTS holytwit.listofwords \
-                    (word text, numberofwords int, time timestamp, \
-                    PRIMARY KEY (word,time ));")
-
 def write_input_to_cass(inp):
     cluster = Cluster(['ec2-52-89-218-166.us-west-2.compute.amazonaws.com','ec2-52-88-157-153.us-west-2.compute.amazonaws.com','ec2-52-35-98-229.us-west-2.compute.amazonaws.com','ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
-    session = cluster.connect('twitterimpact')
+    session = cluster.connect()
     inputlist = inp.split()
     prepared_write_query = session.prepare("INSERT INTO holytwit.listofwords (word, numberofwords, time) VALUES (?,?,?) USING TTL 60;")
     for inputword in inputlist:

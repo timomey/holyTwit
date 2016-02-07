@@ -1,5 +1,12 @@
 CREATE KEYSPACE holytwit WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor' : 3};
 
+CREATE TABLE holytwit.listofwords (
+    word text,
+    numberofwords int,
+    time timestamp,
+    PRIMARY KEY (word,time )
+    );
+
 
 CREATE TABLE holytwit.city_count (
     wordofinterest text,
