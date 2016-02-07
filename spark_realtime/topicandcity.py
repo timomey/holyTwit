@@ -212,8 +212,8 @@ if __name__ == "__main__":
 
     output = lines.map(lambda l: textsplit_placetuple(l) )\
         .map(lambda l: lambda_map_word_connections(l))\
-        .flatMap(lambda l: l)
-        #.reduceByKey(lambda a,b: a+b)
+        .flatMap(lambda l: l)\
+        .reduceByKey(lambda a,b: a+b)
         #.map(lambda l: (l[1],l[0]))\
         #.transform(sortByKey)
     output.pprint()
