@@ -201,7 +201,7 @@ if __name__ == "__main__":
 
     def textsplit_placetuple(tweet):
         try:
-            splittextset = [set(json.loads(tweet)["text"].split())]
+            splittextset = list(set(json.loads(tweet)["text"].split()))
             place = str(json.loads(tweet)["place"]["name"].encode('ascii','ignore')+","+json.loads(tweet)["place"]["country_code"].encode('ascii','ignore'))
             return ((splittextset,place),1)
         except TypeError:
