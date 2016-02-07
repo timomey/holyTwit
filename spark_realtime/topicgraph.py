@@ -112,7 +112,11 @@ if __name__ == "__main__":
 
 
 
-
+    def checkNone(x):
+        try:
+            return x[0][1] == 1
+        except:
+            return True
     #1. filter: is the word in the tweet. 2.filter does it have a place name 3. filter does it have country country_code
     #4. map it to ((place.name, place.country_code),1).
     #5. reducebykey add a+b -> sum for each place.
@@ -121,6 +125,7 @@ if __name__ == "__main__":
         .filter(lambda l: json.loads(l)["timestamp_ms"] >0  )\
         .map(lambda l: list(set(json.loads(l)["text"].split())) )\
         .foreachRDD(lambda rdd: rdd.foreachPartition(lambda_map_word_connections))\
+        .filter(lambda l: checkNone(l))\
         .flatMap(lambda l: l)\
         .reduceByKey(lambda a,b: a+b)
         #this could be an attempt to sort; but makes sense maybe only in batch?!?
