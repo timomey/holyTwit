@@ -12,7 +12,6 @@ from cassandra.cluster import Cluster
 from cassandra import ConsistencyLevel
 import time as timepackage
 from operator import add
-import datetime
 
 def clean_string(text):
     """input: string (u''). output is a "clean" string:
@@ -56,50 +55,6 @@ def update_to_cassandra(record):
         count = element[1]
         session.execute(prepared_write_query, (word,connection,count, int(timepackage.time())*1000 ))
 
-def write_to_cassandra(record):
-    cluster = Cluster([
-        'ec2-52-89-218-166.us-west-2.compute.amazonaws.com',
-        'ec2-52-88-157-153.us-west-2.compute.amazonaws.com',
-        'ec2-52-35-98-229.us-west-2.compute.amazonaws.com',
-        'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
-    session = cluster.connect()
-    write_query = session.prepare("INSERT INTO holytwit.degree1\
-                                    (word,degree1,place,date,min,se60,se55,se50,se45,se40,se35,se30,se25,se20,se15,se10,se5)\
-                                    values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
-    write_query.consistency_level = ConsistencyLevel.QUORUM
-    read_query = session.prepare("SELECT *\
-                                    FROM holytwit.degree1\
-                                    WHERE word=? AND degree1=? AND place=? AND date=?")
-    read_query.consistency_level = ConsistencyLevel.QUORUM
-    for ((word,degree1, place),count) in record:
-        #time string for right now in minutes:
-        date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
-        rows = session.execute(read_query, (word, degree1,place,date))
-        if rows:
-            now = datetime.datetime.now()
-            countarray = (rows.se5, rows.se10, rows.se15, rows.se20, rows.se25, rows.se30, rows.se35, rows.se40, rows.se45, rows.se50, rows.se55, rows.se60, rows.min)
-            testlist = range(5,61,5)
-            for i in range(len(testlist)):
-                if testlist[i] > now.second:
-                    countarray[i]=countarray[i]+count
-                    countarray[-1] += count
-                    countarray[-1] -= [(i+1)%(len(countarray)-1)]
-                    countarray[(i+1)%(len(countarray)-1)] = 0
-                    break
-            session.execute(write_query,(word, degree1, place, date) + countarray[::-1] )
-        else:
-            now = datetime.datetime.now()
-            countarray= (0,) * 13
-            testlist = range(5,61,5)
-            for i in range(len(testlist)):
-                if testlist[i] > now.second:
-                    countarray[i] = count
-                    countarray[-1]= count
-                    break
-            session.execute(write_query,(word, degree1, place, date) + countarray[::-1])
-
-
-
 def update_to_cassandracity(record):
     #There is a problem with counter variable count. ; maybe counter can not be ordered by?!?
     cluster = Cluster([
@@ -126,7 +81,11 @@ def citycount_to_cassandra(rdd):
 def topicgraph_to_cassandra(rdd):
     #each RDD consists of a bunch of partitions which themselves are local on a single machine (each)
     #so for each partition, do what you wanna do ->
-    rdd.foreachPartition(lambda record: write_to_cassandra(record))
+    rdd.foreachPartition(lambda record: update_to_cassandra(record))
+
+
+
+
 
 if __name__ == "__main__":
     #wordofinterest = str(sys.argv[1])
@@ -160,14 +119,13 @@ if __name__ == "__main__":
     wordlist = [str(row.word) for row in response]
     #broadcasted_wordlist = sc.broadcast(wordlist)
 
-    def lambda_map_word_connections(tuple):
+    def lambda_map_word_connections(splitted_text):
         return_list_of_tuples=list()
-        splitted_text = tuple[0]
         for word_input in wordlist:
             if word_input in splitted_text:
                 for word_tweet in splitted_text:
                     if word_tweet != word_input:
-                        return_list_of_tuples.append( ( (word_input, str(word_tweet.encode('ascii','ignore')), tuple[1] ) , 1) )
+                        return_list_of_tuples.append( ( (word_input, str(word_tweet.encode('ascii','ignore')) ) , 1))
         return  return_list_of_tuples
 
     #1. filter: is the word in the tweet. 2.filter does it have a place name 3. filter does it have country country_code
@@ -176,13 +134,13 @@ if __name__ == "__main__":
     #def countcity(lines):
     output = lines.filter(lambda l: len(json.loads(l)['text'])>0 )\
         .filter(lambda l: json.loads(l)["timestamp_ms"] >0  )\
-        .filter(lambda l: len(json.loads(l)["place"]["country_code"]) > 0)\
-        .filter(lambda l: len(json.loads(l)["place"]["name"])>0 )\
-        .map(lambda l: (set(json.loads(l)["text"].split(), json.loads(l)["place"]["name"]+","+json.loads(l)["place"]["country_code"]) ) ) \
+        .map(lambda l: set(json.loads(l)["text"].split() )) \
         .flatMap(lambda l: lambda_map_word_connections(l)) \
         .reduceByKey(lambda a,b: a+b)
+        #this could be an attempt to sort; but makes sense maybe only in batch?!?
         #.map(lambda l: (l[1],l[0]))\
         #.transform(sortByKey)
+
     #output.pprint()
     #before doing the stuff, create the table if necessary (schema defined here too)
     #output is a DStream object containing a bunch of RDDs. for each rdd go ->
@@ -202,11 +160,11 @@ if __name__ == "__main__":
     #output = lines.filter(lambda l: wordofinterest in json.loads(l)["text"])\
     #output = lines.map(lambda l: json.loads(l)["place"]["name"] )
     output = lines.filter(lambda l: len(json.loads(l)['text'])>0 )\
-        .filter(lambda l: json.loads(l)["timestamp_ms"] >0  )\
         .filter(lambda l: len(json.loads(l)["place"]["country_code"]) > 0)\
         .filter(lambda l: len(json.loads(l)["place"]["name"])>0 )\
         .flatMap(lambda l: lambda_map_word_city(l) )\
         .reduceByKey(lambda a,b: a+b)
+        #.filter(lambda l: len(json.loads(l)['text'])>0)
     output.foreachRDD(citycount_to_cassandra)
 
 
