@@ -186,7 +186,7 @@ if __name__ == "__main__":
     #broadcasted_wordlist = sc.broadcast(wordlist)
 
     def lambda_map_word_connections(tuuple):
-        return_list_of_tuples=list()
+        return_list_of_tuples=[]
         splitted_text = tuuple[0][0]
         if splitted_text != 'error':
             for word_input in wordlist:
@@ -198,17 +198,6 @@ if __name__ == "__main__":
         else:
             return tuuple
 
-    #1. filter: is the word in the tweet. 2.filter does it have a place name 3. filter does it have country country_code
-    #4. map it to ((place.name, place.country_code),1).
-    #5. reducebykey add a+b -> sum for each place.
-    #def countcity(lines):
-    #output = lines.filter(lambda l: len(json.loads(l)['text'])>0 )\
-        #.filter(lambda l: json.loads(l)["timestamp_ms"] >0  )\
-        #.filter(lambda l: len(json.loads(l)["place"]["country_code"]) > 0)\
-        #.filter(lambda l: len(json.loads(l)["place"]["name"])>0 )\
-        #.map(lambda l: (set(json.loads(l)["text"].split()), json.loads(l)["place"]["name"]+","+json.loads(l)["place"]["country_code"] ) ) \
-        #.flatMap(lambda l: lambda_map_word_connections(l)) \
-        #.reduceByKey(lambda a,b: a+b)
     def textsplit_placetuple(tweet):
         try:
             splittextset = [set(json.loads(l)["text"].split())]
@@ -223,13 +212,11 @@ if __name__ == "__main__":
         #.map(lambda l: (l[1],l[0]))\
         #.transform(sortByKey)
     #output.pprint()
-    #before doing the stuff, create the table if necessary (schema defined here too)
-    #output is a DStream object containing a bunch of RDDs. for each rdd go ->
     output.foreachRDD(topicgraph_to_cassandra)
 
 
     def lambda_map_word_city(tweet):
-        return_list_of_tuples=list()
+        return_list_of_tuples=[]
         for word in wordlist:
             try:
                 if word in json.loads(tweet)["text"]:
@@ -239,16 +226,6 @@ if __name__ == "__main__":
         return  return_list_of_tuples
 
 
-    #lines.MEMORY_AND_DISK()
-    #1. filter: is the word in the tweet. 2.filter does it have a place name 3. filter does it have country country_code#4. map it to ((place.name, place.country_code),1).#5. reducebykey add a+b -> sum for each place.#def countcity(lines):
-    #output = lines.filter(lambda l: wordofinterest in json.loads(l)["text"])\
-    #output = lines.map(lambda l: json.loads(l)["place"]["name"] )
-    #output = lines.filter(lambda l: len(json.loads(l)['text'])>0 )\
-        #.filter(lambda l: json.loads(l)["timestamp_ms"] >0  )\
-        #.filter(lambda l: len(json.loads(l)["place"]["country_code"]) > 0)\
-        #.filter(lambda l: len(json.loads(l)["place"]["name"])>0 )\
-        #.flatMap(lambda l: lambda_map_word_city(l) )\
-        #.reduceByKey(lambda a,b: a+b)
     output2 = lines.flatMap(lambda l: lambda_map_word_city(l) )\
         .reduceByKey(lambda a,b: a+b)
     output2.foreachRDD(citycount_to_cassandra)
