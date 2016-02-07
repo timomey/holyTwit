@@ -48,8 +48,8 @@ def update_to_cassandra(record):
     session = cluster.connect()
     #cassandra_create_topicgraph_table(keyspacename,tablename, session)
 
-    #prepared_write_query = session.prepare("UPDATE "+keyspacename+"."+tablename+" SET count = count + ? WHERE connection=? AND wordofinterest=?")
-    prepared_write_query = session.prepare("INSERT INTO "+keyspacename+"."+tablename+" (wordofinterest, connection, count, time) VALUES (?,?,?,?) USING TTL 120;")
+    #prepared_write_query = session.prepare("UPDATE "+keyspacename+"."+tablename+" SET count = count + ? WHERE connection=? AND word=?")
+    prepared_write_query = session.prepare("INSERT INTO "+keyspacename+"."+tablename+" (word, connection, count, time) VALUES (?,?,?,?) USING TTL 120;")
     for element in record:
         word = str(element[0][0])
         connection = str(element[0][1])
