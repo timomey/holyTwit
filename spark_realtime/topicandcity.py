@@ -232,7 +232,7 @@ if __name__ == "__main__":
                 if word in json.loads(tweet)["text"]:
                     return_list_of_tuples.append( ( (word, json.loads(tweet)["place"]["name"], json.loads(tweet)["place"]["country_code"] ) , 1))
             except:
-
+                pass
         return  return_list_of_tuples
 
 
