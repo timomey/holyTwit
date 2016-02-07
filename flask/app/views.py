@@ -22,7 +22,7 @@ def cassandra_create_listofwords_table():
     session = cluster.connect('twitterimpact')
     session.execute("CREATE TABLE IF NOT EXISTS holytwit.listofwords \
                     (word text, numberofwords int, time timestamp, \
-                    PRIMARY KEY (word, deg1),time );")
+                    PRIMARY KEY (word,time ));")
 
 def write_input_to_cass(inp):
     cluster = Cluster(['ec2-52-89-218-166.us-west-2.compute.amazonaws.com','ec2-52-88-157-153.us-west-2.compute.amazonaws.com','ec2-52-35-98-229.us-west-2.compute.amazonaws.com','ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
