@@ -15,8 +15,25 @@ import time
 
 
 
-cluster = Cluster(['ec2-52-89-218-166.us-west-2.compute.amazonaws.com','ec2-52-88-157-153.us-west-2.compute.amazonaws.com','ec2-52-35-98-229.us-west-2.compute.amazonaws.com','ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
-session = cluster.connect('twitterimpact')
+
+def cassandra_create_listofwords_table():
+    #list of words meintained in cassandra so that there can be multiple
+    cluster = Cluster(['ec2-52-89-218-166.us-west-2.compute.amazonaws.com','ec2-52-88-157-153.us-west-2.compute.amazonaws.com','ec2-52-35-98-229.us-west-2.compute.amazonaws.com','ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
+    session = cluster.connect('twitterimpact')
+    session.execute("CREATE TABLE IF NOT EXISTS holytwit.listofwords \
+                    (word text, numberofwords int, time timestamp, \
+                    PRIMARY KEY (word, deg1),time );")
+
+def write_input_to_cass(inp):
+    cluster = Cluster(['ec2-52-89-218-166.us-west-2.compute.amazonaws.com','ec2-52-88-157-153.us-west-2.compute.amazonaws.com','ec2-52-35-98-229.us-west-2.compute.amazonaws.com','ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
+    session = cluster.connect('twitterimpact')
+    inputlist = inp.split()
+    prepared_write_query = session.prepare("INSERT INTO holytwit.listofwords (word, numberofwords, time) VALUES (?,?,?) USING TTL 1200;")
+    for inputword in inputlist:
+        word = inputword
+        numberofwords = 1
+        time = int(time.time()*1000)
+        session.execute(prepared_write_query,(word,numberofwords,time))
 
 
 class ReusableForm(Form):
@@ -41,10 +58,15 @@ def citycount():
     print form.errors
     if request.method == 'POST':
         input=request.form['input']
-        print ' >>>>>> looking for ' + input +' in the incoming twitterstream'
+        print ' > looking for ' + input +' in the incoming twitterstream'
+
+        write_input_to_cass(input):
+
+
         if form.validate():
             # Save the comment here.
-            flash(' > looking for ' + input +' in the incoming twitterstream')
+            flash(' >>>>>>>>> looking for ' + input +' in the incoming twitterstream')
+
         else:
             flash('Error: All the form fields are required. ')
     return render_template("citycountinput.html", form=form)
