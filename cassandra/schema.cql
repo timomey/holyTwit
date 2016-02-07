@@ -40,26 +40,26 @@ CREATE MATERIALIZED VIEW holytwit.name AS
 
 
 
-CREATE TABLE holytwit.degree1 (
-    word text,
-    degree1 text,
-    place text,
-    date timestamp,
-    min int,
-    se60 int,
-    se55 int,
-    se50 int,
-    se45 int,
-    se40 int,
-    se35 int,
-    se30 int,
-    se25 int,
-    se20 int,
-    se15 int,
-    se10 int,
-    se5 int,
-    PRIMARY KEY ((word, degree1), place, date )
-)   WITH CLUSTERING ORDER BY (place desc, date desc);
+    CREATE TABLE holytwit.degree1 (
+        word text,
+        degree1 text,
+        place text,
+        date text,
+        min int,
+        se60 int,
+        se55 int,
+        se50 int,
+        se45 int,
+        se40 int,
+        se35 int,
+        se30 int,
+        se25 int,
+        se20 int,
+        se15 int,
+        se10 int,
+        se5 int,
+        PRIMARY KEY ((word, degree1), place, date )
+    )   WITH CLUSTERING ORDER BY (place desc, date desc);
 
 CREATE TABLE holytwit.degree1_total (
     word text,
