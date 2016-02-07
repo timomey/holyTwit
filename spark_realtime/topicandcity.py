@@ -208,12 +208,12 @@ if __name__ == "__main__":
 
     output = lines.map(lambda l: textsplit_placetuple ) \
         .map(lambda l: lambda_map_word_connections(l)) \
-        .flatMap(lambda l: l)\
-        .reduceByKey(lambda a,b: a+b)
+        #.flatMap(lambda l: l)\
+        #.reduceByKey(lambda a,b: a+b)
         #.map(lambda l: (l[1],l[0]))\
         #.transform(sortByKey)
-    #output.pprint()
-    output.foreachRDD(topicgraph_to_cassandra)
+    output.pprint()
+    #output.foreachRDD(topicgraph_to_cassandra)
 
 
     def lambda_map_word_city(tweet):
@@ -227,9 +227,9 @@ if __name__ == "__main__":
         return  return_list_of_tuples
 
 
-    output2 = lines.flatMap(lambda l: lambda_map_word_city(l) )\
-        .reduceByKey(lambda a,b: a+b)
-    output2.foreachRDD(citycount_to_cassandra)
+    #output2 = lines.flatMap(lambda l: lambda_map_word_city(l) )\
+    #    .reduceByKey(lambda a,b: a+b)
+    #output2.foreachRDD(citycount_to_cassandra)
 
 
     #start the stream and keep it running - await for termination too.
