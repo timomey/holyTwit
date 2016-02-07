@@ -138,9 +138,9 @@ def update_to_cassandracity2(record):
         row = session.execute(prepared_read_query,(word,place))
         if row:
             count += row[0].count
-            session.execute(prepared_write_query, (count, place, word))
+            session.execute(prepared_write_query, (word, place, count))
         else:
-            session.execute(prepared_write_query, (count, place, word))
+            session.execute(prepared_write_query, (word, place, count))
 
 
 def citycount_to_cassandra(rdd):
