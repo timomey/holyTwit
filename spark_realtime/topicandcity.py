@@ -185,14 +185,14 @@ if __name__ == "__main__":
     wordlist = [str(row.word) for row in response]
     #broadcasted_wordlist = sc.broadcast(wordlist)
 
-    def lambda_map_word_connections(tuple):
+    def lambda_map_word_connections(tuuple):
         return_list_of_tuples=list()
-        splitted_text = tuple[0]
+        splitted_text = tuuple[0]
         for word_input in wordlist:
             if word_input in splitted_text:
                 for word_tweet in splitted_text:
                     if word_tweet != word_input:
-                        return_list_of_tuples.append( ( (word_input, str(word_tweet.encode('ascii','ignore')), tuple[1] ) , 1) )
+                        return_list_of_tuples.append( ( (word_input, str(word_tweet.encode('ascii','ignore')), tuuple[1] ) , 1) )
         return  return_list_of_tuples
 
     #1. filter: is the word in the tweet. 2.filter does it have a place name 3. filter does it have country country_code
