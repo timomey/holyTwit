@@ -103,26 +103,28 @@ if __name__ == "__main__":
     kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-topicgraph", {topic: 4})
     lines = kvs.map(lambda x: x[1])
 
-    cluster = Cluster([
-        'ec2-52-89-218-166.us-west-2.compute.amazonaws.com',
-        'ec2-52-88-157-153.us-west-2.compute.amazonaws.com',
-        'ec2-52-35-98-229.us-west-2.compute.amazonaws.com',
-        'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
-    session = cluster.connect()
-    #get wordlist from cassandra
-    read_stmt = "select word,numberofwords from "+keyspacename+".listofwords ;"
-    response = session.execute(read_stmt)
-    wordlist = [str(row.word) for row in response]
-    broadcasted_wordlist = sc.broadcast(wordlist)
 
 
     def lambda_map_word_connections(splitted_text):
+        cluster = Cluster([
+            'ec2-52-89-218-166.us-west-2.compute.amazonaws.com',
+            'ec2-52-88-157-153.us-west-2.compute.amazonaws.com',
+            'ec2-52-35-98-229.us-west-2.compute.amazonaws.com',
+            'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
+        session = cluster.connect()
+        #get wordlist from cassandra
+        read_stmt = "select word,numberofwords from "+keyspacename+".listofwords ;"
+        response = session.execute(read_stmt)
+        wordlist = [str(row.word) for row in response]
+        broadcasted_wordlist = sc.broadcast(wordlist)
+
         return_list_of_tuples=list()
         for word_input in broadcasted_wordlist.value:
             if word_input in splitted_text:
                 for word_tweet in splitted_text:
                     if word_tweet != word_input:
                         return_list_of_tuples.append( ( (word_input, str(word_tweet.encode('ascii','ignore')) ) , 1))
+        broadcasted_wordlist.unpersist(blocking=False)
         return  return_list_of_tuples
 
     #1. filter: is the word in the tweet. 2.filter does it have a place name 3. filter does it have country country_code
@@ -144,7 +146,6 @@ if __name__ == "__main__":
     output.foreachRDD(topicgraph_to_cassandra)
 
 
-    broadcasted_wordlist.unpersist(blocking=False)
     #start the stream and keep it running - await for termination too.
     ssc.start()
     ssc.awaitTermination()
