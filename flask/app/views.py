@@ -60,7 +60,7 @@ def citycount():
         input=request.form['input']
         print ' > looking for ' + input +' in the incoming twitterstream'
 
-        write_input_to_cass(input):
+        write_input_to_cass(input)
 
 
         if form.validate():
