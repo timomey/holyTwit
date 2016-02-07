@@ -206,14 +206,14 @@ if __name__ == "__main__":
         except:
             return (('error','error'),0)
 
-    output = lines.map(lambda l: textsplit_placetuple ) 
-        #.map(lambda l: lambda_map_word_connections(l)) \
-        #.flatMap(lambda l: l)\
-        #.reduceByKey(lambda a,b: a+b)
+    output = lines.map(lambda l: textsplit_placetuple(l) )\
+        .map(lambda l: lambda_map_word_connections(l)) \
+        .flatMap(lambda l: l)\
+        .reduceByKey(lambda a,b: a+b)
         #.map(lambda l: (l[1],l[0]))\
         #.transform(sortByKey)
-    output.pprint()
-    #output.foreachRDD(topicgraph_to_cassandra)
+    #output.pprint()
+    output.foreachRDD(topicgraph_to_cassandra)
 
 
     def lambda_map_word_city(tweet):
