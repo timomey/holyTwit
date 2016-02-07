@@ -149,7 +149,7 @@ if __name__ == "__main__":
 
     def lambda_map_word_city(tweet):
         return_list_of_tuples=list()
-        for word in wordlist2:
+        for word in wordlist:
             if word in json.loads(tweet)["text"]:
                 return_list_of_tuples.append( ( (word, json.loads(tweet)["place"]["name"], json.loads(tweet)["place"]["country_code"] ) , 1))
         return  return_list_of_tuples
