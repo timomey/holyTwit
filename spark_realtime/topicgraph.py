@@ -64,31 +64,6 @@ def topicgraph_to_cassandra(rdd):
     #so for each partition, do what you wanna do ->
     rdd.foreachPartition(lambda record: update_to_cassandra(record))
 
-def newwords_and_tuple_part(record):
-    cluster = Cluster([
-        'ec2-52-89-218-166.us-west-2.compute.amazonaws.com',
-        'ec2-52-88-157-153.us-west-2.compute.amazonaws.com',
-        'ec2-52-35-98-229.us-west-2.compute.amazonaws.com',
-        'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
-    session = cluster.connect()
-    #get wordlist from cassandra
-    read_stmt = "select word,numberofwords from "+keyspacename+".listofwords ;"
-    response = session.execute(read_stmt)
-    wordlist = [str(row.word) for row in response]
-
-    for splitted_text in record:
-        return_list_of_tuples=list()
-        for word_input in wordlist:
-            if word_input in splitted_text:
-                for word_tweet in splitted_text:
-                    if word_tweet != word_input:
-                        return_list_of_tuples.append( ( (word_input, str(word_tweet.encode('ascii','ignore')) ) , 1))
-    return  return_list_of_tuples
-
-
-def newwords_and_tuple(rdd):
-    rdd.foreachPartition(lambda record: newwords_and_tuple_part)
-
 
 if __name__ == "__main__":
 
@@ -135,6 +110,9 @@ if __name__ == "__main__":
                         return_list_of_tuples.append( ( (word_input, str(word_tweet.encode('ascii','ignore')) ) , 1))
         return  return_list_of_tuples
 
+
+    def domyshit(rdd):
+
     #1. filter: is the word in the tweet. 2.filter does it have a place name 3. filter does it have country country_code
     #4. map it to ((place.name, place.country_code),1).
     #5. reducebykey add a+b -> sum for each place.
@@ -142,7 +120,7 @@ if __name__ == "__main__":
     output = lines.filter(lambda l: len(json.loads(l)['text'])>5 )\
         .filter(lambda l: json.loads(l)["timestamp_ms"] >0  )\
         .map(lambda l: list(set(json.loads(l)["text"].split())) )\
-        .foreachRDD(newwords_and_tuple)
+        .foreachRDD(lambda rdd: rdd.foreachPartition(lambda_map_word_connections))
         #.flatMap(lambda l: lambda_map_word_connections(l))
         #.reduceByKey(lambda a,b: a+b)
         #this could be an attempt to sort; but makes sense maybe only in batch?!?
