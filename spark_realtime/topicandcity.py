@@ -196,18 +196,18 @@ if __name__ == "__main__":
                             return_list_of_tuples.append( ( (word_input, str(word_tweet.encode('ascii','ignore')), tuuple[1] ) , 1) )
             return  return_list_of_tuples
         else:
-            return tuuple
+            return [tuuple]
 
     def textsplit_placetuple(tweet):
         try:
             splittextset = [set(json.loads(l)["text"].split())]
-            place = str(json.loads(l)["place"]["name"]+","+json.loads(l)["place"]["country_code"])
+            place = str(json.loads(l)["place"]["name"].encode('ascii','ignore')+","+json.loads(l)["place"]["country_code"].encode('ascii','ignore'))
             return ((splittextset,place),1)
         except:
             return (('error','error'),0)
 
     output = lines.map(lambda l: textsplit_placetuple(l) )\
-        .map(lambda l: lambda_map_word_connections(l)) 
+        .map(lambda l: lambda_map_word_connections(l))
         #.flatMap(lambda l: l)\
         #.reduceByKey(lambda a,b: a+b)
         #.map(lambda l: (l[1],l[0]))\
