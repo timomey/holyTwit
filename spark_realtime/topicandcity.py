@@ -132,7 +132,7 @@ if __name__ == "__main__":
     #zookeeper quorum for to connect to kafka (local ips for faster access)
     zkQuorum = "52.34.117.127:2181,52.89.22.134:2181,52.35.24.163:2181,52.89.0.97:2181"
     #kafka topic to consume from:
-    topic = "twitterdump_timo"
+    topic = "faketwitterstream"
     #topic and number of partitions (check with kafka)
     kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-topicgraph", {topic: 4})
     lines = kvs.map(lambda x: x[1])

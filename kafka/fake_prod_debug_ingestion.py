@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
 
 
-	topic = 'twitterdump_timo'
+	topic = 'faketwitterstream'
 	cluster = kafka.KafkaClient("ip-172-31-2-200:9092,ip-172-31-2-201:9092,ip-172-31-2-202:9092,ip-172-31-2-203:9092")
 	prod = kafka.SimpleProducer(cluster, async = True, batch_send_every_t = 500)
 
