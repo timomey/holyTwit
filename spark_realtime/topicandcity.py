@@ -216,8 +216,8 @@ if __name__ == "__main__":
         .reduceByKey(lambda a,b: a+b)
         #.map(lambda l: (l[1],l[0]))\
         #.transform(sortByKey)
-    output.pprint()
-    #output.foreachRDD(topicgraph_to_cassandra)
+    #output.pprint()
+    output.foreachRDD(topicgraph_to_cassandra)
 
 
     def lambda_map_word_city(tweet):
