@@ -77,7 +77,7 @@ def write_to_cassandra(record):
         rows = session.execute(read_query, (word, degree1,place,date))
         if rows:
             now = datetime.datetime.now()
-            countarray = (rows[0].se5, rows[0].se10, rows[0].se15, rows[0].se20, rows[0].se25, rows[0].se30, rows[0].se35, rows[0].se40, rows[0].se45, rows[0].se50, rows[0].se55, rows[0].se60, rows[0].min)
+            countarray = [rows[0].se5, rows[0].se10, rows[0].se15, rows[0].se20, rows[0].se25, rows[0].se30, rows[0].se35, rows[0].se40, rows[0].se45, rows[0].se50, rows[0].se55, rows[0].se60, rows[0].min]
             testlist = range(5,61,5)
             for i in range(len(testlist)):
                 if testlist[i] > now.second:
