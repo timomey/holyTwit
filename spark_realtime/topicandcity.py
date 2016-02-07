@@ -228,8 +228,11 @@ if __name__ == "__main__":
     def lambda_map_word_city(tweet):
         return_list_of_tuples=list()
         for word in wordlist:
-            if word in json.loads(tweet)["text"]:
-                return_list_of_tuples.append( ( (word, json.loads(tweet)["place"]["name"], json.loads(tweet)["place"]["country_code"] ) , 1))
+            try:
+                if word in json.loads(tweet)["text"]:
+                    return_list_of_tuples.append( ( (word, json.loads(tweet)["place"]["name"], json.loads(tweet)["place"]["country_code"] ) , 1))
+            except:
+
         return  return_list_of_tuples
 
 
@@ -243,9 +246,9 @@ if __name__ == "__main__":
         #.filter(lambda l: len(json.loads(l)["place"]["name"])>0 )\
         #.flatMap(lambda l: lambda_map_word_city(l) )\
         #.reduceByKey(lambda a,b: a+b)
-    output = lines.flatMap(lambda l: lambda_map_word_city(l) )\
+    output2 = lines.flatMap(lambda l: lambda_map_word_city(l) )\
         .reduceByKey(lambda a,b: a+b)
-    output.foreachRDD(citycount_to_cassandra)
+    output2.foreachRDD(citycount_to_cassandra)
 
 
     #start the stream and keep it running - await for termination too.
