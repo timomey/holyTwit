@@ -38,15 +38,13 @@ def slides():
 @app.route('/citycount', methods=['GET', 'POST'])
 def citycount():
     form = ReusableForm(request.form)
-
     print form.errors
     if request.method == 'POST':
         input=request.form['input']
-        print 'looking for ' + input +' in the incoming twitterstream'
-
+        print ' >>>>>> looking for ' + input +' in the incoming twitterstream'
         if form.validate():
             # Save the comment here.
-            flash('looking for ' + input +' in the incoming twitterstream')
+            flash(' > looking for ' + input +' in the incoming twitterstream')
         else:
             flash('Error: All the form fields are required. ')
     return render_template("citycountinput.html", form=form)
