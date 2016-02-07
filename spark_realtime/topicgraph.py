@@ -99,9 +99,6 @@ if __name__ == "__main__":
         read_stmt = "select word,numberofwords from "+keyspacename+".listofwords ;"
         response = session.execute(read_stmt)
         wordlist = [str(row.word) for row in response]
-        #broadcasted_wordlist = sc.broadcast(wordlist)
-        #broadcasted_wordlist.unpersist(blocking=False)
-
         return_list_of_tuples=list()
         for word_input in wordlist:
             if word_input in splitted_text:
