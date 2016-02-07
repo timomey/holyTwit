@@ -59,7 +59,7 @@ def citycount():
     if request.method == 'POST':
         input=request.form['input']
         print ' > looking for ' + input +' in the incoming twitterstream'
-
+        cassandra_create_listofwords_table()
         write_input_to_cass(input)
 
 
