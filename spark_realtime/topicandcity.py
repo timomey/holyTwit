@@ -89,7 +89,7 @@ def write_to_cassandra(record):
             session.execute(write_query,(word, degree1, place, date) + countarray[::-1] )
         else:
             now = datetime.datetime.now()
-            countarray= (0,) * 13
+            countarray= [0,] * 13
             testlist = range(5,61,5)
             for i in range(len(testlist)):
                 if testlist[i] > now.second:
