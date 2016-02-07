@@ -90,16 +90,16 @@ if __name__ == "__main__":
     lines = kvs.map(lambda x: x[1])
 
 
-    cluster = Cluster([
-        'ec2-52-89-218-166.us-west-2.compute.amazonaws.com',
-        'ec2-52-88-157-153.us-west-2.compute.amazonaws.com',
-        'ec2-52-35-98-229.us-west-2.compute.amazonaws.com',
-        'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
-    session = cluster.connect()
-    #get wordlist from cassandra
-    read_stmt = "select word,numberofwords from "+keyspacename+".listofwords ;"
 
     def lambda_map_word_connections(splitted_text):
+        cluster = Cluster([
+            'ec2-52-89-218-166.us-west-2.compute.amazonaws.com',
+            'ec2-52-88-157-153.us-west-2.compute.amazonaws.com',
+            'ec2-52-35-98-229.us-west-2.compute.amazonaws.com',
+            'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
+        session = cluster.connect()
+        #get wordlist from cassandra
+        read_stmt = "select word,numberofwords from "+keyspacename+".listofwords ;"
         response = session.execute(read_stmt)
         wordlist = [str(row.word) for row in response]
         #broadcasted_wordlist = sc.broadcast(wordlist)
