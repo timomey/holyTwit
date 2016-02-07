@@ -77,7 +77,7 @@ def write_to_cassandra(record):
         rows = session.execute(read_query, (word, degree1,place,date))
         if rows:
             now = datetime.datetime.now()
-            countarray = (rows.se5, rows.se10, rows.se15, rows.se20, rows.se25, rows.se30, rows.se35, rows.se40, rows.se45, rows.se50, rows.se55, rows.se60, rows.min)
+            countarray = (rows[0].se5, rows[0].se10, rows[0].se15, rows[0].se20, rows[0].se25, rows[0].se30, rows[0].se35, rows[0].se40, rows[0].se45, rows[0].se50, rows[0].se55, rows[0].se60, rows[0].min)
             testlist = range(5,61,5)
             for i in range(len(testlist)):
                 if testlist[i] > now.second:
@@ -117,11 +117,36 @@ def update_to_cassandracity(record):
         count = element[1]
         session.execute(prepared_write_query, (count, place, word))
 
+def update_to_cassandracity2(record):
+    #There is a problem with counter variable count. ; maybe counter can not be ordered by?!?
+    cluster = Cluster([
+        'ec2-52-89-218-166.us-west-2.compute.amazonaws.com',
+        'ec2-52-88-157-153.us-west-2.compute.amazonaws.com',
+        'ec2-52-35-98-229.us-west-2.compute.amazonaws.com',
+        'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
+    session = cluster.connect()
+    #cassandra_create_citycount_table(keyspacename,citycounttablename, session)
+
+    prepared_write_query = session.prepare("INSERT INTO "+keyspacename+"."+citycounttablename+" (word,place,count) VALUES (?,?,?) USING TTL 120")
+    prepared_write_query.consistency_level = ConsistencyLevel.QUORUM
+    prepared_read_query = session.prepare("SELECT count FROM "+keyspacename+"."+citycounttablename+" WHERE word=? AND place =?")
+    prepared_read_query.consistency_level = ConsistencyLevel.QUORUM
+    for element in record:
+        word = element[0][0]
+        place = str(element[0][1].encode('ascii','ignore'))+", "+ str(element[0][2].encode('ascii','ignore'))
+        count = element[1]
+        row = session.execute(prepared_read_query,(word,place))
+        if row:
+            count += row[0].count
+            session.execute(prepared_write_query, (count, place, word))
+        else:
+            session.execute(prepared_write_query, (count, place, word))
+
 
 def citycount_to_cassandra(rdd):
     #each RDD consists of a bunch of partitions which themselves are local on a single machine (each)
     #so for each partition, do what you wanna do ->
-    rdd.foreachPartition(lambda record: update_to_cassandracity(record))
+    rdd.foreachPartition(lambda record: update_to_cassandracity2(record))
 
 def topicgraph_to_cassandra(rdd):
     #each RDD consists of a bunch of partitions which themselves are local on a single machine (each)

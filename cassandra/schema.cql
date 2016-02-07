@@ -14,6 +14,13 @@ CREATE TABLE holytwit.city_count (
     PRIMARY KEY (wordofinterest, place)
     ) WITH CLUSTERING ORDER BY (place desc);
 
+CREATE TABLE holytwit.city_count (
+    wordofinterest text,
+    place text,
+    count int,
+    PRIMARY KEY ((wordofinterest,place), count)
+    ) WITH CLUSTERING ORDER BY (count desc);
+
 CREATE TABLE holytwit.topicgraph (
     word text,
     connection text,
