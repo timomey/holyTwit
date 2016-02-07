@@ -83,7 +83,7 @@ def write_to_cassandra(record):
                 if testlist[i] > now.second:
                     countarray[i]=countarray[i]+count
                     countarray[-1] += count
-                    countarray[-1] -= [(i+1)%(len(countarray)-1)]
+                    countarray[-1] -= countarray[(i+1)%(len(countarray)-1)]
                     countarray[(i+1)%(len(countarray)-1)] = 0
                     break
             session.execute(write_query,(word, degree1, place, date) + tuple(countarray[::-1]) )
