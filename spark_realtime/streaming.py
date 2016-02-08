@@ -75,11 +75,12 @@ if __name__ == "__main__":
 
     userqueries.foreachRDD(lambda rdd: rdd.foreachPartition(sendPartition))
 
-    #get all id's
-    res = es.search(
-        index="twit",
-        body={"query": {"match_all": {}}, "size": 30000, "fields": ["_id"]})
-    ids = [d['_id'] for d in res['hits']['hits']]
+    ########################get all id's
+    #res = es.search(
+    #    index="twit",
+    #    body={"query": {"match_all": {}}, "size": 30000, "fields": ["_id"]})
+    #ids = [d['_id'] for d in res['hits']['hits']]
     #start the stream and keep it running - await for termination too.
+    ########################
     ssc.start()
     ssc.awaitTermination()
