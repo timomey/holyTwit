@@ -76,7 +76,7 @@ if __name__ == "__main__":
                     es.create(index='documents', doc_type='.percolator', body={'query': {'match': {'message': q}}}, id=count)
 
     def testfnnct(rdd):
-        rdd.collect().foreach(print)
+        rdd.collect().pprint()
 
     userqueries.foreachRDD(testfnnct)
 
