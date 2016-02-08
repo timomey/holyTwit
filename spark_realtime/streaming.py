@@ -36,21 +36,21 @@ if __name__ == "__main__":
 
     #ELASTICSEARCH STUFF
     es = Elasticsearch(hosts=[{"host":"52.34.117.127", "port":9200},{"host":"52.89.22.134", "port":9200},{"host":"52.35.24.163", "port":9200},{"host":"52.89.0.97", "port":9200}] )
-    es.indices.delete(index='twit', ignore=400)
+    #es.indices.delete(index='twit', ignore=400)
     # index and document type constants
     #create index for ES (ignore if it already exists       )
-    es.indices.create(index='twit', ignore=400, body={
-          "mappings": {
-            "document": {
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-    )
+    #es.indices.create(index='twit', ignore=400, body={
+    #      "mappings": {
+    #        "document": {
+    #          "properties": {
+    #            "message": {
+    #              "type": "string"
+    #            }
+    #          }
+    #        }
+    #      }
+    #    }
+    #)
 
     #zookeeper quorum for to connect to kafka (local ips for faster access)
     zkQuorum = "52.34.117.127:2181,52.89.22.134:2181,52.35.24.163:2181,52.89.0.97:2181"
