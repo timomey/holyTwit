@@ -14,7 +14,7 @@ import time as timepackage
 from operator import add
 import datetime
 from elasticsearch import Elasticsearch
-from elasticsearch.helpers import bulk
+from elasticsearch.helpers import bulk, scan
 
 
 
@@ -76,9 +76,15 @@ if __name__ == "__main__":
     def sendPartition(iter):
         es = Elasticsearch(hosts=[{"host":"52.34.117.127", "port":9200},{"host":"52.89.22.134", "port":9200},{"host":"52.35.24.163", "port":9200},{"host":"52.89.0.97", "port":9200}] )
         try:
+            idcounter=0
             for word in iter:
-                es.create(index='twit', doc_type='.percolator', body={'query': {'match': {'message': word  }}}, id=number_queries.value)
-                number_queries.add(1)
+                #scroll = elasticsearch.helpers.scan(es, query='{"fields": "_id"}', index='twit', scroll='10s')
+                #for res in scroll:
+                #    if res['_id']
+                idcounter+=1
+                es.create(index='twit', doc_type='.percolator', body={'query': {'match': {'message': word  }}}, id=idcounter)
+
+
         except TypeError:#this exception handles the ongoing empty stream. TypeError: NoneType
             pass
 
