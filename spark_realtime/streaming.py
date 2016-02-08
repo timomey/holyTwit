@@ -79,17 +79,19 @@ if __name__ == "__main__":
     def eachrddfct(rdd):
         rdd.foreachPartition(lambda record: query_to_es(record) )
 
-    inputwords = userqueries.flatMap(lambda l: str(l).split() )
-    test= inputwords.foreachRDD(lambda rdd: rdd.collect() )
-    with open('test.txt', 'a') as f:
+    def sendPartition(iter):
+        es = Elasticsearch(hosts=[{"host":["52.34.117.127","52.89.22.134","52.35.24.163","52.89.0.97"], "port":9200}] )
+        count =0
         try:
-            for word in test:
-                f.write(word)
-                f.write('\n')
+            for word in iter:
+                count+=1
+                es.create(index='twit', doc_type='.percolator', body={'query': {'match': {'message': word  }}}, id=count)
         except TypeError:
             pass
 
-    inputwords.pprint()
+
+    inputwords = userqueries.flatMap(lambda l: str(l).split() )
+    inputwords.foreachRDD(lambda rdd: rdd.foreachPartition(sendPartition ))
 
     ########################get all id's
     #res = es.search(
