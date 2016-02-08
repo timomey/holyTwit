@@ -74,8 +74,10 @@ if __name__ == "__main__":
                 for word in wordlist:
                     count+=1
                     es.create(index='documents', doc_type='.percolator', body={'query': {'match': {'message': q}}}, id=count)
-        
-    userqueries.foreachRDD(lambda rdd: rdd.foreachPartition(sendPartition))
+
+    userqueries.foreachRDD(testfnnct)
+    def testfnnct(rdd):
+        rdd.foreachPartition(lambda record: sendPartition(record) )
 
     ########################get all id's
     #res = es.search(
