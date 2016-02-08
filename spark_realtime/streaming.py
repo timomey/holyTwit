@@ -73,13 +73,13 @@ if __name__ == "__main__":
             for word in iter:
                 #wordlist = inpu.split()
                 count+=1
-                es.create(index='twit', doc_type='.percolator', body={'query': {'match': {'message': str(word.encode('ascii','ignore') ) }}}, id=count)
+                es.create(index='twit', doc_type='.percolator', body={'query': {'match': {'message': word  }}}, id=count)
 
     def eachrddfct(rdd):
         rdd.foreachPartition(lambda record: query_to_es(record) )
 
-    inputwords = userqueries.flatMap(lambda l: str(l).split() )
-    inputwords.foreachRDD(eachrddfct)
+    inputwords = userqueries.flatMap(lambda l: type(str(l).split()) )
+    #inputwords.foreachRDD(eachrddfct)
     inputwords.pprint()
 
     ########################get all id's
