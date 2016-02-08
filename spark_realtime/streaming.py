@@ -61,6 +61,7 @@ if __name__ == "__main__":
     userqueries = kquerys.map(lambda x: x[1])
     #lines = kvs.map(lambda x: x[1])
 
+
     def query_to_es(iter):
         INDEX_NAME = "twit"
         TYPE = "document"
@@ -68,18 +69,17 @@ if __name__ == "__main__":
         #elastic search connection:
         es = Elasticsearch(hosts=[{"host":["52.34.117.127","52.89.22.134","52.35.24.163","52.89.0.97"], "port":9200}] )
         if iter:
-            for inpu in iter:
-                wordlist = inpu.split()
-                count=0
-                for word in wordlist:
-                    count+=1
-                    es.create(index='twit', doc_type='.percolator', body={'query': {'match': {'message': word}}}, id=count)
+            count=0
+            for word in iter:
+                #wordlist = inpu.split()
+                count+=1
+                es.create(index='twit', doc_type='.percolator', body={'query': {'match': {'message': word}}}, id=count)
 
     def eachrddfct(rdd):
         rdd.foreachPartition(lambda record: query_to_es(record) )
 
     inputwords = userqueries.flatMap(lambda l: str(l).split() )
-    #userqueries.foreachRDD(eachrddfct)
+    inputwords.foreachRDD(eachrddfct)
     inputwords.pprint()
 
     ########################get all id's
