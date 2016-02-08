@@ -67,13 +67,14 @@ if __name__ == "__main__":
     lines = kvs.map(lambda x: x[1])
 
     def sendPartition(iter):
-        for inpu in iter:
-            wordlist = inpu.split()
-            count=0
-            for word in wordlist:
-                count+=1
-                es.create(index='documents', doc_type='.percolator', body={'query': {'match': {'message': q}}}, id=count)
-
+        if iter:
+            for inpu in iter:
+                wordlist = inpu.split()
+                count=0
+                for word in wordlist:
+                    count+=1
+                    es.create(index='documents', doc_type='.percolator', body={'query': {'match': {'message': q}}}, id=count)
+        
     userqueries.foreachRDD(lambda rdd: rdd.foreachPartition(sendPartition))
 
     ########################get all id's
