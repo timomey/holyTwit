@@ -232,7 +232,7 @@ if __name__ == "__main__":
                 if word_input in text:
                     #hashtags:
                     try:
-                        hashtags = [hash.split()[0] for hash in json.loads(tweets)["text"].split('#')[1:]]
+                        hashtags = [hash.split()[0] for hash in json.loads(tweet)["text"].split('#')[1:]]
                         place = str(json.loads(tweet)["place"]["name"].encode('ascii','ignore')+","+json.loads(tweet)["place"]["country_code"].encode('ascii','ignore'))
                         for ht in hashtags:
                             return_list_of_tuples.append( ((word_input ,hashtags,place),1) )
