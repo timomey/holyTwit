@@ -63,8 +63,6 @@ if __name__ == "__main__":
                 #    if res['_id']
                 idcounter+=1
                 es.create(index='twit', doc_type='.percolator', body={'query': {'match': {'message': word  }}}, id=idcounter)
-
-
         except TypeError:#this exception handles the ongoing empty stream. TypeError: NoneType
             pass
 

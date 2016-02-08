@@ -22,7 +22,8 @@ es.indices.create(index='twit', ignore=400, body={
 )
 
 
-#scroll = elasticsearch.helpers.scan(es, query='{"fields": "_id"}', index='twit', scroll='10s')
-#for res in scroll:
-#    if res['_id']
+scroll = elasticsearch.helpers.scan(es, query='{"fields": "_id"}', index='twit', scroll='10s')
+for res in scroll:
+    print res['_id']
+
 es.create(index='twit', doc_type='.percolator', body={'query': {'match': {'message': word  }}}, id=idcounter)
