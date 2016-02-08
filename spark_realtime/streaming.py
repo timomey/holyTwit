@@ -33,11 +33,6 @@ if __name__ == "__main__":
 
     #ELASTICSEARCH STUFF
     # index and document type constants
-    INDEX_NAME = "documents"
-    TYPE = "document"
-
-    #elastic search connection:
-    es = Elasticsearch(hosts=[{"host":["52.34.117.127","52.89.22.134","52.35.24.163","52.89.0.97"], "port":9200}] )
     #create index for ES (ignore if it already exists       )
     #es.indices.create(index='twit', ignore=400, body={
     #      "mappings": {
@@ -67,6 +62,11 @@ if __name__ == "__main__":
     lines = kvs.map(lambda x: x[1])
 
     def sendPartition(iter):
+        INDEX_NAME = "documents"
+        TYPE = "document"
+
+        #elastic search connection:
+        es = Elasticsearch(hosts=[{"host":["52.34.117.127","52.89.22.134","52.35.24.163","52.89.0.97"], "port":9200}] )
         if iter:
             for inpu in iter:
                 wordlist = inpu.split()
@@ -76,7 +76,7 @@ if __name__ == "__main__":
                     es.create(index='documents', doc_type='.percolator', body={'query': {'match': {'message': q}}}, id=count)
 
     def testfnnct(rdd):
-        rdd.collect().pprint()
+        rdd.foreachPartition(lambda record: sendPartition(record) )
 
     userqueries.foreachRDD(testfnnct)
 
