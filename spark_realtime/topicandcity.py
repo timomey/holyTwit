@@ -245,8 +245,8 @@ if __name__ == "__main__":
             return [(('error','error','noplace'),1)]
 
     hashtagsoutput = lines.map(lambda l: text_hashtags_place_tuple(l) )\
-        .flatMap(lambda l: l)
-        #.reduceByKey(lambda a,b: a+b)
+        .flatMap(lambda l: l)\
+        .reduceByKey(lambda a,b: a+b)
     hashtagsoutput.pprint()
 
 
