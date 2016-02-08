@@ -42,14 +42,16 @@ if __name__ == "__main__":
     #directKafkaStream = KafkaUtils.createDirectStream(ssc, [topic], {"metadata.broker.list": brokers})
     #StorageLevel.MEMORY_AND_DISK_SER
 
-    #kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-topicgraph", {topic: 8})
+    kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-topicgraph", {topic: 8})
     #2nd stream for search querries
     kquerys = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-elastc", {"elasticquerries": 8})
     userqueries = kquerys.map(lambda x: x[1])
-    #lines = kvs.map(lambda x: x[1])
+    lines = kvs.map(lambda x: x[1])
 
 
-
+    ############################################
+    # webside -> kafka stream -> ES query:
+    ############################################
     def eachrddfct(rdd):
         rdd.foreachPartition(lambda record: query_to_es(record) )
 
@@ -64,16 +66,11 @@ if __name__ == "__main__":
         except TypeError:#this exception handles the ongoing empty stream. TypeError: NoneType
             pass
 
-
     inputwords = userqueries.flatMap(lambda l: str(l).split() )
     inputwords.foreachRDD(lambda rdd: rdd.foreachPartition(sendPartition ))
-    inputwords.pprint()
-    ########################get all id's
-    #    res = es.search(
-    #        index="twit",
-    #        body={"query": {"match_all": {}}, "size": 30000, "fields": ["_id"]})
-    #    ids = [d['_id'] for d in res['hits']['hits']]
-    #start the stream and keep it running - await for termination too.
-    ########################
+
+    ############################################
+
+
     ssc.start()
     ssc.awaitTermination()

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk, scan
 
@@ -22,8 +23,5 @@ es.indices.create(index='twit', ignore=400, body={
 )
 
 
-scroll = scan(es, query='{"fields": "_id"}', index='twit', scroll='10s')
-for res in scroll:
-    print res['_id']
-
-es.create(index='twit', doc_type='.percolator', body={'query': {'match': {'message': word  }}}, id=idcounter)
+#other stuff:
+#es.create(index='twit', doc_type='.percolator', body={'query': {'match': {'message': word  }}})
