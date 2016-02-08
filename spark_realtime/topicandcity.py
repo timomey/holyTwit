@@ -261,9 +261,9 @@ if __name__ == "__main__":
         return  return_list_of_tuples
 
 
-    output2 = lines.flatMap(lambda l: lambda_map_word_city(l) )\
-        .reduceByKey(lambda a,b: a+b)
-    output2.foreachRDD(citycount_to_cassandra)
+    #output2 = lines.flatMap(lambda l: lambda_map_word_city(l) )\
+    #    .reduceByKey(lambda a,b: a+b)
+    #output2.foreachRDD(citycount_to_cassandra)
 
 
     #start the stream and keep it running - await for termination too.
