@@ -31,23 +31,17 @@ if __name__ == "__main__":
     sc = SparkContext(appName="topicgraph")
     ssc = StreamingContext(sc, 1)
 
-
+    #StorageLevel.MEMORY_AND_DISK_SER
+    ############################################
+    # consume from kafka streams
+    ############################################
     #zookeeper quorum for to connect to kafka (local ips for faster access)
     zkQuorum = "52.34.117.127:2181,52.89.22.134:2181,52.35.24.163:2181,52.89.0.97:2181"
-    #brokers = "52.34.117.127:9092,52.89.22.134:9092,52.35.24.163:9092,52.89.0.97:9092"
-    #kafka topic to consume from:
-    topic = "faketwitterstream"
-
-    #alternative kafka stream:
-    #directKafkaStream = KafkaUtils.createDirectStream(ssc, [topic], {"metadata.broker.list": brokers})
-    #StorageLevel.MEMORY_AND_DISK_SER
-
-    kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-topicgraph", {topic: 8})
+    kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-topicgraph", {"faketwitterstream": 8})
     #2nd stream for search querries
     kquerys = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-elastc", {"elasticquerries": 8})
     userqueries = kquerys.map(lambda x: x[1])
     lines = kvs.map(lambda x: x[1])
-
 
     ############################################
     # webside -> kafka stream -> ES query:
@@ -70,6 +64,16 @@ if __name__ == "__main__":
     inputwords.foreachRDD(lambda rdd: rdd.foreachPartition(sendPartition ))
 
     ############################################
+    # twitterstream ->
+    ############################################
+
+    hashtagsoutput = lines.map(lambda l: text_hashtags_place_tuple(l) )\
+        .flatMap(lambda l: l)\
+        .reduceByKey(lambda a,b: a+b)
+    hashtagsoutput.pprint()
+    #hashtagsoutput.foreachRDD(topicgraph_to_cassandra)
+
+
 
 
     ssc.start()
