@@ -75,9 +75,10 @@ if __name__ == "__main__":
                     count+=1
                     es.create(index='documents', doc_type='.percolator', body={'query': {'match': {'message': q}}}, id=count)
 
-    userqueries.foreachRDD(testfnnct)
     def testfnnct(rdd):
         rdd.foreachPartition(lambda record: sendPartition(record) )
+
+    userqueries.foreachRDD(testfnnct)
 
     ########################get all id's
     #res = es.search(
