@@ -62,7 +62,7 @@ if __name__ == "__main__":
     #lines = kvs.map(lambda x: x[1])
 
     def query_to_es(iter):
-        INDEX_NAME = "documents"
+        INDEX_NAME = "twit"
         TYPE = "document"
 
         #elastic search connection:
@@ -73,7 +73,7 @@ if __name__ == "__main__":
                 count=0
                 for word in wordlist:
                     count+=1
-                    es.create(index='documents', doc_type='.percolator', body={'query': {'match': {'message': word}}}, id=count)
+                    es.create(index='twit', doc_type='.percolator', body={'query': {'match': {'message': word}}}, id=count)
 
     def eachrddfct(rdd):
         rdd.foreachPartition(lambda record: query_to_es(record) )
