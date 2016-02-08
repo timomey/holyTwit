@@ -26,9 +26,9 @@ if __name__ == "__main__":
     tablename = 'topicgraph'
     citycounttablename = 'city_count'
     #spark  objects
-    conf = SparkConf().setAppName("holyTwit")
-    conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-    sc = SparkContext(conf)
+    #conf = SparkConf().setAppName("holyTwit")
+    #conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+    sc = SparkContext(appName="topicgraph")
     ssc = StreamingContext(sc, 1)
 
     #ELASTICSEARCH STUFF
