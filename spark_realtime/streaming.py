@@ -82,9 +82,10 @@ if __name__ == "__main__":
     inputwords = userqueries.flatMap(lambda l: str(l).split() )
     test= inputwords.foreachRDD(lambda rdd: rdd.collect() )
     with open('test.txt', 'a') as f:
-        for word in test:
-            f.write(word)
-            f.write('\n')
+        if test:
+            for word in test:
+                f.write(word)
+                f.write('\n')
 
 
     inputwords.pprint()
