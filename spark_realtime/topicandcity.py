@@ -235,7 +235,7 @@ if __name__ == "__main__":
                         hashtags = [hash.split()[0] for hash in json.loads(tweet)["text"].split('#')[1:]]
                         place = str(json.loads(tweet)["place"]["name"].encode('ascii','ignore')+","+json.loads(tweet)["place"]["country_code"].encode('ascii','ignore'))
                         for ht in hashtags:
-                            return_list_of_tuples.append( ((word_input ,hashtags,place),1) )
+                            return_list_of_tuples.append( ((word_input ,ht, place),1) )
                         return return_list_of_tuples
                     except IndexError:
                         return [((word_input, 'nohashtags', place),1)]
