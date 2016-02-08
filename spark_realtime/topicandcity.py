@@ -167,10 +167,12 @@ if __name__ == "__main__":
 
     #zookeeper quorum for to connect to kafka (local ips for faster access)
     zkQuorum = "52.34.117.127:2181,52.89.22.134:2181,52.35.24.163:2181,52.89.0.97:2181"
+    brokers = "52.34.117.127:9092,52.89.22.134:9092,52.35.24.163:9092,52.89.0.97:9092"
     #kafka topic to consume from:
     topic = "faketwitterstream"
     #topic and number of partitions (check with kafka)
-    kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-topicgraph", {topic: 4})
+    #directKafkaStream = KafkaUtils.createDirectStream(ssc, [topic], {"metadata.broker.list": brokers})
+    kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-topicgraph", {topic: 8})
     lines = kvs.map(lambda x: x[1])
 
     cluster = Cluster([
@@ -205,19 +207,47 @@ if __name__ == "__main__":
     def textsplit_placetuple(tweet):
         try:
             splittextset = list(set(json.loads(tweet)["text"].split()))
+            #hashtags:
+            #hashtags = [hash.split()[0] for hash in json.loads(tweets)["text"].split('#')[1:]]
             place = str(json.loads(tweet)["place"]["name"].encode('ascii','ignore')+","+json.loads(tweet)["place"]["country_code"].encode('ascii','ignore'))
             return ((splittextset,place),1)
         except TypeError:
             return (('error','error','noplace'),1)
 
-    output = lines.map(lambda l: textsplit_placetuple(l) )\
-        .map(lambda l: lambda_map_word_connections(l))\
-        .flatMap(lambda l: l)\
-        .reduceByKey(lambda a,b: a+b)
+    #output = lines.map(lambda l: textsplit_placetuple(l) )\
+    #    .map(lambda l: lambda_map_word_connections(l))\
+    #    .flatMap(lambda l: l)\
+    #    .reduceByKey(lambda a,b: a+b)
         #.map(lambda l: (l[1],l[0]))\
         #.transform(sortByKey)
     #output.pprint()
-    output.foreachRDD(topicgraph_to_cassandra)
+    #output.foreachRDD(topicgraph_to_cassandra)
+
+
+    def text_hashtags_place_tuple(tweet):
+        return_list_of_tuples=[]
+        try:
+            text = json.loads(tweet)["text"]
+            for word_input in wordlist:
+                if word_input in text:
+                    #hashtags:
+                    try:
+                        hashtags = [hash.split()[0] for hash in json.loads(tweets)["text"].split('#')[1:]]
+                        place = str(json.loads(tweet)["place"]["name"].encode('ascii','ignore')+","+json.loads(tweet)["place"]["country_code"].encode('ascii','ignore'))
+                        for ht in hashtags:
+                            return_list_of_tuples.append( ((word_input ,hashtags,place),1) )
+                        return return_list_of_tuples
+                    except IndexError:
+                        return [((word_input, 'nohashtags', place),1)]
+                else:
+                    return [((word_input, 'notintweet', 'np'),1)]
+        except TypeError:
+            return [(('error','error','noplace'),1)]
+
+    hashtagsoutput = lines.map(lambda l: text_hashtags_place_tuple(l) )\
+        .flatMap(lambda l: l)\
+        .reduceByKey(lambda a,b: a+b)
+    hashtagsoutput.pprint()
 
 
     def lambda_map_word_city(tweet):
@@ -231,9 +261,9 @@ if __name__ == "__main__":
         return  return_list_of_tuples
 
 
-    #output2 = lines.flatMap(lambda l: lambda_map_word_city(l) )\
-    #    .reduceByKey(lambda a,b: a+b)
-    #output2.foreachRDD(citycount_to_cassandra)
+    output2 = lines.flatMap(lambda l: lambda_map_word_city(l) )\
+        .reduceByKey(lambda a,b: a+b)
+    output2.foreachRDD(citycount_to_cassandra)
 
 
     #start the stream and keep it running - await for termination too.
