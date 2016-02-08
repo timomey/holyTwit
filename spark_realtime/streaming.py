@@ -61,6 +61,7 @@ if __name__ == "__main__":
     userqueries = kquerys.map(lambda x: x[1])
     #lines = kvs.map(lambda x: x[1])
 
+    es = Elasticsearch(hosts=[{"host":["52.34.117.127","52.89.22.134","52.35.24.163","52.89.0.97"], "port":9200}] )
 
     def query_to_es(iter):
         INDEX_NAME = "twit"
@@ -80,6 +81,8 @@ if __name__ == "__main__":
 
     inputwords = userqueries.flatMap(lambda l: str(l).split() )
     test= inputwords.foreachRDD(lambda rdd: rdd.collect() )
+    for word in test:
+        print word
     inputwords.pprint()
 
     ########################get all id's
