@@ -78,8 +78,8 @@ if __name__ == "__main__":
     def eachrddfct(rdd):
         rdd.foreachPartition(lambda record: query_to_es(record) )
 
-    inputwords = userqueries.flatMap(lambda l: str(l).split() ).collect()
-    #inputwords.foreachRDD(eachrddfct)
+    inputwords = userqueries.flatMap(lambda l: str(l).split() )
+    test = inputwords.foreachRDD(collect)
     inputwords.pprint()
 
     ########################get all id's
