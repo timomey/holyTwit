@@ -78,7 +78,7 @@ if __name__ == "__main__":
     def eachrddfct(rdd):
         rdd.foreachPartition(lambda record: query_to_es(record) )
 
-    userqueries.map(lambda l: str(l.encode('ascii','ignore')).split() )
+    userqueries.map(lambda l: str(l.encode('utf-8').split() )
     #userqueries.foreachRDD(eachrddfct)
     userqueries.pprint()
 
