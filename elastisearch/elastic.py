@@ -22,7 +22,7 @@ es.indices.create(index='twit', ignore=400, body={
 )
 
 
-scroll = elasticsearch.helpers.scan(es, query='{"fields": "_id"}', index='twit', scroll='10s')
+scroll = scan(es, query='{"fields": "_id"}', index='twit', scroll='10s')
 for res in scroll:
     print res['_id']
 
