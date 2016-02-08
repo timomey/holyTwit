@@ -228,21 +228,21 @@ if __name__ == "__main__":
         return_list_of_tuples=[]
         try:
             text = json.loads(tweet)["text"]
-            for word_input in wordlist:
-                if word_input in text:
-                    #hashtags:
-                    try:
-                        hashtags = [hash.split()[0] for hash in json.loads(tweet)["text"].split('#')[1:]]
-                        place = str(json.loads(tweet)["place"]["name"].encode('ascii','ignore')+","+json.loads(tweet)["place"]["country_code"].encode('ascii','ignore'))
-                        for ht in hashtags:
-                            return_list_of_tuples.append( ((word_input ,ht, place),1) )
-                        return return_list_of_tuples
-                    except IndexError:
-                        return [((word_input, 'nohashtags', place),1)]
-                else:
-                    return [((word_input, 'notintweet', 'np'),1)]
         except TypeError:
-            return [(('error','error','noplace'),1)]
+            return [(('error','notext','noplace'),1)]
+        for word_input in wordlist:
+            if word_input in text:
+                #hashtags:
+                try:
+                    hashtags = [hash.split()[0] for hash in text.split('#')[1:]]
+                    place = str(json.loads(tweet)["place"]["name"].encode('ascii','ignore')+","+json.loads(tweet)["place"]["country_code"].encode('ascii','ignore'))
+                    for ht in hashtags:
+                        return_list_of_tuples.append( ((word_input ,ht, place),1) )
+                    return return_list_of_tuples
+                except IndexError:
+                    return [((word_input, 'nohashtags', place),1)]
+            else:
+                return [((word_input, 'notintweet', 'np'),1)]
 
     hashtagsoutput = lines.map(lambda l: text_hashtags_place_tuple(l) )\
         .flatMap(lambda l: l)\
