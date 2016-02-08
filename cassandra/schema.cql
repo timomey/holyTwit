@@ -31,10 +31,10 @@ CREATE TABLE holytwit.topicgraph (
 
 
 
-CREATE MATERIALIZED VIEW holytwit.name AS
-    SELECT
-    FROM
-    WHERE
+CREATE MATERIALIZED VIEW holytwit.highest AS
+    SELECT word, degree1, place, date, min
+    FROM holytwit.degree1
+    WHERE 
     PRIMARY KEY
     WITH CLUSTERING ORDER BY ();
 

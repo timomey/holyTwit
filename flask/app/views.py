@@ -5,7 +5,10 @@ from flask import render_template, Flask, flash, request
 from wtforms import Form, TextField, TextAreaField, validators, StringField, SubmitField
 from subprocess import call
 import time as timepackage
-
+from elasticsearch import Elasticsearch
+from elasticsearch.helpers import bulk
+import kafka
+import json
 
 # App config.
 #DEBUG = True
@@ -23,6 +26,13 @@ def write_input_to_cass(inp):
         numberofwords = 1
         time = int(timepackage.time()*1000)
         session.execute(prepared_write_query,(word,numberofwords,time))
+
+def kafka_producer(input_str):
+    #KAFKA PRODUCER STUFF
+    topic = 'elasticquerries'
+    cluster = kafka.KafkaClient("ip-172-31-2-200:9092,ip-172-31-2-201:9092,ip-172-31-2-202:9092,ip-172-31-2-203:9092")
+    prod = kafka.SimpleProducer(cluster, async = False, batch_send_every_n = 1)
+    prod.send_messages(topic, input_str.encode('utf-8'))
 
 
 class ReusableForm(Form):
@@ -49,7 +59,7 @@ def citycount():
         input=request.form['input']
         print ' > looking for ' + input +' in the incoming twitterstream'
         #cassandra_create_listofwords_table()
-        write_input_to_cass(input)
+        kafka_producer(input)
 
 
         if form.validate():

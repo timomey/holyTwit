@@ -13,32 +13,8 @@ from cassandra import ConsistencyLevel
 import time as timepackage
 from operator import add
 import datetime
-
-def clean_string(text):
-    """input: string (u''). output is a "clean" string:
-           1: spaces at end and beginning are removed:
-                                ' input ' -> 'input'
-            2: replacements:    "\/" -> "/"
-                                "\\" -> "\ "
-                                "\'" -> "'"
-                                '\"' -> '"'
-                                "\n" -> " "
-                                "\t" -> " "
-            3: multiple spaces are replaced by one.
-                                "input      string" -> "input string"
-    """
-    #text = text.encode('ascii','ignore')
-    text.strip()
-    text.replace("\/", "/")
-    text.replace("\\", "\ ")
-    text.replace("\'", "'")
-    text.replace('\"', '"')
-    text.replace("\n", " ")
-    text.replace("\t", " ")
-    text = " ".join(text.split())
-    text = text.lower()
-    return text
-
+from elasticsearch import Elasticsearch
+from elasticsearch.helpers import bulk
 
 def update_to_cassandra(record):
     cluster = Cluster([
@@ -99,24 +75,6 @@ def write_to_cassandra(record):
             session.execute(write_query,(word, degree1, place, date) + tuple(countarray[::-1]))
 
 
-
-def update_to_cassandracity(record):
-    #There is a problem with counter variable count. ; maybe counter can not be ordered by?!?
-    cluster = Cluster([
-        'ec2-52-89-218-166.us-west-2.compute.amazonaws.com',
-        'ec2-52-88-157-153.us-west-2.compute.amazonaws.com',
-        'ec2-52-35-98-229.us-west-2.compute.amazonaws.com',
-        'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
-    session = cluster.connect()
-    #cassandra_create_citycount_table(keyspacename,citycounttablename, session)
-
-    prepared_write_query = session.prepare("UPDATE "+keyspacename+"."+citycounttablename+" SET count = count + ? WHERE place=? AND wordofinterest=? ")
-    for element in record:
-        word = element[0][0]
-        place = str(element[0][1].encode('ascii','ignore'))+", "+ str(element[0][2].encode('ascii','ignore'))
-        count = element[1]
-        session.execute(prepared_write_query, (count, place, word))
-
 def update_to_cassandracity2(record):
     #There is a problem with counter variable count. ; maybe counter can not be ordered by?!?
     cluster = Cluster([
@@ -153,8 +111,12 @@ def topicgraph_to_cassandra(rdd):
     #so for each partition, do what you wanna do ->
     rdd.foreachPartition(lambda record: write_to_cassandra(record))
 
+def perco_parse(result):
+    # take the first match
+    if result.get('matches') is not None and len(result['matches'])>0:
+        return([int(r['_id']) for r in result['matches']][0])
+
 if __name__ == "__main__":
-    #wordofinterest = str(sys.argv[1])
 
     #cassandra keyspace name
     keyspacename = 'holytwit'
@@ -165,16 +127,41 @@ if __name__ == "__main__":
     sc = SparkContext(appName="topicgraph")
     ssc = StreamingContext(sc, 1)
 
+    #ELASTICSEARCH STUFF
+    # index and document type constants
+    INDEX_NAME = "documents"
+    TYPE = "document"
+
+    es = Elasticsearch(hosts=[{"host":["52.34.117.127","52.89.22.134","52.35.24.163","52.89.0.97"], "port":9200}])
+
+    es.indices.create(index='twit', ignore=400, body={
+          "mappings": {
+            "document": {
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+    )
+
+
     #zookeeper quorum for to connect to kafka (local ips for faster access)
     zkQuorum = "52.34.117.127:2181,52.89.22.134:2181,52.35.24.163:2181,52.89.0.97:2181"
-    brokers = "52.34.117.127:9092,52.89.22.134:9092,52.35.24.163:9092,52.89.0.97:9092"
+    #brokers = "52.34.117.127:9092,52.89.22.134:9092,52.35.24.163:9092,52.89.0.97:9092"
     #kafka topic to consume from:
     topic = "faketwitterstream"
     #topic and number of partitions (check with kafka)
     #directKafkaStream = KafkaUtils.createDirectStream(ssc, [topic], {"metadata.broker.list": brokers})
     kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-topicgraph", {topic: 8})
+    #2nd stream for search querries
+    kquerys = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-topicgraph", {"elasticquerries": 8})
+    userqueries = kquerys.map(lambda x: x[1])
     lines = kvs.map(lambda x: x[1])
 
+    #for cassandra:
     cluster = Cluster([
         'ec2-52-89-218-166.us-west-2.compute.amazonaws.com',
         'ec2-52-88-157-153.us-west-2.compute.amazonaws.com',
