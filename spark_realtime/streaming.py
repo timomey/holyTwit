@@ -37,7 +37,7 @@ if __name__ == "__main__":
     TYPE = "document"
 
     #elastic search connection:
-    es = Elasticsearch(hosts=[{"host":["52.34.117.127","52.89.22.134","52.35.24.163","52.89.0.97"], "port":9200}], sniff_on_start=True)
+    es = Elasticsearch(hosts=[{"host":["52.34.117.127","52.89.22.134","52.35.24.163","52.89.0.97"], "port":9200}])
     #create index for ES (ignore if it already exists       )
     es.indices.create(index='twit', ignore=400, body={
           "mappings": {
