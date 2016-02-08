@@ -58,7 +58,7 @@ if __name__ == "__main__":
     #kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-topicgraph", {topic: 8})
     #2nd stream for search querries
     kquerys = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-elastc", {"elasticquerries": 8})
-    userqueries = kquerys.map(lambda x: x[1])
+    userqueries = kquerys.map(lambda x: str(x[1]).split())
     #lines = kvs.map(lambda x: x[1])
 
     def query_to_es(iter):
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     def eachrddfct(rdd):
         rdd.foreachPartition(lambda record: query_to_es(record) )
 
-    userqueries.map(lambda l: type(l) ) 
+    userqueries.map(lambda l: type(l) )
     #userqueries.foreachRDD(eachrddfct)
     userqueries.pprint()
 
