@@ -59,7 +59,8 @@ if __name__ == "__main__":
     topic = "faketwitterstream"
     #alternative kafka stream:
     #directKafkaStream = KafkaUtils.createDirectStream(ssc, [topic], {"metadata.broker.list": brokers})
-    kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-topicgraph", {topic: 8},StorageLevel.MEMORY_AND_DISK_SER)
+    #StorageLevel.MEMORY_AND_DISK_SER
+    kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-topicgraph", {topic: 8})
     #2nd stream for search querries
     kquerys = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-topicgraph", {"elasticquerries": 8})
     userqueries = kquerys.map(lambda x: x[1])
