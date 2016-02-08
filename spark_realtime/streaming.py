@@ -61,7 +61,7 @@ if __name__ == "__main__":
     userqueries = kquerys.map(lambda x: x[1])
     #lines = kvs.map(lambda x: x[1])
 
-    def sendPartition(iter):
+    def query_to_es(iter):
         INDEX_NAME = "documents"
         TYPE = "document"
 
@@ -73,14 +73,14 @@ if __name__ == "__main__":
                 count=0
                 for word in wordlist:
                     count+=1
-                    es.create(index='documents', doc_type='.percolator', body={'query': {'match': {'message': q}}}, id=count)
+                    es.create(index='documents', doc_type='.percolator', body={'query': {'match': {'message': word}}}, id=count)
 
-    def testfnnct(rdd):
-        rdd.foreachPartition(lambda record: sendPartition(record) )
+    def eachrddfct(rdd):
+        rdd.foreachPartition(lambda record: query_to_es(record) )
 
-    #userqueries.foreachRDD(testfnnct)
+    userqueries.foreachRDD(eachrddfct)
     userqueries.pprint()
-    
+
     ########################get all id's
     #res = es.search(
     #    index="twit",
