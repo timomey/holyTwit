@@ -78,9 +78,9 @@ if __name__ == "__main__":
     def eachrddfct(rdd):
         rdd.foreachPartition(lambda record: query_to_es(record) )
 
-    inputwords = userqueries.flatMap(lambda l: str(l).split() ) 
+    inputwords = userqueries.flatMap(lambda l: str(l).split() )
     #userqueries.foreachRDD(eachrddfct)
-    userqueries.pprint()
+    inputwords.pprint()
 
     ########################get all id's
     #res = es.search(
