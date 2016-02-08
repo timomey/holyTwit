@@ -55,11 +55,11 @@ if __name__ == "__main__":
     #alternative kafka stream:
     #directKafkaStream = KafkaUtils.createDirectStream(ssc, [topic], {"metadata.broker.list": brokers})
     #StorageLevel.MEMORY_AND_DISK_SER
-    kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-topicgraph", {topic: 8})
+    #kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-topicgraph", {topic: 8})
     #2nd stream for search querries
     kquerys = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-elastc", {"elasticquerries": 8})
     userqueries = kquerys.map(lambda x: x[1])
-    lines = kvs.map(lambda x: x[1])
+    #lines = kvs.map(lambda x: x[1])
 
     def sendPartition(iter):
         INDEX_NAME = "documents"
@@ -78,8 +78,9 @@ if __name__ == "__main__":
     def testfnnct(rdd):
         rdd.foreachPartition(lambda record: sendPartition(record) )
 
-    userqueries.foreachRDD(testfnnct)
-
+    #userqueries.foreachRDD(testfnnct)
+    userqueries.pprint()
+    
     ########################get all id's
     #res = es.search(
     #    index="twit",
