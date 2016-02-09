@@ -100,6 +100,8 @@ if __name__ == "__main__":
                 list_of_lists_of_tuples = map(lambda x: [(x,ht,'noplace') for ht in hashtags] ,matched_words)
                 list_of_tuple = [(item,1) for sublist in list_of_lists_of_tuples for item in sublist]
                 return list_of_tuple
+        else:
+            return [(('nomatch','na','na'),1)]
 
 
 
