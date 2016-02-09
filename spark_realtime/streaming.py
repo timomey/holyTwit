@@ -37,7 +37,7 @@ def write_to_cassandra(record):
         #time string for right now in minutes:
         currenttime = datetime.datetime.now()
         date = currenttime.strftime('%Y-%m-%d %H:%M')
-        rows = session.execute(read_query, (word, degree1,place,date))
+        rows = session.execute(read_query, (word, degree1,date))
         if rows:
             newcount = rows[0].count + count
             session.execute(write_query,(word, degree1, date, newcount) )
