@@ -36,7 +36,7 @@ def write_to_cassandra(record):
     for ((word,degree1),count) in record:
         #time string for right now in minutes:
         currenttime = datetime.datetime.now()
-        date = currenttime.strftime('%Y-%m-%d %H:%M')
+        date = currenttime.strftime('%Y-%m-%d %H')
         rows = session.execute(read_query, (word, degree1,date))
         if rows:
             newcount = rows[0].count + count
@@ -61,7 +61,7 @@ def write_city_to_cassandra(record):
     for ((word,place),count) in record:
         #time string for right now in minutes:
         currenttime = datetime.datetime.now()
-        date = currenttime.strftime('%Y-%m-%d %H:%M')
+        date = currenttime.strftime('%Y-%m-%d %H')
         rows = session.execute(read_query, (word, place,date))
         if rows:
             newcount = rows[0].count + count
