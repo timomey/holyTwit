@@ -224,11 +224,11 @@ if __name__ == "__main__":
     ############################################
 
     def word_and_city(matchwords_text_place_tuple):
-        if mw_t_p_tuple[1] == 1:
-            return [mw_t_p_tuple]
+        if matchwords_text_place_tuple[1] == 1:
+            return [matchwords_text_place_tuple]
         else:
-            matched_words = mw_t_p_tuple[0]
-            place = mw_t_p_tuple[2]
+            matched_words = matchwords_text_place_tuple[0]
+            place = matchwords_text_place_tuple[2]
             return map(lambda x: ((x, place),1),matched_words)
 
     cityoutput = lines.map(lambda l: ES_check(l))\
