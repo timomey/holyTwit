@@ -26,7 +26,7 @@ def write_to_cassandra(record):
         'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
     write_query = session.prepare("INSERT INTO holytwit.htgraph\
-                                    (word, hashtag, place, date, count)\
+                                    (word, degree1, place, date, count)\
                                     values (?,?,?,?,?)")
     write_query.consistency_level = ConsistencyLevel.QUORUM
     read_query = session.prepare("SELECT *\
