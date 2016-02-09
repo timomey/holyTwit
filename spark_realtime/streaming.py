@@ -103,7 +103,7 @@ if __name__ == "__main__":
         return_list_of_tuples=[]
         #see if the text is there:
         #check if this text contains any of the keywords.
-        text = json.loads(tweet["text"])
+        text = json.loads(tweet)["text"]
         esresult = es.percolate(index='twit',doc_type='.percolate', body={'doc':{'message': text }})
         if esresult['matches']:
             matched_words = []
