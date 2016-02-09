@@ -26,7 +26,7 @@ CREATE MATERIALIZED VIEW holytwit.highestconnection AS
 
 CREATE MATERIALIZED VIEW holytwit.citycount AS
     SELECT place
-    FROM holytwit.city_coutn
+    FROM holytwit.city_count
     WHERE word IS NOT NULL AND count IS NOT NULL AND place IS NOT NULL
     PRIMARY KEY ((word), count, place)
     WITH CLUSTERING ORDER BY (count desc);
