@@ -72,6 +72,22 @@ def citycount():
 
 @app.route('/triggertableres')
 def triggertableres():
+    form = ReusableForm(request.form)
+    print form.errors
+    if request.method == 'POST':
+        input=request.form['input']
+        print ' > looking for ' + input +' in the incoming twitterstream'
+        #cassandra_create_listofwords_table()
+        kafka_producer(input)
+
+
+        if form.validate():
+            # Save the comment here.
+            flash(' >>>>>>>>> looking for ' + input +' in the incoming twitterstream')
+
+        else:
+            flash('Error: All the form fields are required. ')
+
     es = Elasticsearch(hosts=[{"host":"52.34.117.127", "port":9200},{"host":"52.89.22.134", "port":9200},{"host":"52.35.24.163", "port":9200},{"host":"52.89.0.97", "port":9200}] )
     #ELASTICSEARCH STUFF
     es.indices.delete(index='twit', ignore=400)
