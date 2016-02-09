@@ -117,7 +117,7 @@ if __name__ == "__main__":
             #place = str( json.loads(tweet)["place"]["name"].encode('ascii','ignore'))+","+
             place = str(json.loads(tweet)["place"]["country_code"].encode('ascii','ignore') )
             list_of_lists_of_tuples = map(lambda x: [(x,ht,place) for ht in hashtags] ,matched_words)
-            #list_of_tuple = [(item,1) for sublist in list_of_lists_of_tuples for item in sublist]
+            list_of_tuple = [(item,1) for sublist in list_of_lists_of_tuples for item in sublist]
             return list_of_tuple
         else:
             #maybe faster to not return
