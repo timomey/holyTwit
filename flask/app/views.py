@@ -89,7 +89,7 @@ def triggertableres():
         }
     )
     flash(' >>>>>>>>> all tables reset! have fun with new ones! ')
-    return render_template("citycountinput.html", form=form)
+    return render_template("citycountinput.html")
 
 
 
