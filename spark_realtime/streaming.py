@@ -108,6 +108,7 @@ if __name__ == "__main__":
 
 
     hashtagsoutput = lines.map(lambda l: text_hashtags_place_tuple(l) )\
+        .filter(lambda l: l[1]==1)\
         .flatMap(lambda l: l)\
         .reduceByKey(lambda a,b: a+b)
     hashtagsoutput.pprint()
