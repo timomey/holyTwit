@@ -26,23 +26,23 @@ def write_to_cassandra(record):
         'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
     write_query = session.prepare("INSERT INTO holytwit.htgraph\
-                                    (word, degree1, place, date, count)\
-                                    values (?,?,?,?,?)")
+                                    (word, degree1, date, count)\
+                                    values (?,?,?,?)")
     write_query.consistency_level = ConsistencyLevel.QUORUM
     read_query = session.prepare("SELECT *\
                                     FROM holytwit.htgraph\
-                                    WHERE word=? AND degree1=? AND place=? AND date=?")
+                                    WHERE word=? AND degree1=? AND date=?")
     read_query.consistency_level = ConsistencyLevel.QUORUM
-    for ((word,degree1, place),count) in record:
+    for ((word,degree1),count) in record:
         #time string for right now in minutes:
         currenttime = datetime.datetime.now()
         date = currenttime.strftime('%Y-%m-%d %H:%M')
         rows = session.execute(read_query, (word, degree1,place,date))
         if rows:
             newcount = rows[0].count + count
-            session.execute(write_query,(word, degree1, place, date, newcount) )
+            session.execute(write_query,(word, degree1, date, newcount) )
         else:
-            session.execute(write_query,(word, degree1, place, date,count) )
+            session.execute(write_query,(word, degree1, date,count) )
 
 
 def topicgraph_to_cassandra(rdd):
@@ -141,8 +141,8 @@ if __name__ == "__main__":
         .filter(lambda l: NoneTypefilter(l))\
         .flatMap(lambda l: l)\
         .reduceByKey(lambda a,b: a+b)
-    hashtagsoutput.pprint()
-    #hashtagsoutput.foreachRDD(topicgraph_to_cassandra)
+    #hashtagsoutput.pprint()
+    hashtagsoutput.foreachRDD(topicgraph_to_cassandra)
 
 
 
