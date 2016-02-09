@@ -26,12 +26,12 @@ def write_to_cassandra(record):
         'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
     write_query = session.prepare("INSERT INTO holytwit.htgraph\
-                                    (word, degree1, date, count)\
+                                    (word, degree1, count)\
                                     values (?,?,?,?)")
     write_query.consistency_level = ConsistencyLevel.QUORUM
     read_query = session.prepare("SELECT *\
                                     FROM holytwit.htgraph\
-                                    WHERE word=? AND degree1=? AND date=?")
+                                    WHERE word=? AND degree1=?")
     read_query.consistency_level = ConsistencyLevel.QUORUM
     #delete_query = session.prepare("DELETE *\
     #                                FROM holytwit.htgraph\
@@ -41,13 +41,13 @@ def write_to_cassandra(record):
         #time string for right now in minutes:
         currenttime = datetime.datetime.now()
         date = currenttime.strftime('%Y-%m-%d %H')
-        rows = session.execute(read_query, (word, degree1,date))
+        rows = session.execute(read_query, (word, degree1))
         #session.execute(delete_query, (word, degree1,date))
         if rows:
             newcount = rows[0].count + count
-            session.execute(write_query,(word, degree1, date, newcount) )
+            session.execute(write_query,(word, degree1, newcount) )
         else:
-            session.execute(write_query,(word, degree1, date,count) )
+            session.execute(write_query,(word, degree1,count) )
 def write_city_to_cassandra(record):
     cluster = Cluster([
         'ec2-52-89-218-166.us-west-2.compute.amazonaws.com',
@@ -56,12 +56,12 @@ def write_city_to_cassandra(record):
         'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
     write_query = session.prepare("INSERT INTO holytwit.city_count\
-                                    (word, place, date, count)\
+                                    (word, place, count)\
                                     values (?,?,?,?)")
     write_query.consistency_level = ConsistencyLevel.QUORUM
     read_query = session.prepare("SELECT *\
                                     FROM holytwit.city_count\
-                                    WHERE word=? AND place=? AND date=?")
+                                    WHERE word=? AND place=?")
     read_query.consistency_level = ConsistencyLevel.QUORUM
 
     #delete_query = session.prepare("DELETE *\

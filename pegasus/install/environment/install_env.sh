@@ -19,6 +19,11 @@ sudo pip install nose seaborn boto scikit-learn "ipython[notebook]"
 sudo pip install tweepy
 sudo pip install kafka-python
 
+sudo add-apt-repository ppa:webupd8team/java
+sudo apt-get update
+sudo apt-get install oracle-java8-installer
+
+
 if ! grep "export JAVA_HOME" ~/.profile; then
   echo -e "\nexport JAVA_HOME=/usr" | cat >> ~/.profile
   echo -e "export PATH=\$PATH:\$JAVA_HOME/bin" | cat >> ~/.profile

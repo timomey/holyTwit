@@ -3,18 +3,16 @@ CREATE KEYSPACE holytwit WITH REPLICATION = {'class': 'SimpleStrategy', 'replica
 CREATE TABLE holytwit.city_count (
     word text,
     place text,
-    date text,
     count int,
-    PRIMARY KEY ((wordofinterest,place),date,count)
-    ) WITH CLUSTERING ORDER BY ( date desc, count desc);
+    PRIMARY KEY ((word),count,place)
+    ) WITH CLUSTERING ORDER BY ( count desc,place desc);
 
 CREATE TABLE holytwit.htgraph (
     word text,
     degree1 text,
-    date text,
     count int,
-    PRIMARY KEY ((word,degree1),date,count)
-    ) WITH CLUSTERING ORDER BY (date desc, count desc);
+    PRIMARY KEY ((word),count,degree1)
+    ) WITH CLUSTERING ORDER BY (count desc, degree1 desc);
 
 
 

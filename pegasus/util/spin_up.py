@@ -1,5 +1,8 @@
 #!/usr/local/bin/python
 
+import sys, os
+sys.path.append(os.getcwd())
+
 import argparse
 import json
 from util.boto_util import BotoUtil, InstanceConfig
