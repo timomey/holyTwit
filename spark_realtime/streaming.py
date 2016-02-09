@@ -132,7 +132,7 @@ if __name__ == "__main__":
             #return [(('nomatch','na','na'),1)]
 
     def NoneTypefilter(text_ht_place_tuple_list):
-        if text_ht_place_tuple_list[0]>0:
+        if text_ht_place_tuple_list:
             return True
         else:
             return False
