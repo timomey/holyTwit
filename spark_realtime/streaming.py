@@ -122,8 +122,10 @@ if __name__ == "__main__":
                 #list_of_tuple = [(item,1) for sublist in list_of_lists_of_tuples for item in sublist]
                 return list_of_lists_of_tuples
             except IndexError:
-                pass
+                #pass
+                list_of_tuple = map(lambda x: (x, 'nohashtags'), matched_words)
                 #return (matched_words, 'nohashtags')
+                return list_of_tuple
         else:
             #maybe faster to not return
             pass
