@@ -70,7 +70,7 @@ def citycount():
             flash('Error: All the form fields are required. ')
     return render_template("citycountinput.html", form=form)
 
-@app.route('/triggertableres')
+@app.route('/triggertableres', methods=['GET', 'POST'])
 def triggertableres():
     form = ReusableForm(request.form)
     print form.errors
