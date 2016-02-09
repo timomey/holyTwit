@@ -138,7 +138,7 @@ if __name__ == "__main__":
 
     hashtagsoutput = lines.filter(lambda l: NoneEmptyfilter(json.loads(l)["text"]) )\
                     .filter(lambda l: len(json.loads(l)["text"].split('#'))>1 )\
-                    .filter(lambda l: NoneEmptyfilter(json.loads(l)["place"]["country_code"] ))\
+                    .filter(lambda l: NoneEmptyfilter(json.loads(l)["place"]["country_code"] ) )\
                     .map(lambda l: text_hashtags_place_tuple(l) )\
                     .filter(lambda l: NoneTypefilter(l))\
                     .flatMap(lambda l: l)\
