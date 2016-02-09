@@ -113,9 +113,10 @@ if __name__ == "__main__":
                 matched_words.append(perc_match['_source']['query']['match']['message'])
             #get hashtags and place
             hashtags = [hash.split()[0] for hash in text.split('#')[1:]]
-            place = str( json.loads(tweet)["place"]["name"].encode('ascii','ignore'))+","+str(json.loads(tweet)["place"]["country_code"].encode('ascii','ignore') )
+            #place = str( json.loads(tweet)["place"]["name"].encode('ascii','ignore'))+","+
+            place = str(json.loads(tweet)["place"]["country_code"].encode('ascii','ignore') )
             list_of_lists_of_tuples = map(lambda x: [(x,ht,place) for ht in hashtags] ,matched_words)
-            list_of_tuple = [(item,1) for sublist in list_of_lists_of_tuples for item in sublist]
+            #list_of_tuple = [(item,1) for sublist in list_of_lists_of_tuples for item in sublist]
             return list_of_tuple
         else:
             #maybe faster to not return
@@ -135,8 +136,8 @@ if __name__ == "__main__":
             return False
 
     hashtagsoutput = lines.filter(lambda l: NoneEmptyfilter(json.loads(l)["text"]) )\
-        .filter(lambda l: len(json.loads(l)["text"].split('#'))>1 )
-        .filter(lambda l: NoneEmptyfilter(json.loads(l)["place"]["name"]) )\
+        .filter(lambda l: len(json.loads(l)["text"].split('#'))>1 )\
+        #.filter(lambda l: NoneEmptyfilter(json.loads(l)["place"]["name"]) )\
         .filter(lambda l: NoneEmptyfilter(json.loads(l)["place"]["country_code"] ))\
         .map(lambda l: text_hashtags_place_tuple(l) )\
         .filter(lambda l: NoneTypefilter(l))\
