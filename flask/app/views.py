@@ -51,7 +51,7 @@ def index():
 def slides():
     return render_template("slides.html")
 
-@app.route('/citycount', methods=['GET', 'POST'])
+@app.route('/input', methods=['GET', 'POST'])
 def citycount():
     form = ReusableForm(request.form)
     print form.errors
@@ -110,7 +110,7 @@ def triggertableres():
 
 
 
-@app.route('/citycount/<wordofinterest>')
+@app.route('/output')
 def get_stream(wordofinterest):
     maxnumpanels = 10
     stmt = "SELECT * FROM holytwit.city_count WHERE wordofinterest='"+str(wordofinterest)+"';"
