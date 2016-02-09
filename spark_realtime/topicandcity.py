@@ -132,20 +132,20 @@ if __name__ == "__main__":
     INDEX_NAME = "documents"
     TYPE = "document"
 
-    es = Elasticsearch(hosts=[{"host":["52.34.117.127","52.89.22.134","52.35.24.163","52.89.0.97"], "port":9200}])
+    #es = Elasticsearch(hosts=[{"host":["52.34.117.127","52.89.22.134","52.35.24.163","52.89.0.97"], "port":9200}])
 
-    es.indices.create(index='twit', ignore=400, body={
-          "mappings": {
-            "document": {
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-    )
+    #es.indices.create(index='twit', ignore=400, body={
+    #      "mappings": {
+    #        "document": {
+    #          "properties": {
+    #            "message": {
+    #              "type": "string"
+    #            }
+    #          }
+    #        }
+    #      }
+    #    }
+    #)
 
 
     #zookeeper quorum for to connect to kafka (local ips for faster access)
@@ -215,8 +215,8 @@ if __name__ == "__main__":
     hashtagsoutput = lines.map(lambda l: text_hashtags_place_tuple(l) )\
         .flatMap(lambda l: l)\
         .reduceByKey(lambda a,b: a+b)
-    #hashtagsoutput.pprint()
-    hashtagsoutput.foreachRDD(topicgraph_to_cassandra)
+    hashtagsoutput.pprint()
+    #hashtagsoutput.foreachRDD(topicgraph_to_cassandra)
 
     def lambda_map_word_city(tweet):
         return_list_of_tuples=[]
