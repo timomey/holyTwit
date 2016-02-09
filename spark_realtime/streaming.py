@@ -105,10 +105,14 @@ if __name__ == "__main__":
             pass
             #return [(('nomatch','na','na'),1)]
 
-
+    def NoneTypefilter(text_ht_place_tuple_list):
+        if text_ht_place_tuple_list:
+            return True
+        else:
+            return False
 
     hashtagsoutput = lines.map(lambda l: text_hashtags_place_tuple(l) )\
-        .filter(lambda l: l[1]==1)\
+        .filter(lambda l: NoneTypefilter(l))\
         .flatMap(lambda l: l)\
         .reduceByKey(lambda a,b: a+b)
     hashtagsoutput.pprint()
