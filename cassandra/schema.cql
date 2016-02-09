@@ -5,16 +5,16 @@ CREATE TABLE holytwit.city_count (
     place text,
     date text,
     count int,
-    PRIMARY KEY ((wordofinterest,place,date),count)
-    ) WITH CLUSTERING ORDER BY (count desc);
+    PRIMARY KEY ((wordofinterest,place),count,date)
+    ) WITH CLUSTERING ORDER BY (count desc, date desc);
 
 CREATE TABLE holytwit.htgraph (
     word text,
     degree1 text,
     date text,
     count int,
-    PRIMARY KEY ((word,degree1,date),count)
-    ) WITH CLUSTERING ORDER BY (count desc);
+    PRIMARY KEY ((word,degree1),count,date)
+    ) WITH CLUSTERING ORDER BY (count desc, date desc);
 
 
 
