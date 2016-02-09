@@ -101,13 +101,14 @@ if __name__ == "__main__":
                 list_of_tuple = [(item,1) for sublist in list_of_lists_of_tuples for item in sublist]
                 return list_of_tuple
         else:
+            #maybe faster to not return
             return [(('nomatch','na','na'),1)]
 
 
 
-    hashtagsoutput = lines.map(lambda l: text_hashtags_place_tuple(l) )
-        #.flatMap(lambda l: l)\
-        #.reduceByKey(lambda a,b: a+b)
+    hashtagsoutput = lines.map(lambda l: text_hashtags_place_tuple(l) )\
+        .flatMap(lambda l: l)\
+        .reduceByKey(lambda a,b: a+b)
     hashtagsoutput.pprint()
     #hashtagsoutput.foreachRDD(topicgraph_to_cassandra)
 
