@@ -94,7 +94,7 @@ if __name__ == "__main__":
                 return list_of_tuple
             except IndexError:
                 return [((keywords, 'nohashtags', place),1) for keywords in matched_words]
-            except: TypeError:
+            except TypeError:
                 list_of_lists_of_tuples = map(lambda x: [(x,ht,'noplace') for ht in hashtags] ,matched_words)
                 list_of_tuple = [(item,1) for sublist in list_of_lists_of_tuples for item in sublist]
                 return list_of_tuple
