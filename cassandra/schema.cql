@@ -5,7 +5,7 @@ CREATE TABLE holytwit.city_count (
     place text,
     date text,
     count int,
-    PRIMARY KEY ((word,place),date,count)
+    PRIMARY KEY ((wordofinterest,place),date,count)
     ) WITH CLUSTERING ORDER BY ( date desc, count desc);
 
 CREATE TABLE holytwit.htgraph (

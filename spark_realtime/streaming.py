@@ -33,11 +33,16 @@ def write_to_cassandra(record):
                                     FROM holytwit.htgraph\
                                     WHERE word=? AND degree1=? AND date=?")
     read_query.consistency_level = ConsistencyLevel.QUORUM
+    delete_query = session.prepare("DELETE *\
+                                    FROM holytwit.htgraph\
+                                    WHERE word=? AND degree1=? AND date=?")
+    delete_query.consistency_level = ConsistencyLevel.QUORUM
     for ((word,degree1),count) in record:
         #time string for right now in minutes:
         currenttime = datetime.datetime.now()
         date = currenttime.strftime('%Y-%m-%d %H')
         rows = session.execute(read_query, (word, degree1,date))
+        session.execute(delete_query, (word, degree1,date))
         if rows:
             newcount = rows[0].count + count
             session.execute(write_query,(word, degree1, date, newcount) )
@@ -58,11 +63,17 @@ def write_city_to_cassandra(record):
                                     FROM holytwit.city_count\
                                     WHERE word=? AND place=? AND date=?")
     read_query.consistency_level = ConsistencyLevel.QUORUM
+
+    delete_query = session.prepare("DELETE *\
+                                    FROM holytwit.city_count\
+                                    WHERE word=? AND place=? AND date=?")
+    delete_query.consistency_level = ConsistencyLevel.QUORUM
     for ((word,place),count) in record:
         #time string for right now in minutes:
         currenttime = datetime.datetime.now()
         date = currenttime.strftime('%Y-%m-%d %H')
         rows = session.execute(read_query, (word, place,date))
+        session.execute(delete_query, (word,place,date))
         if rows:
             newcount = rows[0].count + count
             session.execute(write_query,(word, place, date, newcount) )
