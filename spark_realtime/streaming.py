@@ -101,9 +101,9 @@ if __name__ == "__main__":
 
 
 
-    hashtagsoutput = lines.map(lambda l: text_hashtags_place_tuple(l) )\
-        .flatMap(lambda l: l)\
-        .reduceByKey(lambda a,b: a+b)
+    hashtagsoutput = lines.map(lambda l: text_hashtags_place_tuple(l) )
+        #.flatMap(lambda l: l)\
+        #.reduceByKey(lambda a,b: a+b)
     hashtagsoutput.pprint()
     #hashtagsoutput.foreachRDD(topicgraph_to_cassandra)
 
