@@ -55,7 +55,7 @@ def write_city_to_cassandra(record):
                                     values (?,?,?,?)")
     write_query.consistency_level = ConsistencyLevel.QUORUM
     read_query = session.prepare("SELECT *\
-                                    FROM holytwit.htgraph\
+                                    FROM holytwit.city_count\
                                     WHERE word=? AND place=? AND date=?")
     read_query.consistency_level = ConsistencyLevel.QUORUM
     for ((word,place),count) in record:
