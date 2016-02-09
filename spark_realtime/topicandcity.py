@@ -40,8 +40,8 @@ def write_to_cassandra(record):
         'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
     write_query = session.prepare("INSERT INTO holytwit.degree1\
-                                    (word,degree1,place,date,min,se60,se55,se50,se45,se40,se35,se30,se25,se20,se15,se10,se5)\
-                                    values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+                                    (word, hashtag, place, date, count)\
+                                    values (?,?,?,?,?)")
     write_query.consistency_level = ConsistencyLevel.QUORUM
     read_query = session.prepare("SELECT *\
                                     FROM holytwit.degree1\
@@ -49,30 +49,14 @@ def write_to_cassandra(record):
     read_query.consistency_level = ConsistencyLevel.QUORUM
     for ((word,degree1, place),count) in record:
         #time string for right now in minutes:
-        date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+        currenttime = datetime.datetime.now()
+        date = currenttime.strftime('%Y-%m-%d %H:%M')
         rows = session.execute(read_query, (word, degree1,place,date))
         if rows:
-            now = datetime.datetime.now()
-            countarray = [rows[0].se5, rows[0].se10, rows[0].se15, rows[0].se20, rows[0].se25, rows[0].se30, rows[0].se35, rows[0].se40, rows[0].se45, rows[0].se50, rows[0].se55, rows[0].se60, rows[0].min]
-            testlist = range(5,61,5)
-            for i in range(len(testlist)):
-                if testlist[i] > now.second:
-                    countarray[i]=countarray[i]+count
-                    countarray[-1] += count
-                    countarray[-1] -= countarray[(i+1)%(len(countarray)-1)]
-                    countarray[(i+1)%(len(countarray)-1)] = 0
-                    break
-            session.execute(write_query,(word, degree1, place, date) + tuple(countarray[::-1]) )
+            newcount = rows[0].count + count
+            session.execute(write_query,(word, degree1, place, date, newcount) )
         else:
-            now = datetime.datetime.now()
-            countarray= [0,] * 13
-            testlist = range(5,61,5)
-            for i in range(len(testlist)):
-                if testlist[i] > now.second:
-                    countarray[i] = count
-                    countarray[-1]= count
-                    break
-            session.execute(write_query,(word, degree1, place, date) + tuple(countarray[::-1]))
+            session.execute(write_query,(word, degree1, place, date,count) )
 
 
 def update_to_cassandracity2(record):
