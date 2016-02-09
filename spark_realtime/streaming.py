@@ -104,7 +104,7 @@ if __name__ == "__main__":
     conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
     conf.set("spark.streaming.receiver.maxRate", 1000)
     sc = SparkContext(conf=conf)
-    ssc = StreamingContext(sc, 2)
+    ssc = StreamingContext(sc, 1)
 
     #StorageLevel.MEMORY_AND_DISK_SER
     ############################################
@@ -186,8 +186,8 @@ if __name__ == "__main__":
     def ES_check(tweet):
         es = Elasticsearch(hosts=[{"host":"52.34.117.127", "port":9200},{"host":"52.89.22.134", "port":9200},{"host":"52.35.24.163", "port":9200},{"host":"52.89.0.97", "port":9200}] )
         try:
-            text = json.loads(tweet)["text"]
-            place = str(json.loads(tweet)["place"]["name"].encode('ascii','ignore') +", "+ json.loads(tweet)["place"]["country_code"].encode('ascii','ignore'))
+            text = json.loads(tweet)["text"].lower()
+            place = str(json.loads(tweet)["place"]["name"].encode('ascii','ignore') +", "+ json.loads(tweet)["place"]["country_code"].encode('ascii','ignore')).lower()
         except TypeError:
             return (('na','na'),1)
 

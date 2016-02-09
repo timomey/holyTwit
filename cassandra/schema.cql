@@ -1,5 +1,12 @@
 CREATE KEYSPACE holytwit WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor' : 3};
 
+
+drop MATERIALIZED VIEW holytwit.citycount;
+drop materialized view holytwit.highestconnection;    
+drop table holytwit.city_count;
+drop table holytwit.htgraph;
+
+
 CREATE TABLE holytwit.city_count (
     word text,
     place text,
