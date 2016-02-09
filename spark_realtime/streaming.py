@@ -41,8 +41,8 @@ if __name__ == "__main__":
     kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-topicgraph", {"faketwitterstream": 8})
     lines = kvs.map(lambda x: x[1])
     #Stream 2 -> queries
-    #kquerys = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-elastc", {"elasticquerries": 8})
-    #userqueries = kquerys.map(lambda x: x[1])
+    kquerys = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-elastc", {"elasticquerries": 8})
+    userqueries = kquerys.map(lambda x: x[1])
 
     ############################################
     # webside -> kafka stream -> ES query:
@@ -54,21 +54,18 @@ if __name__ == "__main__":
         es = Elasticsearch(hosts=[{"host":"52.34.117.127", "port":9200},{"host":"52.89.22.134", "port":9200},{"host":"52.35.24.163", "port":9200},{"host":"52.89.0.97", "port":9200}] )
         try:
             for word in iter:
-                #scroll = elasticsearch.helpers.scan(es, query='{"fields": "_id"}', index='twit', scroll='10s')
-                #for res in scroll:
-                #    if res['_id']
                 es.create(index='twit', doc_type='.percolator', body={'query': {'match': {'message': word  }}})
         except TypeError:#this exception handles the ongoing empty stream. TypeError: NoneType
             pass
 
-    #inputwords = userqueries.flatMap(lambda l: str(l).split() )
-    #inputwords.foreachRDD(lambda rdd: rdd.foreachPartition(sendPartition ))
+    inputwords = userqueries.flatMap(lambda l: str(l).split() )
+    inputwords.foreachRDD(lambda rdd: rdd.foreachPartition(sendPartition ))
 
     ############################################
     # twitterstream ->
     ############################################
     #ES connection on the driver level
-    es = Elasticsearch(hosts=[{"host":"52.34.117.127", "port":9200},{"host":"52.89.22.134", "port":9200},{"host":"52.35.24.163", "port":9200},{"host":"52.89.0.97", "port":9200}] )
+    #es = Elasticsearch(hosts=[{"host":"52.34.117.127", "port":9200},{"host":"52.89.22.134", "port":9200},{"host":"52.35.24.163", "port":9200},{"host":"52.89.0.97", "port":9200}] )
 
     def text_hashtags_place_tuple(tweet):
         es = Elasticsearch(hosts=[{"host":"52.34.117.127", "port":9200},{"host":"52.89.22.134", "port":9200},{"host":"52.35.24.163", "port":9200},{"host":"52.89.0.97", "port":9200}] )
@@ -115,8 +112,8 @@ if __name__ == "__main__":
         .filter(lambda l: NoneTypefilter(l))\
         .flatMap(lambda l: l)\
         .reduceByKey(lambda a,b: a+b)
-    hashtagsoutput.pprint()
-    #hashtagsoutput.foreachRDD(topicgraph_to_cassandra)
+    #hashtagsoutput.pprint()
+    hashtagsoutput.foreachRDD(topicgraph_to_cassandra)
 
 
 
