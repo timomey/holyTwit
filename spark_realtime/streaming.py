@@ -27,7 +27,7 @@ def write_to_cassandra(record):
     session = cluster.connect()
     write_query = session.prepare("INSERT INTO holytwit.htgraph\
                                     (word, degree1, count)\
-                                    values (?,?,?,?)")
+                                    values (?,?,?)")
     write_query.consistency_level = ConsistencyLevel.QUORUM
     read_query = session.prepare("SELECT *\
                                     FROM holytwit.htgraph\
@@ -57,7 +57,7 @@ def write_city_to_cassandra(record):
     session = cluster.connect()
     write_query = session.prepare("INSERT INTO holytwit.city_count\
                                     (word, place, count)\
-                                    values (?,?,?,?)")
+                                    values (?,?,?)")
     write_query.consistency_level = ConsistencyLevel.QUORUM
     read_query = session.prepare("SELECT *\
                                     FROM holytwit.city_count\
@@ -72,13 +72,13 @@ def write_city_to_cassandra(record):
         #time string for right now in minutes:
         currenttime = datetime.datetime.now()
         date = currenttime.strftime('%Y-%m-%d %H')
-        rows = session.execute(read_query, (word, place,date))
+        rows = session.execute(read_query, (word, place))
         #session.execute(delete_query, (word,place,date))
         if rows:
             newcount = rows[0].count + count
-            session.execute(write_query,(word, place, date, newcount) )
+            session.execute(write_query,(word, place, newcount) )
         else:
-            session.execute(write_query,(word, place, date,count) )
+            session.execute(write_query,(word, place,count) )
 
 def topicgraph_to_cassandra(rdd):
     #each RDD consists of a bunch of partitions which themselves are local on a single machine (each)
