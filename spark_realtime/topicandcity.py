@@ -179,21 +179,21 @@ if __name__ == "__main__":
         except TypeError:
             return (('error','error','noplace'),1)
 
-    #output = lines.map(lambda l: textsplit_placetuple(l) )\
-    #    .map(lambda l: lambda_map_word_connections(l))\
-    #    .flatMap(lambda l: l)\
-    #    .reduceByKey(lambda a,b: a+b)
+    output = lines.map(lambda l: textsplit_placetuple(l) )\
+        .map(lambda l: lambda_map_word_connections(l))\
+        .flatMap(lambda l: l)\
+        .reduceByKey(lambda a,b: a+b)
         #.map(lambda l: (l[1],l[0]))\
         #.transform(sortByKey)
-    #output.pprint()
+    output.pprint()
     #output.foreachRDD(topicgraph_to_cassandra)
 
 
 
-    hashtagsoutput = lines.map(lambda l: text_hashtags_place_tuple(l) )\
-        .flatMap(lambda l: l)\
-        .reduceByKey(lambda a,b: a+b)
-    hashtagsoutput.pprint()
+    #hashtagsoutput = lines.map(lambda l: text_hashtags_place_tuple(l) )\
+    #    .flatMap(lambda l: l)\
+    #    .reduceByKey(lambda a,b: a+b)
+    #hashtagsoutput.pprint()
     #hashtagsoutput.foreachRDD(topicgraph_to_cassandra)
 
     def lambda_map_word_city(tweet):

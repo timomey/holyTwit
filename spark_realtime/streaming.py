@@ -37,11 +37,12 @@ if __name__ == "__main__":
     ############################################
     #zookeeper quorum for to connect to kafka (local ips for faster access)
     zkQuorum = "52.34.117.127:2181,52.89.22.134:2181,52.35.24.163:2181,52.89.0.97:2181"
+    # Stream 1 ->faketwitterstream
     kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-topicgraph", {"faketwitterstream": 8})
-    #2nd stream for search querries
-    kquerys = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-elastc", {"elasticquerries": 8})
-    userqueries = kquerys.map(lambda x: x[1])
     lines = kvs.map(lambda x: x[1])
+    #Stream 2 -> queries
+    #kquerys = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-elastc", {"elasticquerries": 8})
+    #userqueries = kquerys.map(lambda x: x[1])
 
     ############################################
     # webside -> kafka stream -> ES query:
@@ -60,8 +61,8 @@ if __name__ == "__main__":
         except TypeError:#this exception handles the ongoing empty stream. TypeError: NoneType
             pass
 
-    inputwords = userqueries.flatMap(lambda l: str(l).split() )
-    inputwords.foreachRDD(lambda rdd: rdd.foreachPartition(sendPartition ))
+    #inputwords = userqueries.flatMap(lambda l: str(l).split() )
+    #inputwords.foreachRDD(lambda rdd: rdd.foreachPartition(sendPartition ))
 
     ############################################
     # twitterstream ->
@@ -70,6 +71,7 @@ if __name__ == "__main__":
     es = Elasticsearch(hosts=[{"host":"52.34.117.127", "port":9200},{"host":"52.89.22.134", "port":9200},{"host":"52.35.24.163", "port":9200},{"host":"52.89.0.97", "port":9200}] )
 
     def text_hashtags_place_tuple(tweet):
+        es = Elasticsearch(hosts=[{"host":"52.34.117.127", "port":9200},{"host":"52.89.22.134", "port":9200},{"host":"52.35.24.163", "port":9200},{"host":"52.89.0.97", "port":9200}] )
         return_list_of_tuples=[]
         #see if the text is there:
         try:
