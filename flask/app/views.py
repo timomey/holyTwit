@@ -70,7 +70,7 @@ def citycount():
             flash('Error: All the form fields are required. ')
     return render_template("citycountinput.html", form=form)
 
-@app.route('/triggertableres', methods=['GET', 'POST'])
+@app.route('/triggerwordres', methods=['GET', 'POST'])
 def triggertableres():
     form = ReusableForm(request.form)
     print form.errors
@@ -104,7 +104,7 @@ def triggertableres():
           }
         }
     )
-    flash(' >>>>>>>>> all tables reset! have fun with new ones! ')
+    flash(' >>>>>>>>> all words have been reset! Have fun with some new ones, try it again!')
     return render_template("citycountinput.html", form=form)
 
 
