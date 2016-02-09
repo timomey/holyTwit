@@ -98,7 +98,7 @@ if __name__ == "__main__":
     #ES connection on the driver level
     #es = Elasticsearch(hosts=[{"host":"52.34.117.127", "port":9200},{"host":"52.89.22.134", "port":9200},{"host":"52.35.24.163", "port":9200},{"host":"52.89.0.97", "port":9200}] )
 
-    def text_hashtags_tuple(tweet):
+    def text_hashtags_place_tuple(tweet):
         es = Elasticsearch(hosts=[{"host":"52.34.117.127", "port":9200},{"host":"52.89.22.134", "port":9200},{"host":"52.35.24.163", "port":9200},{"host":"52.89.0.97", "port":9200}] )
         return_list_of_tuples=[]
         #see if the text is there:
@@ -118,12 +118,16 @@ if __name__ == "__main__":
             #get hashtags and place
             try:
                 hashtags = [hash.split()[0] for hash in text.split('#')[1:]]
-                list_of_lists_of_tuples = map(lambda x: [(x,ht) for ht in hashtags] ,matched_words)
-                #list_of_tuple = [(item,1) for sublist in list_of_lists_of_tuples for item in sublist]
-                return list_of_lists_of_tuples
+                place = str( json.loads(tweet)["place"]["name"].encode('ascii','ignore'))+","+str(json.loads(tweet)["place"]["country_code"].encode('ascii','ignore') )
+                list_of_lists_of_tuples = map(lambda x: [(x,ht,place) for ht in hashtags] ,matched_words)
+                list_of_tuple = [(item,1) for sublist in list_of_lists_of_tuples for item in sublist]
+                return list_of_tuple
             except IndexError:
-                pass
-                #return (matched_words, 'nohashtags')
+                return [((keywords, 'nohashtags', place),1) for keywords in matched_words]
+            except TypeError:
+                list_of_lists_of_tuples = map(lambda x: [(x,ht,'noplace') for ht in hashtags] ,matched_words)
+                list_of_tuple = [(item,1) for sublist in list_of_lists_of_tuples for item in sublist]
+                return list_of_tuple
         else:
             #maybe faster to not return
             pass
@@ -135,12 +139,12 @@ if __name__ == "__main__":
         else:
             return False
 
-    hashtagsoutput = lines.map(lambda l: text_hashtags_tuple(l) )\
+    hashtagsoutput = lines.map(lambda l: text_hashtags_place_tuple(l) )\
         .filter(lambda l: NoneTypefilter(l))\
         .flatMap(lambda l: l)\
-        #.reduceByKey(lambda a,b: a+b)
-    hashtagsoutput.pprint()
-    #hashtagsoutput.foreachRDD(topicgraph_to_cassandra)
+        .reduceByKey(lambda a,b: a+b)
+    #hashtagsoutput.pprint()
+    hashtagsoutput.foreachRDD(topicgraph_to_cassandra)
 
 
 
