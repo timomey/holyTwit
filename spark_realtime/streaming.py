@@ -102,10 +102,6 @@ if __name__ == "__main__":
         es = Elasticsearch(hosts=[{"host":"52.34.117.127", "port":9200},{"host":"52.89.22.134", "port":9200},{"host":"52.35.24.163", "port":9200},{"host":"52.89.0.97", "port":9200}] )
         return_list_of_tuples=[]
         #see if the text is there:
-        try:
-            text = json.loads(tweet)["text"]
-        except TypeError:
-            return [(('notext','na','na'),1)]
         #check if this text contains any of the keywords.
         esresult = es.percolate(index='twit',doc_type='.percolate', body={'doc':{'message': text }})
         if esresult['matches']:
@@ -116,18 +112,11 @@ if __name__ == "__main__":
                 perc_match = es.get(index='twit',doc_type='.percolator',id=match['_id'])
                 matched_words.append(perc_match['_source']['query']['match']['message'])
             #get hashtags and place
-            try:
-                hashtags = [hash.split()[0] for hash in text.split('#')[1:]]
-                place = str( json.loads(tweet)["place"]["name"].encode('ascii','ignore'))+","+str(json.loads(tweet)["place"]["country_code"].encode('ascii','ignore') )
-                list_of_lists_of_tuples = map(lambda x: [(x,ht,place) for ht in hashtags] ,matched_words)
-                list_of_tuple = [(item,1) for sublist in list_of_lists_of_tuples for item in sublist]
-                return list_of_tuple
-            except IndexError:
-                return [((keywords, 'nohashtags', place),1) for keywords in matched_words]
-            except TypeError:
-                list_of_lists_of_tuples = map(lambda x: [(x,ht,'noplace') for ht in hashtags] ,matched_words)
-                list_of_tuple = [(item,1) for sublist in list_of_lists_of_tuples for item in sublist]
-                return list_of_tuple
+            hashtags = [hash.split()[0] for hash in text.split('#')[1:]]
+            place = str( json.loads(tweet)["place"]["name"].encode('ascii','ignore'))+","+str(json.loads(tweet)["place"]["country_code"].encode('ascii','ignore') )
+            list_of_lists_of_tuples = map(lambda x: [(x,ht,place) for ht in hashtags] ,matched_words)
+            list_of_tuple = [(item,1) for sublist in list_of_lists_of_tuples for item in sublist]
+            return list_of_tuple
         else:
             #maybe faster to not return
             pass
@@ -139,7 +128,17 @@ if __name__ == "__main__":
         else:
             return False
 
-    hashtagsoutput = lines.map(lambda l: text_hashtags_place_tuple(l) )\
+    def NoneEmptyfilter(string):
+        if len(string)>0:
+            return True
+        else:
+            return False
+
+    hashtagsoutput = lines.filter(lambda l: NoneEmptyfilter(json.loads(l)["text"]) )\
+        .filter(lambda l: len(json.loads(l)["text"].split('#'))>1 )
+        .filter(lambda l: NoneEmptyfilter(json.loads(l)["place"]["name"]) )\
+        .filter(lambda l: NoneEmptyfilter(json.loads(l)["place"]["country_code"] ))\
+        .map(lambda l: text_hashtags_place_tuple(l) )\
         .filter(lambda l: NoneTypefilter(l))\
         .flatMap(lambda l: l)\
         .reduceByKey(lambda a,b: a+b)
