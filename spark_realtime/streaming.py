@@ -102,7 +102,8 @@ if __name__ == "__main__":
                 return list_of_tuple
         else:
             #maybe faster to not return
-            return [(('nomatch','na','na'),1)]
+            pass
+            #return [(('nomatch','na','na'),1)]
 
 
 
