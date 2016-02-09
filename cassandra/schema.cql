@@ -1,11 +1,11 @@
 CREATE KEYSPACE holytwit WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor' : 3};
 
 CREATE TABLE holytwit.city_count (
-    wordofinterest text,
+    word text,
     place text,
     date text,
     count int,
-    PRIMARY KEY ((wordofinterest,place),date,count)
+    PRIMARY KEY ((word,place),date,count)
     ) WITH CLUSTERING ORDER BY ( date desc, count desc);
 
 CREATE TABLE holytwit.htgraph (

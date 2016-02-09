@@ -43,12 +43,41 @@ def write_to_cassandra(record):
             session.execute(write_query,(word, degree1, date, newcount) )
         else:
             session.execute(write_query,(word, degree1, date,count) )
-
+def write_city_to_cassandra(record):
+    cluster = Cluster([
+        'ec2-52-89-218-166.us-west-2.compute.amazonaws.com',
+        'ec2-52-88-157-153.us-west-2.compute.amazonaws.com',
+        'ec2-52-35-98-229.us-west-2.compute.amazonaws.com',
+        'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
+    session = cluster.connect()
+    write_query = session.prepare("INSERT INTO holytwit.city_count\
+                                    (word, place, date, count)\
+                                    values (?,?,?,?)")
+    write_query.consistency_level = ConsistencyLevel.QUORUM
+    read_query = session.prepare("SELECT *\
+                                    FROM holytwit.htgraph\
+                                    WHERE word=? AND place=? AND date=?")
+    read_query.consistency_level = ConsistencyLevel.QUORUM
+    for ((word,place),count) in record:
+        #time string for right now in minutes:
+        currenttime = datetime.datetime.now()
+        date = currenttime.strftime('%Y-%m-%d %H:%M')
+        rows = session.execute(read_query, (word, place,date))
+        if rows:
+            newcount = rows[0].count + count
+            session.execute(write_query,(word, place, date, newcount) )
+        else:
+            session.execute(write_query,(word, place, date,count) )
 
 def topicgraph_to_cassandra(rdd):
     #each RDD consists of a bunch of partitions which themselves are local on a single machine (each)
     #so for each partition, do what you wanna do ->
     rdd.foreachPartition(lambda record: write_to_cassandra(record))
+
+def city_to_cassandra(rdd):
+    #each RDD consists of a bunch of partitions which themselves are local on a single machine (each)
+    #so for each partition, do what you wanna do ->
+    rdd.foreachPartition(lambda record: write_city_to_cassandra(record))
 
 if __name__ == "__main__":
 
@@ -194,6 +223,21 @@ if __name__ == "__main__":
     # twitterstream -> city count
     ############################################
 
+    def word_and_city(matchwords_text_place_tuple):
+        if mw_t_p_tuple[1] == 1:
+            return [mw_t_p_tuple]
+        else:
+            matched_words = mw_t_p_tuple[0]
+            place = mw_t_p_tuple[2]
+            return map(lambda x: ((x, place),1),matched_words)
+
+    cityoutput = lines.map(lambda l: ES_check(l))\
+        .filter(lambda l: NoneTypefilter(l))\
+        .map(lambda l: word_and_city(l))\
+        .flatMap(lambda l: l)\
+        .reduceByKey(lambda a,b: a+b)
+
+    cityoutput.foreachRDD(city_to_cassandra)
 
 
     ssc.start()
