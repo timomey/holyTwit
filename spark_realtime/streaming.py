@@ -60,7 +60,7 @@ if __name__ == "__main__":
     #conf = SparkConf().setAppName("holyTwit")
     #conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
     sc = SparkContext(appName="topicgraph")
-    ssc = StreamingContext(sc, 1)
+    ssc = StreamingContext(sc, 2)
 
     #StorageLevel.MEMORY_AND_DISK_SER
     ############################################
