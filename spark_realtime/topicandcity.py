@@ -136,7 +136,7 @@ if __name__ == "__main__":
     #directKafkaStream = KafkaUtils.createDirectStream(ssc, [topic], {"metadata.broker.list": brokers})
     kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-topicgraph", {topic: 8})
     #2nd stream for search querries
-    userqueries = kquerys.map(lambda x: x[1])
+    #userqueries = kquerys.map(lambda x: x[1])
     lines = kvs.map(lambda x: x[1])
 
     #for cassandra:
