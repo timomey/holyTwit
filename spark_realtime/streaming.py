@@ -99,9 +99,11 @@ if __name__ == "__main__":
     tablename = 'topicgraph'
     citycounttablename = 'city_count'
     #spark  objects
-    #conf = SparkConf().setAppName("holyTwit")
-    #conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-    sc = SparkContext(appName="topicgraph")
+    conf = SparkConf()
+    conf.setAppName("holyTwit")
+    conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+    conf.set("spark.streaming.receiver.maxRate", 500)
+    sc = SparkContext(conf)
     ssc = StreamingContext(sc, 2)
 
     #StorageLevel.MEMORY_AND_DISK_SER
