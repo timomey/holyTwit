@@ -105,7 +105,7 @@ if __name__ == "__main__":
         try:
             text = json.loads(tweet)["text"]
         except TypeError:
-            return [(('notext','na','na'),1)]
+            return [(('notext','na'),1)]
         #check if this text contains any of the keywords.
         esresult = es.percolate(index='twit',doc_type='.percolate', body={'doc':{'message': text }})
         if esresult['matches']:
@@ -119,8 +119,8 @@ if __name__ == "__main__":
             try:
                 hashtags = [hash.split()[0] for hash in text.split('#')[1:]]
                 list_of_lists_of_tuples = map(lambda x: [(x,ht) for ht in hashtags] ,matched_words)
-                #list_of_tuple = [(item,1) for sublist in list_of_lists_of_tuples for item in sublist]
-                return list_of_lists_of_tuples
+                list_of_tuple = [(item,1) for sublist in list_of_lists_of_tuples for item in sublist]
+                return list_of_tuple
             except IndexError:
                 #pass
                 list_of_tuple = map(lambda x: (x, 'nohashtags'), matched_words)
