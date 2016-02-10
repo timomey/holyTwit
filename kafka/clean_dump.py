@@ -16,7 +16,7 @@ if __name__ == "__main__":
                 try:
                     text = str(json_dict['text'].encode('ascii','ignore'))
                     place = str(json_dict['place']['name'].encode('ascii','ignore') + json_dict['place']['country_code'].encode('ascii','ignore'))
-                    time = tweet['timestamp_ms']
+                    time = json_dict['timestamp_ms']
                     hashtags = [hash.split()[0] for hash in text.split('#')[1:]]
                 except IndexError:
                     pass
@@ -24,6 +24,6 @@ if __name__ == "__main__":
                     json_output = {'text': text,'hashtags': hashtags ,'place': place, 'time': time}
                     writ.write(json.dumps(json_output))
                     writ.write('\n')
-            
+
                 if counter%10000 ==0:
                     print counter
