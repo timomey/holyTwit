@@ -110,7 +110,7 @@ def triggertableres():
 
 
 
-@app.route('/output/words')
+@app.route('/output/<words>')
 def get_stream(words):
     #should get the words here automatically from elasticsearch
     maxnumpanels = 10
@@ -141,7 +141,7 @@ def get_stream(words):
     series_places = [{name: "hashtags",
                         colorByPoint: true,
                         data: response_data}]
-    return render_template("citycount.html", series_places = series_places, series_hashtags = series_hashtag)
+    return render_template("output.html", series_places = series_places, series_hashtags = series_hashtag)
 
     #jsonresponse = [{"place": x.place, "count": x.count} for x in response_list]
     #return jsonify(wordofinterest=jsonresponse)
