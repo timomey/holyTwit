@@ -114,8 +114,8 @@ def triggertableres():
 def get_stream(words):
     #should get the words here automatically from elasticsearch
     maxnumpanels = 10
-    stmt = "SELECT count,place FROM holytwit.citycount WHERE word='"+str(wordofinterest)+"' LIMIT 10;"
-    hashtagsmt = "SELECT count,degree1 FROM holytwit.highestconnection WHERE word='"+str(wordofinterest)+"' LIMIT 10;"
+    stmt = "SELECT count,place FROM holytwit.citycount WHERE word='"+str(words)+"' LIMIT 10;"
+    hashtagsmt = "SELECT count,degree1 FROM holytwit.highestconnection WHERE word='"+str(words)+"' LIMIT 10;"
     response = session.execute(stmt)
     response_degree = session.execute(hashtagsmt)
     response_hashtags_list = []

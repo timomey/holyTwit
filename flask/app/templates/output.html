@@ -78,19 +78,19 @@
   <label for="usr">Input:</label>
   <input type="text" class="form-control" id="usr">
 </div>
-      <div class="row">
+      <!--<div class="row">
       <div class="col-sm-4">
         {% for citytuple in citycounttuplelist  %}
           <div class="panel panel-primary" id="{{loop.index}}">
             <div class="panel-heading">
-              <h3 class="panel-title"> {{ citytuple[0]}}  reacts with  {{ citytuple[1] }} messages </h3>
+              <h3 class="panel-title"> {{ citytuple[0]}}   {{ citytuple[1] }} messages </h3>
             </div>
             <div class="panel-body">
-              first degree connection
+
             </div>
           </div>
         {% endfor %}
-      </div><!-- /.col-sm-4 -->
+    </div><!-- /.col-sm-4 -->
       <div id="degree1chart" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
     </div> <!-- /row -->
 
