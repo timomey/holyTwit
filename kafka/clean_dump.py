@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import kafka
+#import kafka
 import json
 import sys
 import os

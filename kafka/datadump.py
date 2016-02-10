@@ -8,7 +8,7 @@ if __name__ == "__main__":
 
 	tweetdump_filelist = list()
 	if len(sys.argv) >1:
-		for i in range(len(sys.argv)[1:]):
+		for i in range(len(sys.argv))[1:]:
 			# those have to be located in ../../tweets/
 			tweetdump_filelist.append(str(sys.argv[i]))
 	else:
