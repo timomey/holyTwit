@@ -35,7 +35,3 @@ if __name__ == "__main__":
 
 				#except:
 				#    continue
-
-
-				if counter%10000 ==0:
-					print counter
