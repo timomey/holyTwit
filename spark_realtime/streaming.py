@@ -113,10 +113,14 @@ if __name__ == "__main__":
     #zookeeper quorum for to connect to kafka (local ips for faster access)
     zkQuorum = "52.34.117.127:2181,52.89.22.134:2181,52.35.24.163:2181,52.89.0.97:2181"
     # Stream 1 ->faketwitterstream
-    kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-topicgraph", {"faketwitterstream": 8})
+    #kvs = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-topicgraph", {"faketwitterstream": 8})
+    topic ="faketwitterstream"
+    brokers = "52.34.117.127:9092,52.89.22.134:9092,52.35.24.163:9092,52.89.0.97:9092""
+    kvs = KafkaUtils.createDirectStream(ssc, [topic], {"metadata.broker.list": brokers})
     lines = kvs.map(lambda x: x[1])
     #Stream 2 -> queries
     kquerys = KafkaUtils.createStream(ssc, zkQuorum, "spark-streaming-elastc", {"elasticquerries": 8})
+    KafkaUtils.createDirectStream
     userqueries = kquerys.map(lambda x: x[1])
 
     ############################################
