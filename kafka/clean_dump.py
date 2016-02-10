@@ -18,7 +18,7 @@ if __name__ == "__main__":
                     place = str(json_dict['place']['name'].encode('ascii','ignore') + json_dict['place']['country_code'].encode('ascii','ignore'))
                     time = json_dict['timestamp_ms']
                     hashtags = [hash.split()[0] for hash in text.split('#')[1:]]
-                except IndexError:
+                except IndexError, TypeError:
                     pass
                 else:
                     json_output = {'text': text,'hashtags': hashtags ,'place': place, 'time': time}
