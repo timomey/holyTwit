@@ -5,8 +5,9 @@ import json
 import sys
 
 if __name__ == "__main__":
-    tweetfile = '2016-02-08-11-57_tweets.txt'
-    with open('../../tweets/'+tweetfile ,'r') as f:
+    folder = sys.argv[1]
+    #tweetfile = '2016-02-08-11-57_tweets.txt'
+    with open('../../tweets/'+folder+'/*' ,'r') as f:
         counter = 0
         with open('../../tweets/clean_'+tweetfile,'a') as writ:
             for line in f:
@@ -15,7 +16,7 @@ if __name__ == "__main__":
                 json_dict = json.loads(line.strip())
                 try:
                     text = str(json_dict['text'].encode('ascii','ignore'))
-                    place = str(json_dict['place']['name'].encode('ascii','ignore') + json_dict['place']['country_code'].encode('ascii','ignore'))
+                    place = str(json_dict['place']['name'].encode('ascii','ignore') +", "+ json_dict['place']['country_code'].encode('ascii','ignore'))
                     time = json_dict['timestamp_ms']
                     hashtags = [hash.split()[0] for hash in text.split('#')[1:]]
                 except:
