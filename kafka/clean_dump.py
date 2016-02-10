@@ -9,7 +9,7 @@ if __name__ == "__main__":
     #tweetfile = '2016-02-08-11-57_tweets.txt'
     with open('../../tweets/'+folder+'/*' ,'r') as f:
         counter = 0
-        with open('../../tweets/clean_'+tweetfile,'a') as writ:
+        with open('../../tweets/clean_'+folder.txt,'a') as writ:
             for line in f:
                 counter += 1
 
