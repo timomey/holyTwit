@@ -144,7 +144,7 @@ def get_stream(words):
     #series_places = [{'name': "hashtags",
     #                    'colorByPoint': True,
     #                    'data': response_data}]
-    return render_template("output.html", data_places = series_places, data_hashtags = series_hashtag)
+    return render_template("output.html", data_places = response_data, data_hashtags = response_hashtags_list)
 
     #jsonresponse = [{"place": x.place, "count": x.count} for x in response_list]
     #return jsonify(wordofinterest=jsonresponse)
