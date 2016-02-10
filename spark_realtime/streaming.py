@@ -50,12 +50,12 @@ def write_to_cassandra(record):
         else:
             session.execute(write_query,(word, degree1,count) )
 def write_city_to_cassandra(record):
-    cluster = Cluster(['ec2-52-33-153-115.us-west-2.compute.amazonaws.com','ec2-52-36-102-156.us-west-2.compute.amazonaws.com'])
     #cluster = Cluster([
     #    'ec2-52-89-218-166.us-west-2.compute.amazonaws.com',
     #    'ec2-52-88-157-153.us-west-2.compute.amazonaws.com',
     #    'ec2-52-35-98-229.us-west-2.compute.amazonaws.com',
     #    'ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
+    cluster = Cluster(['ec2-52-33-153-115.us-west-2.compute.amazonaws.com','ec2-52-36-102-156.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
     write_query = session.prepare("INSERT INTO holytwit.city_count\
                                     (word, place, count)\
