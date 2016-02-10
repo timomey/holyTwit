@@ -139,10 +139,10 @@ def get_stream(words):
     response_hashtags_list = [ {'name':x.degree1, 'y': x.count, 'drilldown': 'null'} for x in response_hashtags_list ]
 
     series_hashtag = [{'name': "hashtags",
-                        'colorByPoint': true,
+                        'colorByPoint': True,
                         'data': response_hashtags_list}]
     series_places = [{'name': "hashtags",
-                        'colorByPoint': true,
+                        'colorByPoint': True,
                         'data': response_data}]
     return render_template("output.html", series_places = series_places, series_hashtags = series_hashtag)
 
