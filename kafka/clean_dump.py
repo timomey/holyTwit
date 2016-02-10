@@ -14,19 +14,16 @@ if __name__ == "__main__":
 
                 json_dict = json.loads(line.strip())
                 try:
-                    if len(json_dict['text'])>2 and json_dict["place"]["name"] and json_dict["place"]["country_code"] and tweet['timestamp_ms']:
-                        text = str(json_dict['text'].encode('ascii','ignore'))
-                        place = str(json_dict['place']['name'].encode('ascii','ignore') + json_dict['place']['country_code'].encode('ascii','ignore'))
-                        time = tweet['timestamp_ms']
-                        try:
-                            hashtags = [hash.split()[0] for hash in text.split('#')[1:]]
-                        except IndexError:
-                            pass
-                        json_output = {'text': text,'hashtags': hashtags ,'place': place, 'time': time}
-                        writ.write(json.dumps(json_output))
-                        writ.write('\n')
-                except:
+                    text = str(json_dict['text'].encode('ascii','ignore'))
+                    place = str(json_dict['place']['name'].encode('ascii','ignore') + json_dict['place']['country_code'].encode('ascii','ignore'))
+                    time = tweet['timestamp_ms']
+                    hashtags = [hash.split()[0] for hash in text.split('#')[1:]]
+                except IndexError:
                     pass
-
+                else:
+                    json_output = {'text': text,'hashtags': hashtags ,'place': place, 'time': time}
+                    writ.write(json.dumps(json_output))
+                    writ.write('\n')
+            
                 if counter%10000 ==0:
                     print counter
