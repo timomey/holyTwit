@@ -132,8 +132,8 @@ def get_stream(words):
     #    citycountlist = responsetuple[:len(responsetuple)]
 
     #correct format for the data to go to the graph
-    response_data = [ {name: x.place, y: x.count, drilldown:null} for x in response_list]
-    response_hashtags_list = [ {name:x.degree1, y: x.countm drilldown:null} for x in response_list ]
+    response_data = [ {name: x.place, y: x.count, drilldown: null } for x in response_list]
+    response_hashtags_list = [ {name:x.degree1, y: x.count, drilldown: null} for x in response_list ]
 
     series_hashtag = [{name: "hashtags",
                         colorByPoint: true,
