@@ -110,25 +110,38 @@ def triggertableres():
 
 
 
-@app.route('/output')
-def get_stream(wordofinterest):
+@app.route('/output/words')
+def get_stream(words):
+    #should get the words here automatically from elasticsearch
     maxnumpanels = 10
-    stmt = "SELECT * FROM holytwit.city_count WHERE wordofinterest='"+str(wordofinterest)+"';"
-
+    stmt = "SELECT count,place FROM holytwit.citycount WHERE word='"+str(wordofinterest)+"' LIMIT 10;"
+    hashtagsmt = "SELECT count,degree1 FROM holytwit.highestconnection WHERE word='"+str(wordofinterest)+"' LIMIT 10;"
     response = session.execute(stmt)
+    response_degree = session.execute(hashtagsmt)
+    response_hashtags_list = []
+    for val in response_degree:
+        response_hashtags_list.append(val)
     response_list = []
     for val in response:
         response_list.append(val)
-    #responsetuple = [('sf',4),('nyc',3),('la',7),('lv',1),('sss',8),('pa',94),('b',24),('rrsf',14),('tai',22),('berlin',411),('toront',42123),('peter',987)]
 
-    responsetuple = [ (x.place, x.count) for x in response_list]
-    responsetuple.sort(key= lambda x: x[1], reverse=True)
-    if len(responsetuple)>maxnumpanels:
-        citycountlist = responsetuple[:maxnumpanels]
-    else:
-        citycountlist = responsetuple[:len(responsetuple)]
+    #responsetuple.sort(key= lambda x: x[1], reverse=True)
+    #if len(responsetuple)>maxnumpanels:
+    #    citycountlist = responsetuple[:maxnumpanels]
+    #else:
+    #    citycountlist = responsetuple[:len(responsetuple)]
 
-    return render_template("citycount.html", citycounttuplelist = citycountlist)
+    #correct format for the data to go to the graph
+    response_data = [ {name: x.place, y: x.count, drilldown:null} for x in response_list]
+    response_hashtags_list = [ {name:x.degree1, y: x.countm drilldown:null} for x in response_list ]
+
+    series_hashtag = [{name: "hashtags",
+                        colorByPoint: true,
+                        data: response_hashtags_list}]
+    series_places = [{name: "hashtags",
+                        colorByPoint: true,
+                        data: response_data}]
+    return render_template("citycount.html", series_places = series_places, series_hashtags = series_hashtag)
 
     #jsonresponse = [{"place": x.place, "count": x.count} for x in response_list]
     #return jsonify(wordofinterest=jsonresponse)
