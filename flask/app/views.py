@@ -136,7 +136,7 @@ def get_stream(words):
 
     #correct format for the data to go to the graph
     response_data = [ {'name': x.place, 'y': x.count, 'drilldown': 'null' } for x in response_list]
-    response_hashtags_list = [ {'name':x.degree1, 'y': x.count, 'drilldown': 'null'} for x in response_hashtags_list ]
+    response_hashtags_list = [ {'name':x.degree1, 'y': x.count, 'drilldown': 'Microsoft Internet Explorer'} for x in response_hashtags_list ]
 
     #series_hashtag = [{'name': "hashtags",
     #                    'colorByPoint': True,
