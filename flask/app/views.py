@@ -113,6 +113,9 @@ def triggertableres():
 @app.route('/output/<words>')
 def get_stream(words):
     #should get the words here automatically from elasticsearch
+    cluster = Cluster(['ec2-52-89-218-166.us-west-2.compute.amazonaws.com','ec2-52-88-157-153.us-west-2.compute.amazonaws.com','ec2-52-35-98-229.us-west-2.compute.amazonaws.com','ec2-52-34-216-192.us-west-2.compute.amazonaws.com'])
+    session = cluster.connect()
+
     maxnumpanels = 10
     stmt = "SELECT count,place FROM holytwit.citycount WHERE word='"+str(words)+"' LIMIT 10;"
     hashtagsmt = "SELECT count,degree1 FROM holytwit.highestconnection WHERE word='"+str(words)+"' LIMIT 10;"
