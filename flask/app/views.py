@@ -113,6 +113,7 @@ def place_word_api(word):
     cluster = Cluster(['ec2-52-33-153-115.us-west-2.compute.amazonaws.com','ec2-52-36-102-156.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
     stmt = "SELECT count,place FROM holytwit.citycount WHERE word='"+str(word)+"' LIMIT 10;"
+    response = session.execute(stmt)
     response_list = []
     for val in response:
         response_list.append(val)
@@ -125,6 +126,12 @@ def hashtag_word_api(word):
     session = cluster.connect()
     hashtagsmt = "SELECT count,degree1 FROM holytwit.highestconnection WHERE word='"+str(word)+"' LIMIT 10;"
     response_degree = session.execute(hashtagsmt)
+    response_hashtags_list = []
+    for val in response_degree:
+        response_hashtags_list.append(val)
+    response_hashtags_list = [ {'name': str(x.degree1), 'y': x.count, 'drilldown': 'null'} for x in response_hashtags_list ]
+    return jsonify(data=response_hashtags_list)
+
 
 
 @app.route('/output/<words>')
