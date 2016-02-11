@@ -123,7 +123,7 @@ def place_word_api(word):
 def hashtag_word_api(word):
     cluster = Cluster(['ec2-52-33-153-115.us-west-2.compute.amazonaws.com','ec2-52-36-102-156.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
-    hashtagsmt = "SELECT count,degree1 FROM holytwit.highestconnection WHERE word='"+str(words)+"' LIMIT 10;"
+    hashtagsmt = "SELECT count,degree1 FROM holytwit.highestconnection WHERE word='"+str(word)+"' LIMIT 10;"
     response_degree = session.execute(hashtagsmt)
 
 
