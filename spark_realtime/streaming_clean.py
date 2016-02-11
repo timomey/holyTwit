@@ -196,8 +196,9 @@ if __name__ == "__main__":
     hashtagsoutput = lines.map(lambda l: ES_check(l) )\
         .filter(lambda l: NoneTypefilter(l))\
         .flatMap(lambda l: word_and_hashtag(l))\
-        #.flatMap(lambda l: l)\
         .reduceByKey(lambda a,b: a+b)
+        #.flatMap(lambda l: l)\
+
     #hashtagsoutput.pprint()
     hashtagsoutput.foreachRDD(topicgraph_to_cassandra)
 
@@ -216,8 +217,8 @@ if __name__ == "__main__":
     cityoutput = lines.map(lambda l: ES_check(l))\
         .filter(lambda l: NoneTypefilter(l))\
         .flatMap.map(lambda l: word_and_city(l))\
-        #.flatMap(lambda l: l)\
         .reduceByKey(lambda a,b: a+b)
+        #.flatMap(lambda l: l)\
 
     cityoutput.foreachRDD(city_to_cassandra)
 
