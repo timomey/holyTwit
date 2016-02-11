@@ -15,6 +15,7 @@ from operator import add
 import datetime
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk, scan
+import itertools
 
 
 
