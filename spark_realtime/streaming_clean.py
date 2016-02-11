@@ -163,17 +163,19 @@ if __name__ == "__main__":
         esresult = es.percolate(index='twit',doc_type='.percolate', body={'doc':{'message': text }})
         if esresult['matches']:
             #for all matches
-            matched_words = map(lambda l: es.get(index='twit',doc_type='.percolator',id=l['_id']),esresult['matches'])
+            matched_words_perc = map(lambda l: es.get(index='twit',doc_type='.percolator',id=l['_id']),esresult['matches'])
+            matched_words = map(lambda l: l['_source']['query']['match']['message'] , matched_words_perc)
+
             place = json.loads(tweet)["place"].lower()
             hashtags = json.loads(tweet)["hashtags"]
             return (matched_words, text, place, hashtags)
         else:
-            return (('nm','nm'),1)
+            return ()
             #pass
 
     def word_and_hashtag(mw_t_p_tuple):
-        if mw_t_p_tuple[0][0] == 'nm':
-            return [mw_t_p_tuple]
+        if not mw_t_p_tuple:
+            return (('nm','nm'),1)
         else:
             matched_words = mw_t_p_tuple[0]
             text = mw_t_p_tuple[1]
@@ -204,7 +206,7 @@ if __name__ == "__main__":
     ############################################
 
     def word_and_city(matchwords_text_place_tuple):
-        if matchwords_text_place_tuple[0][0] == 'nm':
+        if not matchwords_text_place_tuple:
             return [matchwords_text_place_tuple]
         else:
             matched_words = matchwords_text_place_tuple[0]
