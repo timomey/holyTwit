@@ -184,7 +184,7 @@ if __name__ == "__main__":
                 return list_of_tuple
             else:
                 list_of_tuple=[]
-                for i in itertools.product(matched_words, hashtasgs)
+                for i in itertools.product(matched_words, hashtasgs):
                     list_of_tuple.append((i,1))
                 return list_of_tuple
 
