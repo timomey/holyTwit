@@ -170,8 +170,8 @@ if __name__ == "__main__":
             hashtags = json.loads(tweet)["hashtags"]
             return (matched_words, text, place, hashtags)
         else:
-            return ()
-            #pass
+            #return ()
+            pass
 
     def word_and_hashtag(mw_t_p_tuple):
         if not mw_t_p_tuple:
@@ -181,15 +181,34 @@ if __name__ == "__main__":
             text = mw_t_p_tuple[1]
             hashtags = mw_t_p_tuple[3]
             if not hashtags:
-                list_of_tuple = map(lambda x: ((x, 'nohashtags'),1), matched_words)
+                pass
+                #list_of_tuple = map(lambda x: ((x, 'nohashtags'),1), matched_words)
                 #return (matched_words, 'nohashtags')
-                return list_of_tuple
+                #return list_of_tuple
             else:
                 list_of_tuple=[]
                 for i in itertools.product(matched_words, hashtags):
                     list_of_tuple.append((i,1))
                 return list_of_tuple
 
+
+        def word_and_words(mw_t_p_tuple):
+            if not mw_t_p_tuple:
+                return (('nm','nm'),1)
+            else:
+                matched_words = mw_t_p_tuple[0]
+                text = mw_t_p_tuple[1]
+                connections = text.split()
+
+                if not connections:
+                    #list_of_tuple = map(lambda x: ((x, 'nohashtags'),1), matched_words)
+                    #return (matched_words, 'nohashtags')
+                    #return list_of_tuple
+                else:
+                    list_of_tuple=[]
+                    for i in itertools.product(matched_words, connections):
+                        list_of_tuple.append((i,1))
+                    return list_of_tuple
 
 
 
