@@ -204,6 +204,7 @@ if __name__ == "__main__":
                     #list_of_tuple = map(lambda x: ((x, 'nohashtags'),1), matched_words)
                     #return (matched_words, 'nohashtags')
                     #return list_of_tuple
+                    pass
                 else:
                     list_of_tuple=[]
                     for i in itertools.product(matched_words, connections):
