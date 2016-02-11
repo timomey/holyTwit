@@ -192,30 +192,30 @@ if __name__ == "__main__":
                 return list_of_tuple
 
 
-        def word_and_words(mw_t_p_tuple):
-            if not mw_t_p_tuple:
-                return (('nm','nm'),1)
-            else:
-                matched_words = mw_t_p_tuple[0]
-                text = mw_t_p_tuple[1]
-                connections = text.split()
+    def word_and_words(mw_t_p_tuple):
+        if not mw_t_p_tuple:
+            return (('nm','nm'),1)
+        else:
+            matched_words = mw_t_p_tuple[0]
+            text = mw_t_p_tuple[1]
+            connections = text.split()
 
-                if not connections:
-                    #list_of_tuple = map(lambda x: ((x, 'nohashtags'),1), matched_words)
-                    #return (matched_words, 'nohashtags')
-                    #return list_of_tuple
-                    pass
-                else:
-                    list_of_tuple=[]
-                    for i in itertools.product(matched_words, connections):
-                        list_of_tuple.append((i,1))
-                    return list_of_tuple
+            if not connections:
+                #list_of_tuple = map(lambda x: ((x, 'nohashtags'),1), matched_words)
+                #return (matched_words, 'nohashtags')
+                #return list_of_tuple
+                pass
+            else:
+                list_of_tuple=[]
+                for i in itertools.product(matched_words, connections):
+                    list_of_tuple.append((i,1))
+                return list_of_tuple
 
 
 
     hashtagsoutput = lines.map(lambda l: ES_check(l) )\
         .filter(lambda l: NoneTypefilter(l))\
-        .map(lambda l: word_and_words(l))\
+        .map(lambda l: word_and_words(l) )\
         .flatMap(lambda l: l)\
         .reduceByKey(lambda a,b: a+b)
     #hashtagsoutput.pprint()
