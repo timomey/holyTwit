@@ -108,6 +108,23 @@ def triggertableres():
     return render_template("citycountinput.html", form=form)
 
 
+@app.route('/api/place/<word>')
+def place_word_api(word):
+    cluster = Cluster(['ec2-52-33-153-115.us-west-2.compute.amazonaws.com','ec2-52-36-102-156.us-west-2.compute.amazonaws.com'])
+    session = cluster.connect()
+    stmt = "SELECT count,place FROM holytwit.citycount WHERE word='"+str(word)+"' LIMIT 10;"
+    response_list = []
+    for val in response:
+        response_list.append(val)
+    jsonresponse = [ {'name': str(x.place), 'y': x.count, 'drilldown': 'null' } for x in response_list]
+    return jsonify(data=jsonresponse)
+
+@app.route('/api/hashtags/<word>')
+def place_word_api(word):
+    cluster = Cluster(['ec2-52-33-153-115.us-west-2.compute.amazonaws.com','ec2-52-36-102-156.us-west-2.compute.amazonaws.com'])
+    session = cluster.connect()
+    hashtagsmt = "SELECT count,degree1 FROM holytwit.highestconnection WHERE word='"+str(words)+"' LIMIT 10;"
+    response_degree = session.execute(hashtagsmt)
 
 
 @app.route('/output/<words>')
@@ -115,7 +132,6 @@ def get_stream(words):
     #should get the words here automatically from elasticsearch
     cluster = Cluster(['ec2-52-33-153-115.us-west-2.compute.amazonaws.com','ec2-52-36-102-156.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
-
     maxnumpanels = 10
     stmt = "SELECT count,place FROM holytwit.citycount WHERE word='"+str(words)+"' LIMIT 10;"
     hashtagsmt = "SELECT count,degree1 FROM holytwit.highestconnection WHERE word='"+str(words)+"' LIMIT 10;"
@@ -128,22 +144,9 @@ def get_stream(words):
     for val in response:
         response_list.append(val)
 
-    #responsetuple.sort(key= lambda x: x[1], reverse=True)
-    #if len(responsetuple)>maxnumpanels:
-    #    citycountlist = responsetuple[:maxnumpanels]
-    #else:
-    #    citycountlist = responsetuple[:len(responsetuple)]
-
-    #correct format for the data to go to the graph
     response_data = [ {'name': str(x.place), 'y': x.count, 'drilldown': 'null' } for x in response_list]
     response_hashtags_list = [ {'name': str(x.degree1), 'y': x.count, 'drilldown': 'null'} for x in response_hashtags_list ]
 
-    #series_hashtag = [{'name': "hashtags",
-    #                    'colorByPoint': True,
-    #                    'data': response_hashtags_list}]
-    #series_places = [{'name': "hashtags",
-    #                    'colorByPoint': True,
-    #                    'data': response_data}]
     return render_template("output.html", data_places = response_data, data_hashtags = response_hashtags_list)
 
     #jsonresponse = [{"place": x.place, "count": x.count} for x in response_list]
