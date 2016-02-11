@@ -103,7 +103,7 @@ if __name__ == "__main__":
     conf = SparkConf()
     conf.setAppName("holyTwit")
     conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-    conf.set("spark.streaming.receiver.maxRate", 50)
+    conf.set("spark.streaming.receiver.maxRate", 100)
     sc = SparkContext(conf=conf)
     ssc = StreamingContext(sc, 2)
 

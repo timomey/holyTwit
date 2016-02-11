@@ -12,7 +12,7 @@ if __name__ == "__main__":
 			# those have to be located in ../../tweets/
 			tweetdump_filelist.append(str(sys.argv[i]))
 	else:
-		tweetdump_filelist.append('filteredtweets.txt')
+		tweetdump_filelist.append('clean_2016-02-08-11-57_tweets.txt')
 
 
 	topic = 'faketwitterstream'
