@@ -54,6 +54,7 @@ def slides():
 
 @app.route('/input', methods=['GET', 'POST'])
 def citycount():
+    es = Elasticsearch(hosts=[{"host":"ip-172-31-2-202", "port":9200},{"host":"ip-172-31-2-201", "port":9200},{"host":"ip-172-31-2-200", "port":9200},{"host":"ip-172-31-2-203", "port":9200}] )
     form = ReusableForm(request.form)
     print form.errors
 
