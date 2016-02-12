@@ -16,6 +16,20 @@ import json
 #app.config.from_object(__name__)
 #app.config['SECRET_KEY'] = '7d441f27d441f27567d441f2b6176a'
 
+class userhelper:
+    def __init__(self):
+        self.wordlist = []
+        self.seconddegree = []
+
+    def add_words(self, stringofwords):
+        self.wordlist = self.wordlist + stringofwords.lower().split()
+
+    def reset(self):
+        self.wordlist = []
+
+    def add_second_degree(self, listofwords):
+        self.seconddegree = self.seconddegree + listofwords
+
 def write_input_to_cass(inp):
     cluster = Cluster(['ec2-52-33-153-115.us-west-2.compute.amazonaws.com','ec2-52-36-102-156.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
@@ -55,10 +69,16 @@ def slides():
 def citycount():
     form = ReusableForm(request.form)
     print form.errors
+    if user:
+        user.add_words(input)
+    else:
+        user = userhelper()
     if request.method == 'POST':
         input=request.form['input']
         print ' > looking for ' + input +' in the incoming twitterstream'
         #cassandra_create_listofwords_table()
+
+        user.add_words(input)
         kafka_producer(input)
 
 
@@ -68,9 +88,9 @@ def citycount():
 
         else:
             flash('Error: All the form fields are required. ')
-    return render_template("citycountinput.html", form=form)
+    return render_template("input.html", form=form, currently_tracked_words = user.wordlist)
 
-@app.route('/triggerwordres', methods=['GET', 'POST'])
+@app.route('/_triggerwordres', methods=['GET', 'POST'])
 def triggertableres():
     form = ReusableForm(request.form)
     print form.errors
@@ -87,6 +107,9 @@ def triggertableres():
 
         else:
             flash('Error: All the form fields are required. ')
+
+    if user:
+        user.reset()
 
     es = Elasticsearch(hosts=[{"host":"52.34.117.127", "port":9200},{"host":"52.89.22.134", "port":9200},{"host":"52.35.24.163", "port":9200},{"host":"52.89.0.97", "port":9200}] )
     #ELASTICSEARCH STUFF
@@ -106,7 +129,6 @@ def triggertableres():
     )
     flash(' >>>>>>>>> all words have been reset! Have fun with some new ones, try it again!')
     return render_template("citycountinput.html", form=form)
-
 
 @app.route('/api/place/<word>')
 def place_word_api(word):
@@ -134,27 +156,35 @@ def hashtag_word_api(word):
 
 
 
-@app.route('/output/<words>')
-def get_stream(words):
+@app.route('/output/')
+def get_stream():
     #should get the words here automatically from elasticsearch
     cluster = Cluster(['ec2-52-33-153-115.us-west-2.compute.amazonaws.com','ec2-52-36-102-156.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
     maxnumpanels = 10
-    stmt = "SELECT count,place FROM holytwit.citycount WHERE word='"+str(words)+"' LIMIT 10;"
-    hashtagsmt = "SELECT count,degree1 FROM holytwit.highestconnection WHERE word='"+str(words)+"' LIMIT 10;"
-    response = session.execute(stmt)
-    response_degree = session.execute(hashtagsmt)
-    response_hashtags_list = []
-    for val in response_degree:
-        response_hashtags_list.append(val)
-    response_list = []
-    for val in response:
-        response_list.append(val)
+    hashtagdata = {}
+    placesdata = {}
+    for words in user.wordlist:
+        stmt = "SELECT count,place FROM holytwit.citycount WHERE word='"+str(words)+"' LIMIT 10;"
+        hashtagsmt = "SELECT count,degree1 FROM holytwit.highestconnection WHERE word='"+str(words)+"' LIMIT 10;"
+        response = session.execute(stmt)
+        response_degree = session.execute(hashtagsmt)
+        response_hashtags_list = []
+        for val in response_degree:
+            response_hashtags_list.append(val)
+        response_list = []
+        for val in response:
+            response_list.append(val)
 
-    response_data = [ {'name': str(x.place), 'y': x.count, 'drilldown': 'null' } for x in response_list]
-    response_hashtags_list = [ {'name': str(x.degree1), 'y': x.count, 'drilldown': 'null'} for x in response_hashtags_list ]
+        response_places = [ {'name': str(x.place), 'y': x.count, 'drilldown': 'null' } for x in response_list]
+        placesdata[words] = response_places
+        response_hashtags_list = [ {'name': str(x.degree1), 'y': x.count, 'drilldown': 'null'} for x in response_hashtags_list ]
+        hashtagdata[words] = response_hashtags_list
+        top10_connections = [x.degree1 for x in response_hashtags_list]
+        #send the top10 connections back to ELASTICSEARCH
+        user.add_second_degree(top10_connections)
 
-    return render_template("output.html", data_places = response_data, data_hashtags = response_hashtags_list)
+    return render_template("output.html", data_places = response_places, data_hashtags = response_hashtags_list)
 
     #jsonresponse = [{"place": x.place, "count": x.count} for x in response_list]
     #return jsonify(wordofinterest=jsonresponse)

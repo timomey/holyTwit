@@ -108,7 +108,7 @@ if __name__ == "__main__":
     conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
     conf.set("spark.streaming.receiver.maxRate", 100)
     sc = SparkContext(conf=conf)
-    ssc = StreamingContext(sc, 2)
+    ssc = StreamingContext(sc, 5)
 
     #StorageLevel.MEMORY_AND_DISK_SER
     ############################################

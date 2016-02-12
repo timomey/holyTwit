@@ -21,6 +21,16 @@
     <!-- jquery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
     <script src="../static/js/custom_jquery_script.js"></script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-73739421-1', 'auto');
+  ga('send', 'pageview');
+
+  </script>
   </head>
 
   <body>
@@ -82,8 +92,28 @@
         {% endwith %}
         <br>
         <button type="button" class="btn btn-lg btn-warning"><a href="http://holytwit.club/output/cool">Let's See it!</a></button>
-        <button type="button" class="btn btn-lg btn-warning"><a href="http://holytwit.club/triggerwordres">reset words to look for</a></button>
-        <button type="button" class="btn btn-lg btn-warning"><a href="http://holytwit.club/triggertableres">reset results</a></button>
+        <button type="button" class="btn btn-lg btn-warning"><a href="http://holytwit.club/input">Show currently tracked words</a></button>
+        <button type="button" class="btn btn-lg btn-warning"><a href="http://holytwit.club/_triggerwordres">reset words to look for</a></button>
+        <button type="button" class="btn btn-lg btn-warning"><a href="http://holytwit.club/_triggertableres">reset results</a></button>
+
+        <h3> Currently tracked words </h3>
+        <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Words currently tracked</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for word in currently_tracked_words %}
+              <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{word}}</td>
+              </tr>
+            {% endfor %}
+              </tbody>
+          </table>
+
     </div><!-- /.container -->
 
 
