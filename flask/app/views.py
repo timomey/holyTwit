@@ -69,7 +69,7 @@ def slides():
 def citycount():
     form = ReusableForm(request.form)
     print form.errors
-    if user:
+    if 'user' in vars():
         user.add_words(input)
     else:
         user = userhelper()
