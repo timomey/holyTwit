@@ -16,6 +16,8 @@ import datetime
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk, scan
 import itertools
+from stop_words import get_stop_words
+
 
 
 
@@ -95,6 +97,7 @@ def city_to_cassandra(rdd):
 
 if __name__ == "__main__":
 
+    stop_words = get_stop_words('en')
     #cassandra keyspace name
     keyspacename = 'holytwit'
     tablename = 'topicgraph'
@@ -198,7 +201,9 @@ if __name__ == "__main__":
         else:
             matched_words = mw_t_p_tuple[0]
             text = mw_t_p_tuple[1]
-            connections = text.split()
+            stop_words = get_stop_words('en')
+            connections = list(set(text.split()))
+            connections = [word for word in connections if word not in stop_words ]
 
             if not connections:
                 #list_of_tuple = map(lambda x: ((x, 'nohashtags'),1), matched_words)
