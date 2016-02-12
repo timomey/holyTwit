@@ -70,7 +70,7 @@
             <label for="usr">Input:</label>
             <input type="text" class="form-control" id="usr">
         </div>
-        {{ for word in list_of_words }}
+        {% for word in list_of_words %}
         <div class="page-header">
             <h1>{{ word }}</h1>
         </div>
@@ -82,7 +82,7 @@
 
                 <div id="{{word + 'place'}}" style="min-width: 310px; height: 400px; margin: 10 auto"></div>
             </div>
-            {{endfor}}
+            {%endfor%}
         </div>
 
     </div><!-- /.container -->
@@ -94,7 +94,7 @@
     <script src="https://code.highcharts.com/modules/drilldown.js"></script>
 
     <script>
-    {{ for word in list_of_words }}
+    {% for word in list_of_words %}
 
     $(function () {
         // Create the chart
@@ -326,7 +326,7 @@
             }
         });
     });
-    {{endfor}}
+    {%endfor%}
 
 
 
