@@ -169,7 +169,7 @@ def get_stream():
         response_hashtags_list = [ {'name': str(x.degree1), 'y': x.count, 'drilldown': 'null'} for x in response_hashtags_list ]
         hashtagdata[words+'connection'] = response_hashtags_list
         #top10 -> send tyhose over to ES
-        top10_connections = [x.degree1 for x in response_hashtags_list]
+        #top10_connections = [x.degree1 for x in response_hashtags_list]
         #send the top10 connections back to ELASTICSEARCH
 
     return render_template("output.html", data_places = placesdata, data_hashtags = hashtagdata, list_of_words = listof_words_in_es)
