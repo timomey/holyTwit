@@ -82,8 +82,8 @@
 
                 <div id="{{word + 'place'}}" style="min-width: 310px; height: 400px; margin: 10 auto"></div>
             </div>
-            {%endfor%}
         </div>
+            {%endfor%}
 
     </div><!-- /.container -->
 
@@ -138,7 +138,7 @@
             series: [{
                 name: 'Brands',
                 colorByPoint: true,
-                data: {{ data_hashtags | safe }},
+                data: {{ data_hashtags[word + 'connection'] | safe }},
             }],
             drilldown: {
                 series: [{
@@ -254,7 +254,7 @@
             series: [{
                 name: 'Brands',
                 colorByPoint: true,
-                data: {{ data_places | safe }},
+                data: {{ data_places[word + 'place'] | safe }},
             }],
             drilldown: {
                 series: [{
