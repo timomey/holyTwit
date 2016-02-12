@@ -16,19 +16,6 @@ import json
 #app.config.from_object(__name__)
 #app.config['SECRET_KEY'] = '7d441f27d441f27567d441f2b6176a'
 
-class userhelper:
-    def __init__(self):
-        self.wordlist = []
-        self.seconddegree = []
-
-    def add_words(self, stringofwords):
-        self.wordlist = self.wordlist + stringofwords.lower().split()
-
-    def reset(self):
-        self.wordlist = []
-
-    def add_second_degree(self, listofwords):
-        self.seconddegree = self.seconddegree + listofwords
 
 def write_input_to_cass(inp):
     cluster = Cluster(['ec2-52-33-153-115.us-west-2.compute.amazonaws.com','ec2-52-36-102-156.us-west-2.compute.amazonaws.com'])
@@ -69,16 +56,15 @@ def slides():
 def citycount():
     form = ReusableForm(request.form)
     print form.errors
-    if 'user' in vars():
-        user.add_words(input)
-    else:
-        user = userhelper()
+
+    pers = es.search(index='twit',doc_type='.percolator')
+    listof_words_in_es = map(lambda x: str(x['_source']['query']['match']['message']), pers['hits']['hits'])
+
     if request.method == 'POST':
         input=request.form['input']
         print ' > looking for ' + input +' in the incoming twitterstream'
         #cassandra_create_listofwords_table()
 
-        user.add_words(input)
         kafka_producer(input)
 
 
@@ -88,7 +74,7 @@ def citycount():
 
         else:
             flash('Error: All the form fields are required. ')
-    return render_template("input.html", form=form, currently_tracked_words = user.wordlist)
+    return render_template("input.html", form=form, currently_tracked_words = )
 
 @app.route('/_triggerwordres', methods=['GET', 'POST'])
 def triggertableres():
@@ -108,8 +94,6 @@ def triggertableres():
         else:
             flash('Error: All the form fields are required. ')
 
-    if user:
-        user.reset()
 
     es = Elasticsearch(hosts=[{"host":"52.34.117.127", "port":9200},{"host":"52.89.22.134", "port":9200},{"host":"52.35.24.163", "port":9200},{"host":"52.89.0.97", "port":9200}] )
     #ELASTICSEARCH STUFF
