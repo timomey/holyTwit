@@ -52,31 +52,6 @@ def index():
 def slides():
     return render_template("slides.html")
 
-@app.route('/input', methods=['GET', 'POST'])
-def citycount():
-    es = Elasticsearch(hosts=[{"host":"ip-172-31-2-202", "port":9200},{"host":"ip-172-31-2-201", "port":9200},{"host":"ip-172-31-2-200", "port":9200},{"host":"ip-172-31-2-203", "port":9200}] )
-    form = ReusableForm(request.form)
-    print form.errors
-
-    pers = es.search(index='twit',doc_type='.percolator')
-    listof_words_in_es = map(lambda x: str(x['_source']['query']['match']['message']), pers['hits']['hits'])
-
-    if request.method == 'POST':
-        input=request.form['input']
-        print ' > looking for ' + input +' in the incoming twitterstream'
-        #cassandra_create_listofwords_table()
-
-        kafka_producer(input)
-
-
-        if form.validate():
-            # Save the comment here.
-            flash(' >>>>>>>>> looking for ' + input +' in the incoming twitterstream')
-
-        else:
-            flash('Error: All the form fields are required. ')
-    return render_template("input.html", form=form, currently_tracked_words = listof_words_in_es)
-
 @app.route('/_triggerwordres', methods=['GET', 'POST'])
 def triggertableres():
     form = ReusableForm(request.form)
@@ -140,19 +115,47 @@ def hashtag_word_api(word):
     return jsonify(data=response_hashtags_list)
 
 
+@app.route('/input', methods=['GET', 'POST'])
+def citycount():
+    es = Elasticsearch(hosts=[{"host":"ip-172-31-2-202", "port":9200},{"host":"ip-172-31-2-201", "port":9200},{"host":"ip-172-31-2-200", "port":9200},{"host":"ip-172-31-2-203", "port":9200}] )
+    form = ReusableForm(request.form)
+    print form.errors
+
+    pers = es.search(index='twit',doc_type='.percolator')
+    listof_words_in_es = map(lambda x: str(x['_source']['query']['match']['message']), pers['hits']['hits'])
+
+    if request.method == 'POST':
+        input=request.form['input']
+        print ' > looking for ' + input +' in the incoming twitterstream'
+        #cassandra_create_listofwords_table()
+
+        kafka_producer(input)
+
+
+        if form.validate():
+            # Save the comment here.
+            flash(' >>>>>>>>> looking for ' + input +' in the incoming twitterstream')
+
+        else:
+            flash('Error: All the form fields are required. ')
+    return render_template("input.html", form=form, currently_tracked_words = listof_words_in_es)
+
 
 @app.route('/output/')
 def get_stream():
-    #should get the words here automatically from elasticsearch
+    #get the words from ES
+    es = Elasticsearch(hosts=[{"host":"ip-172-31-2-202", "port":9200},{"host":"ip-172-31-2-201", "port":9200},{"host":"ip-172-31-2-200", "port":9200},{"host":"ip-172-31-2-203", "port":9200}] )
+    pers = es.search(index='twit',doc_type='.percolator')
+    listof_words_in_es = map(lambda x: str(x['_source']['query']['match']['message']), pers['hits']['hits'])
+    #Cassandra connection:
     cluster = Cluster(['ec2-52-33-153-115.us-west-2.compute.amazonaws.com','ec2-52-36-102-156.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
-    maxnumpanels = 10
     hashtagdata = {}
     placesdata = {}
-    for words in user.wordlist:
-        stmt = "SELECT count,place FROM holytwit.citycount WHERE word='"+str(words)+"' LIMIT 10;"
+    for words in listof_words_in_es:
+        get_place_stmt = "SELECT count,place FROM holytwit.citycount WHERE word='"+str(words)+"' LIMIT 10;"
         hashtagsmt = "SELECT count,degree1 FROM holytwit.highestconnection WHERE word='"+str(words)+"' LIMIT 10;"
-        response = session.execute(stmt)
+        response = session.execute(get_place_stmt)
         response_degree = session.execute(hashtagsmt)
         response_hashtags_list = []
         for val in response_degree:
@@ -162,14 +165,14 @@ def get_stream():
             response_list.append(val)
 
         response_places = [ {'name': str(x.place), 'y': x.count, 'drilldown': 'null' } for x in response_list]
-        placesdata[words] = response_places
+        placesdata[words+'place'] = response_places
         response_hashtags_list = [ {'name': str(x.degree1), 'y': x.count, 'drilldown': 'null'} for x in response_hashtags_list ]
-        hashtagdata[words] = response_hashtags_list
+        hashtagdata[words+'connection'] = response_hashtags_list
+        #top10 -> send tyhose over to ES
         top10_connections = [x.degree1 for x in response_hashtags_list]
         #send the top10 connections back to ELASTICSEARCH
-        user.add_second_degree(top10_connections)
 
-    return render_template("output.html", data_places = response_places, data_hashtags = response_hashtags_list)
+    return render_template("output.html", data_places = placesdata, data_hashtags = hashtagdata, list_of_words = listof_words_in_es)
 
     #jsonresponse = [{"place": x.place, "count": x.count} for x in response_list]
     #return jsonify(wordofinterest=jsonresponse)
