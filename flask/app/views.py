@@ -113,7 +113,7 @@ def triggertableres():
         }
     )
     flash(' >>>>>>>>> all words have been reset! Have fun with some new ones, try it again!')
-    return render_template("citycountinput.html", form=form)
+    return render_template("input.html", form=form)
 
 @app.route('/api/place/<word>')
 def place_word_api(word):
