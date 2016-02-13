@@ -56,24 +56,6 @@ def slides():
 @app.route('/_startstream')
 def startstream():
     os.system('python datadump.py')
-    form = ReusableForm(request.form)
-    print form.errors
-    if request.method == 'POST':
-        input=request.form['input']
-        print ' > looking for ' + input +' in the incoming twitterstream'
-        #cassandra_create_listofwords_table()
-        kafka_producer(input)
-
-
-        if form.validate():
-            # Save the comment here.
-            flash(' >>>>>>>>> looking for ' + input +' in the incoming twitterstream')
-
-        else:
-            flash('Error: All the form fields are required. ')
-
-    return render_template("input.html", form=form)
-
 
 @app.route('/_triggerwordres', methods=['GET', 'POST'])
 def triggertableres():
