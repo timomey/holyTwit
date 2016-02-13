@@ -31,7 +31,7 @@ def write_to_cassandra(record):
     session = cluster.connect()
     write_query = session.prepare("INSERT INTO holytwit.htgraph\
                                     (word, degree1, count)\
-                                    values (?,?,?)")
+                                    values (?,?,?)" USING TTL 600)
     write_query.consistency_level = ConsistencyLevel.QUORUM
     read_query = session.prepare("SELECT *\
                                     FROM holytwit.htgraph\
@@ -62,7 +62,7 @@ def write_city_to_cassandra(record):
     session = cluster.connect()
     write_query = session.prepare("INSERT INTO holytwit.city_count\
                                     (word, place, count)\
-                                    values (?,?,?)")
+                                    values (?,?,?)" USING TTL 600)
     write_query.consistency_level = ConsistencyLevel.QUORUM
     read_query = session.prepare("SELECT *\
                                     FROM holytwit.city_count\

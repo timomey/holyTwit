@@ -9,6 +9,7 @@ from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk, scan
 import kafka
 import json
+import os
 
 # App config.
 #DEBUG = True
@@ -51,6 +52,10 @@ def index():
 @app.route('/slides')
 def slides():
     return render_template("slides.html")
+
+@app.route('/_startstream')
+def startstream():
+    os.system('python datadump.py')
 
 @app.route('/_triggerwordres', methods=['GET', 'POST'])
 def triggertableres():
@@ -171,7 +176,6 @@ def get_stream():
         #top10 -> send tyhose over to ES
         #top10_connections = [x.degree1 for x in response_hashtags_list]
         #send the top10 connections back to ELASTICSEARCH
-
     return render_template("output.html", data_places = placesdata, data_hashtags = hashtagdata, list_of_words = listof_words_in_es)
 
     #jsonresponse = [{"place": x.place, "count": x.count} for x in response_list]
