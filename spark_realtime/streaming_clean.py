@@ -220,7 +220,7 @@ if __name__ == "__main__":
 
     hashtagsoutput = lines.map(lambda l: ES_check(l) )\
         .filter(lambda l: NoneTypefilter(l))\
-        .map(lambda l: word_and_words(l) )\
+        .map(lambda l: word_and_hashtag(l) )\
         .flatMap(lambda l: l)\
         .reduceByKey(lambda a,b: a+b)
     #hashtagsoutput.pprint()
