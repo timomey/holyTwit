@@ -56,6 +56,8 @@ def slides():
 @app.route('/_startstream')
 def startstream():
     os.system('python datadump.py')
+    return render_template("input.html", form=form)
+
 
 @app.route('/_triggerwordres', methods=['GET', 'POST'])
 def triggertableres():
