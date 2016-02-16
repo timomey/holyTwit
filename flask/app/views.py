@@ -177,6 +177,3 @@ def get_stream():
         #top10_connections = [x.degree1 for x in response_hashtags_list]
         #send the top10 connections back to ELASTICSEARCH
     return render_template("output.html", data_places = placesdata, data_hashtags = hashtagdata, list_of_words = listof_words_in_es)
-
-    #jsonresponse = [{"place": x.place, "count": x.count} for x in response_list]
-    #return jsonify(wordofinterest=jsonresponse)
