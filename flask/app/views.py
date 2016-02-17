@@ -235,7 +235,7 @@ def get_stream():
 
         response_places = [ {'name': str(x.place), 'y': x.count, 'drilldown': 'null' } for x in response_list]
         placesdata[words+'place'] = response_places
-        response_hashtags_list = [ {'name': str(x.degree1), 'y': x.count, 'drilldown': 'none'} for x in response_hashtags_list ]
+        response_hashtags_list = [ {'name': str(x.degree1), 'y': x.count, 'drilldown': 'null'} for x in response_hashtags_list ]
         hashtagdata[words+'connection'] = response_hashtags_list
         #top10 -> send tyhose over to ES
         top10_connections = [x.degree1 for x in response_hashtags_list if x.count > 2]
