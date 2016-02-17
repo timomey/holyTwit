@@ -96,6 +96,11 @@ def city_to_cassandra(rdd):
     rdd.foreachPartition(lambda record: write_city_to_cassandra(record))
 
 if __name__ == "__main__":
+    stopwords = []
+    with open('stop_words.txt', 'r') as f:
+        for line in f:
+            if line != '\n':
+                stopwords.append(line.strip())
 
     stop_words = get_stop_words('en')
     #cassandra keyspace name
@@ -203,7 +208,7 @@ if __name__ == "__main__":
             text = mw_t_p_tuple[1]
             stop_words = get_stop_words('en')
             connections = list(set(text.split()))
-            connections = [word for word in connections if word not in stop_words ]
+            connections = [word for word in connections if word not in stopwords ]
 
             if not connections:
                 #list_of_tuple = map(lambda x: ((x, 'nohashtags'),1), matched_words)
@@ -220,7 +225,7 @@ if __name__ == "__main__":
 
     hashtagsoutput = lines.map(lambda l: ES_check(l) )\
         .filter(lambda l: NoneTypefilter(l))\
-        .map(lambda l: word_and_hashtag(l) )\
+        .map(lambda l: word_and_words(l) )\
         .flatMap(lambda l: l)\
         .reduceByKey(lambda a,b: a+b)
     #hashtagsoutput.pprint()
