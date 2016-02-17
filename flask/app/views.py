@@ -42,6 +42,23 @@ def kafka_producer(input_str):
     prod.send_messages(topic, input_str.encode('utf-8'))
 
 
+def add_current_top10_toES():
+    es = Elasticsearch(hosts=[{"host":"ip-172-31-2-202", "port":9200},{"host":"ip-172-31-2-201", "port":9200},{"host":"ip-172-31-2-200", "port":9200},{"host":"ip-172-31-2-203", "port":9200}] )
+    pers = es.search(index='twit',doc_type='.percolator')
+    listof_words_in_es = map(lambda x: str(x['_source']['query']['match']['message']), pers['hits']['hits'])
+    for words in listof_words_in_es:
+        hashtagsmt = "SELECT count,degree1 FROM holytwit.highestconnection WHERE word='"+str(words)+"' LIMIT 10;"
+        response_degree = session.execute(hashtagsmt)
+        response_hashtags_list = []
+        for val in response_degree:
+            response_hashtags_list.append(val)
+
+        top10_connections = [x.degree1 for x in response_hashtags_list if x.degree1 not in listof_words_in_es]
+        for w in top10_connections:
+            kafka_producer(w)
+
+
+
 class ReusableForm(Form):
     input = TextField('Input:', validators=[validators.required()])
 
@@ -61,6 +78,11 @@ def slides():
 @app.route('/_startstream')
 def startstream():
     os.system('python datadump.py')
+
+@app.route('/_addsecdeg')
+def addsecde():
+    add_current_top10_toES()
+    render_template('success.html')
 
 @app.route('/_triggerwordres', methods=['GET', 'POST'])
 def triggertableres():
@@ -177,6 +199,7 @@ def get_stream():
     session = cluster.connect()
     hashtagdata = {}
     placesdata = {}
+    deg2_visuals_dict = {}
     for words in listof_words_in_es:
         get_place_stmt = "SELECT count,place FROM holytwit.citycount WHERE word='"+str(words)+"' LIMIT 10;"
         hashtagsmt = "SELECT count,degree1 FROM holytwit.highestconnection WHERE word='"+str(words)+"' LIMIT 10;"
@@ -194,6 +217,17 @@ def get_stream():
         response_hashtags_list = [ {'name': str(x.degree1), 'y': x.count, 'drilldown': str(x.degree1)} for x in response_hashtags_list ]
         hashtagdata[words+'connection'] = response_hashtags_list
         #top10 -> send tyhose over to ES
-        #top10_connections = [x.degree1 for x in response_hashtags_list if x.count > 5]
-        #send the top10 connections back to ELASTICSEARCH
-    return render_template("output.html", data_places = placesdata, data_hashtags = hashtagdata, list_of_words = listof_words_in_es)
+        top10_connections = [x.degree1 for x in response_hashtags_list if x.count > 2]
+        #send the top10 connections back to ELASTICSEARCH -> DONE BY EXTERNAL script
+        deg2_visuals = []
+        for deg1 in top10_connections:
+            deg2 = "SELECT count,degree1 FROM holytwit.highestconnection WHERE word='"+str(deg1)+"' LIMIT 10;"
+            response_deg2 = session.execute(deg2)
+            response_deg2_list =[]
+            for val in response_deg2:
+                response_deg2_list.append(val)
+            drilldown_data = [[str(x.degree1), x.count] for x in response_deg2_list]
+            deg2_visuals.append({'name': str(x.degree1), 'id': str(x.degree1), 'data': drilldown_data})
+        #put all deg2_visuals into one dictionary
+        deg2_visuals_dict[words+'deg2'] = deg2_visuals
+    return render_template("output.html", data_places = placesdata, data_hashtags = hashtagdata, list_of_words = listof_words_in_es, drilldowndata = deg2_visuals_dict)
