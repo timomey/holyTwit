@@ -43,9 +43,9 @@ def kafka_producer(input_str):
 
 
 def add_current_top10_toES():
-    #es = Elasticsearch(hosts=[{"host":"ip-172-31-2-202", "port":9200},{"host":"ip-172-31-2-201", "port":9200},{"host":"ip-172-31-2-200", "port":9200},{"host":"ip-172-31-2-203", "port":9200}] )
-    #pers = es.search(index='twit',doc_type='.percolator')
-    #listof_words_in_es = map(lambda x: str(x['_source']['query']['match']['message']), pers['hits']['hits'])
+    es = Elasticsearch(hosts=[{"host":"ip-172-31-2-202", "port":9200},{"host":"ip-172-31-2-201", "port":9200},{"host":"ip-172-31-2-200", "port":9200},{"host":"ip-172-31-2-203", "port":9200}] )
+    pers = es.search(index='twit',doc_type='.percolator')
+    listof_words_in_es = map(lambda x: str(x['_source']['query']['match']['message']), pers['hits']['hits'])
     cluster = Cluster([
         'ec2-52-36-123-77.us-west-2.compute.amazonaws.com',
         'ec2-52-36-185-47.us-west-2.compute.amazonaws.com',
@@ -53,18 +53,18 @@ def add_current_top10_toES():
         'ec2-52-33-125-6.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
 
-    listof_ogwords = []
-    with open('words.txt','r') as words:
-        for line in words:
-            listof_ogwords.append(line.strip())
-    for words in listof_ogwords:
+    #listof_ogwords = []
+    #with open('words.txt','r') as words:
+    #    for line in words:
+    #        listof_ogwords.append(line.strip())
+    for words in listof_words_in_es:
         hashtagsmt = "SELECT count,degree1 FROM holytwit.highestconnection WHERE word='"+str(words)+"' LIMIT 10;"
         response_degree = session.execute(hashtagsmt)
         response_hashtags_list = []
         for val in response_degree:
             response_hashtags_list.append(val)
 
-        top10_connections = [x.degree1 for x in response_hashtags_list if x.degree1 not in listof_ogwords]
+        top10_connections = [x.degree1 for x in response_hashtags_list if x.degree1 not in listof_words_in_es]
         for w in top10_connections:
             kafka_producer(w)
 
