@@ -133,7 +133,72 @@
                 data: {{ data_hashtags[word + 'connection'] | safe }},
             }],
             drilldown: {
-                series: 'none' 
+                series: [{
+                    name: 'Microsoft Internet Explorer',
+                    id: 'Microsoft Internet Explorer',
+                    data: [
+                        [
+                            'v11.0',
+                            24.13
+                        ],
+                        [
+                            'v8.0',
+                            17.2
+                        ]
+                    ]
+                }, {
+                    name: 'Chrome',
+                    id: 'Chrome',
+                    data: [
+                        [
+                            'v40.0',
+                            5
+                        ],
+                        [
+                            'v41.0',
+                            4.32
+                        ]
+                    ]
+                }, {
+                    name: 'Firefox',
+                    id: 'Firefox',
+                    data: [
+                        [
+                            'v35',
+                            2.76
+                        ],
+                        [
+                            'v36',
+                            2.32
+                        ]
+                    ]
+                }, {
+                    name: 'Safari',
+                    id: 'Safari',
+                    data: [
+                        [
+                            'v8.0',
+                            2.56
+                        ],
+                        [
+                            'v7.1',
+                            0.77
+                        ]
+                    ]
+                }, {
+                    name: 'Opera',
+                    id: 'Opera',
+                    data: [
+                        [
+                            'v12.x',
+                            0.34
+                        ],
+                        [
+                            'v28',
+                            0.24
+                        ]
+                    ]
+                }]
             }
         });
     });
@@ -254,15 +319,20 @@
         });
     });
 
+    {%endfor%}
+
+
+    </script>
+
+<!--
+
+
     function {{'redraw_ht'+word}}(data) {
         $("#{{word + 'connection'}}").highcharts().series[0].setData(data);
     }
     function {{'redraw_place'+word}}(data) {
         $('#{{word + 'place'}}').highcharts().series[0].setData(data);
     }
-
-    {%endfor%}
-
 
     function updateGraph() {
         {% for word in list_of_words %}
@@ -275,11 +345,14 @@
         });
         {%endfor%}
     }
-    </script>
 
-    <!--$(function () {
+
+    $(function () {
         setInterval(updateGraph, 4000);
-    });-->
+    });
+
+
+-->
 
 </body>
 </html>

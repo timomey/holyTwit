@@ -104,10 +104,10 @@ def triggertableres():
         print ' > looking for ' + input +' in the incoming twitterstream'
         #cassandra_create_listofwords_table()
         kafka_producer(input)
-        for w in input.split():
-            with open('words.txt','a') as wordlist:
-                wordlist.write(w)
-                wordlist.write('\n')
+        #for w in input.split():
+        #    with open('words.txt','a') as wordlist:
+        #        wordlist.write(w)
+        #        wordlist.write('\n')
 
 
 
@@ -137,7 +137,7 @@ def triggertableres():
     )
     os.system('rm words.txt')
     flash(' >>>>>>>>> all words have been reset! Have fun with some new ones, try it again!')
-    return render_template("input.html", form=form)
+    return render_template("success.html", form=form)
 
 @app.route('/api/place/<word>')
 def place_word_api(word):
@@ -189,10 +189,10 @@ def citycount():
         #cassandra_create_listofwords_table()
 
         kafka_producer(input)
-        for w in input.split():
-            with open('words.txt','a') as wordlist:
-                wordlist.write(w)
-                wordlist.write('\n')
+        #for w in input.split():
+        #    with open('words.txt','a') as wordlist:
+        #        wordlist.write(w)
+        #        wordlist.write('\n')
 
 
         if form.validate():
@@ -241,14 +241,14 @@ def get_stream():
         #top10_connections = [x.degree1 for x in response_hashtags_list if x.count > 2]
         #send the top10 connections back to ELASTICSEARCH -> DONE BY EXTERNAL script
         deg2_visuals = []
-        #for deg1 in top10_connections:
-        #    deg2 = "SELECT count,degree1 FROM holytwit.highestconnection WHERE word='"+str(deg1)+"' LIMIT 10;"
-        #    response_deg2 = session.execute(deg2)
-        #    response_deg2_list =[]
-        #    for val in response_deg2:
-        #        response_deg2_list.append(val)
-        #    drilldown_data = [[str(x.degree1), x.count] for x in response_deg2_list]
-        #    deg2_visuals.append({'name': str(x.degree1), 'id': str(x.degree1), 'data': drilldown_data})
+        for deg1 in top10_connections:
+            deg2 = "SELECT count,degree1 FROM holytwit.highestconnection WHERE word='"+str(deg1)+"' LIMIT 10;"
+            response_deg2 = session.execute(deg2)
+            response_deg2_list =[]
+            for val in response_deg2:
+                response_deg2_list.append(val)
+            drilldown_data = [[str(x.degree1), x.count] for x in response_deg2_list]
+            deg2_visuals.append({'name': str(x.degree1), 'id': str(x.degree1), 'data': drilldown_data})
         #put all deg2_visuals into one dictionary
-        #deg2_visuals_dict[words+'deg2'] = deg2_visuals
-    return render_template("output.html", data_places = placesdata, data_hashtags = hashtagdata, list_of_words = listof_words_in_es)#, drilldowndata = deg2_visuals_dict)
+        deg2_visuals_dict[words+'deg2'] = deg2_visuals
+    return render_template("output.html", data_places = placesdata, data_hashtags = hashtagdata, list_of_words = listof_words_in_es, drilldowndata = deg2_visuals_dict)
