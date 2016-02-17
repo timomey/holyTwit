@@ -19,7 +19,12 @@ import os
 
 
 def write_input_to_cass(inp):
-    cluster = Cluster(['ec2-52-33-153-115.us-west-2.compute.amazonaws.com','ec2-52-36-102-156.us-west-2.compute.amazonaws.com'])
+    #cluster = Cluster(['ec2-52-33-153-115.us-west-2.compute.amazonaws.com','ec2-52-36-102-156.us-west-2.compute.amazonaws.com'])
+    cluster = Cluster([
+        'ec2-52-36-123-77.us-west-2.compute.amazonaws.com',
+        'ec2-52-36-185-47.us-west-2.compute.amazonaws.com',
+        'ec2-52-26-37-207.us-west-2.compute.amazonaws.com',
+        'ec2-52-33-125-6.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
     inputlist = inp.split()
     prepared_write_query = session.prepare("INSERT INTO holytwit.listofwords (word, numberofwords, time) VALUES (?,?,?) USING TTL 600;")
@@ -97,7 +102,12 @@ def triggertableres():
 
 @app.route('/api/place/<word>')
 def place_word_api(word):
-    cluster = Cluster(['ec2-52-33-153-115.us-west-2.compute.amazonaws.com','ec2-52-36-102-156.us-west-2.compute.amazonaws.com'])
+    #cluster = Cluster(['ec2-52-33-153-115.us-west-2.compute.amazonaws.com','ec2-52-36-102-156.us-west-2.compute.amazonaws.com'])
+    cluster = Cluster([
+        'ec2-52-36-123-77.us-west-2.compute.amazonaws.com',
+        'ec2-52-36-185-47.us-west-2.compute.amazonaws.com',
+        'ec2-52-26-37-207.us-west-2.compute.amazonaws.com',
+        'ec2-52-33-125-6.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
     stmt = "SELECT count,place FROM holytwit.citycount WHERE word='"+str(word)+"' LIMIT 10;"
     response = session.execute(stmt)
@@ -109,7 +119,12 @@ def place_word_api(word):
 
 @app.route('/api/hashtags/<word>')
 def hashtag_word_api(word):
-    cluster = Cluster(['ec2-52-33-153-115.us-west-2.compute.amazonaws.com','ec2-52-36-102-156.us-west-2.compute.amazonaws.com'])
+    #cluster = Cluster(['ec2-52-33-153-115.us-west-2.compute.amazonaws.com','ec2-52-36-102-156.us-west-2.compute.amazonaws.com'])
+    cluster = Cluster([
+        'ec2-52-36-123-77.us-west-2.compute.amazonaws.com',
+        'ec2-52-36-185-47.us-west-2.compute.amazonaws.com',
+        'ec2-52-26-37-207.us-west-2.compute.amazonaws.com',
+        'ec2-52-33-125-6.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
     hashtagsmt = "SELECT count,degree1 FROM holytwit.highestconnection WHERE word='"+str(word)+"' LIMIT 10;"
     response_degree = session.execute(hashtagsmt)
@@ -153,7 +168,12 @@ def get_stream():
     pers = es.search(index='twit',doc_type='.percolator')
     listof_words_in_es = map(lambda x: str(x['_source']['query']['match']['message']), pers['hits']['hits'])
     #Cassandra connection:
-    cluster = Cluster(['ec2-52-33-153-115.us-west-2.compute.amazonaws.com','ec2-52-36-102-156.us-west-2.compute.amazonaws.com'])
+    #cluster = Cluster(['ec2-52-33-153-115.us-west-2.compute.amazonaws.com','ec2-52-36-102-156.us-west-2.compute.amazonaws.com'])
+    cluster = Cluster([
+        'ec2-52-36-123-77.us-west-2.compute.amazonaws.com',
+        'ec2-52-36-185-47.us-west-2.compute.amazonaws.com',
+        'ec2-52-26-37-207.us-west-2.compute.amazonaws.com',
+        'ec2-52-33-125-6.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
     hashtagdata = {}
     placesdata = {}
