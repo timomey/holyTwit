@@ -97,6 +97,11 @@ def triggertableres():
         print ' > looking for ' + input +' in the incoming twitterstream'
         #cassandra_create_listofwords_table()
         kafka_producer(input)
+        for w in input.split():
+            with open('words.txt','a') as wordlist:
+                wordlist.write(w)
+                wordlist.write('\n')
+
 
 
         if form.validate():

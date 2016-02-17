@@ -133,7 +133,7 @@
                 data: {{ data_hashtags[word + 'connection'] | safe }},
             }],
             drilldown: {
-                series: {{ drilldowndata[words+'deg2'] | safe }}
+                series: {{ drilldowndata[word+'deg2'] | safe }}
             }
         });
     });
