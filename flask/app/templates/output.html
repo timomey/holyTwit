@@ -60,9 +60,6 @@
         <div class="page-header">
             <h1>HolyTwit - Look at those reactions! </h1>
         </div>
-        <div class="page-header">
-            <h1>Current most tweeeeting places</h1>
-        </div>
         {% for word in list_of_words %}
         <div class="page-header">
             <h1>{{ word }}</h1>
@@ -319,21 +316,36 @@
             }
         });
     });
+
+    function {{'redraw_ht'+word}}(data) {
+        $("#{{word + 'connection'}}").highcharts().series[0].setData(data);
+    }
+    function {{'redraw_place'+word}}(data) {
+        $('#{{word + 'place'}}').highcharts().series[0].setData(data);
+    }
+
     {%endfor%}
 
 
-
     function updateGraph() {
-        var hashtags = ["clinton", "bernie", "trump"],
-        hashtag = hashtags[Math.floor(Math.random() * hashtags.length)];
+        {% for word in list_of_words %}
 
-        $.getJSON("/api/hashtags/" + hashtag , function(response) {
-            redraw(response.data)
+        $.getJSON("/api/hashtags/" + {{word}} , function(response) {
+            {{'redraw_ht'+word}}(response.data)
         });
+        $.getJSON("/api/place/" + {{word}} , function(response) {
+            {{'redraw_place'+word}}(response.data)
+        });
+        {%endfor%}
     }
-    function redraw(data) {
-        $("#degree1chart").highcharts().series[0].setData(data);
-    }
+
+    $(function () {
+        setInterval(updateGraph, 2000);
+    });
+
+
+
+
     </script>
 </body>
 </html>
