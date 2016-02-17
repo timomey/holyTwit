@@ -330,10 +330,10 @@
     function updateGraph() {
         {% for word in list_of_words %}
 
-        $.getJSON("/api/hashtags/" + {{word}} , function(response) {
+        $.getJSON("{{'/api/hashtags/' + word}}" , function(response) {
             {{'redraw_ht'+word}}(response.data)
         });
-        $.getJSON("/api/place/" + {{word}} , function(response) {
+        $.getJSON("{{'/api/place/' + word}}" , function(response) {
             {{'redraw_place'+word}}(response.data)
         });
         {%endfor%}
