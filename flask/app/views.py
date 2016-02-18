@@ -112,7 +112,7 @@ def triggertableres():
     )
     os.system('rm words.txt')
     flash(' >>>>>>>>> all words have been reset! Have fun with some new ones, try it again!')
-    return render_template("success.html", form=form)
+    return render_template("success.html")
 
 @app.route('/api/place/<word>')
 def place_word_api(word):
