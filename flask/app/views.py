@@ -43,9 +43,9 @@ def kafka_producer(input_str):
 
 
 def add_current_top10_toES():
-    es = Elasticsearch(hosts=[{"host":"ip-172-31-2-202", "port":9200},{"host":"ip-172-31-2-201", "port":9200},{"host":"ip-172-31-2-200", "port":9200},{"host":"ip-172-31-2-203", "port":9200}] )
-    pers = es.search(index='twit',doc_type='.percolator')
-    listof_words_in_es = map(lambda x: str(x['_source']['query']['match']['message']), pers['hits']['hits'])
+    #es = Elasticsearch(hosts=[{"host":"ip-172-31-2-202", "port":9200},{"host":"ip-172-31-2-201", "port":9200},{"host":"ip-172-31-2-200", "port":9200},{"host":"ip-172-31-2-203", "port":9200}] )
+    #pers = es.search(index='twit',doc_type='.percolator')
+    #listof_words_in_es = map(lambda x: str(x['_source']['query']['match']['message']), pers['hits']['hits'])
     cluster = Cluster([
         'ec2-52-36-123-77.us-west-2.compute.amazonaws.com',
         'ec2-52-36-185-47.us-west-2.compute.amazonaws.com',
@@ -53,10 +53,10 @@ def add_current_top10_toES():
         'ec2-52-33-125-6.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
 
-    #listof_ogwords = []
-    #with open('words.txt','r') as words:
-    #    for line in words:
-    #        listof_ogwords.append(line.strip())
+    listof_ogwords = []
+    with open('words.txt','r') as words:
+        for line in words:
+            listof_ogwords.append(line.strip())
     for words in listof_words_in_es:
         hashtagsmt = "SELECT count,degree1 FROM holytwit.highestconnection WHERE word='"+str(words)+"' LIMIT 10;"
         response_degree = session.execute(hashtagsmt)
@@ -86,9 +86,6 @@ def index():
 def slides():
     return render_template("slides.html")
 
-@app.route('/_startstream')
-def startstream():
-    os.system('python datadump.py')
 
 @app.route('/_addsecdeg')
 def addsecde():
@@ -97,28 +94,6 @@ def addsecde():
 
 @app.route('/_triggerwordres', methods=['GET', 'POST'])
 def triggertableres():
-    form = ReusableForm(request.form)
-    print form.errors
-    if request.method == 'POST':
-        input=request.form['input']
-        print ' > looking for ' + input +' in the incoming twitterstream'
-        #cassandra_create_listofwords_table()
-        kafka_producer(input)
-        #for w in input.split():
-        #    with open('words.txt','a') as wordlist:
-        #        wordlist.write(w)
-        #        wordlist.write('\n')
-
-
-
-        if form.validate():
-            # Save the comment here.
-            flash(' >>>>>>>>> looking for ' + input +' in the incoming twitterstream')
-
-        else:
-            flash('Error: All the form fields are required. ')
-
-
     es = Elasticsearch(hosts=[{"host":"52.34.117.127", "port":9200},{"host":"52.89.22.134", "port":9200},{"host":"52.35.24.163", "port":9200},{"host":"52.89.0.97", "port":9200}] )
     #ELASTICSEARCH STUFF
     es.indices.delete(index='twit', ignore=400)
@@ -141,7 +116,6 @@ def triggertableres():
 
 @app.route('/api/place/<word>')
 def place_word_api(word):
-    #cluster = Cluster(['ec2-52-33-153-115.us-west-2.compute.amazonaws.com','ec2-52-36-102-156.us-west-2.compute.amazonaws.com'])
     cluster = Cluster([
         'ec2-52-36-123-77.us-west-2.compute.amazonaws.com',
         'ec2-52-36-185-47.us-west-2.compute.amazonaws.com',
@@ -158,7 +132,6 @@ def place_word_api(word):
 
 @app.route('/api/hashtags/<word>')
 def hashtag_word_api(word):
-    #cluster = Cluster(['ec2-52-33-153-115.us-west-2.compute.amazonaws.com','ec2-52-36-102-156.us-west-2.compute.amazonaws.com'])
     cluster = Cluster([
         'ec2-52-36-123-77.us-west-2.compute.amazonaws.com',
         'ec2-52-36-185-47.us-west-2.compute.amazonaws.com',
@@ -186,22 +159,20 @@ def citycount():
     if request.method == 'POST':
         input=request.form['input']
         print ' > looking for ' + input +' in the incoming twitterstream'
-        #cassandra_create_listofwords_table()
+
+        for w in input.split():
+            with open('words.txt','a') as wordlist:
+                wordlist.write(w)
+                wordlist.write('\n')
 
         kafka_producer(input)
-        #for w in input.split():
-        #    with open('words.txt','a') as wordlist:
-        #        wordlist.write(w)
-        #        wordlist.write('\n')
-
 
         if form.validate():
-            # Save the comment here.
             flash(' >>>>>>>>> looking for ' + input +' in the incoming twitterstream')
 
         else:
             flash('Error: All the form fields are required. ')
-    return render_template("input.html", form=form, currently_tracked_words = listof_words_in_es)
+    return render_template("input.html", form=form)
 
 
 @app.route('/output/')
@@ -211,7 +182,6 @@ def get_stream():
     pers = es.search(index='twit',doc_type='.percolator')
     listof_words_in_es = map(lambda x: str(x['_source']['query']['match']['message']), pers['hits']['hits'])
     #Cassandra connection:
-    #cluster = Cluster(['ec2-52-33-153-115.us-west-2.compute.amazonaws.com','ec2-52-36-102-156.us-west-2.compute.amazonaws.com'])
     cluster = Cluster([
         'ec2-52-36-123-77.us-west-2.compute.amazonaws.com',
         'ec2-52-36-185-47.us-west-2.compute.amazonaws.com',
@@ -237,18 +207,18 @@ def get_stream():
         placesdata[words+'place'] = response_places
         response_hashtags_list = [ {'name': str(x.degree1), 'y': x.count, 'drilldown': 'null'} for x in response_hashtags_list ]
         hashtagdata[words+'connection'] = response_hashtags_list
-        #top10 -> send tyhose over to ES
-        top10_connections = [x.degree1 for x in response_hashtags_list if x.count > 2]
+
+        #top10_connections = [x.degree1 for x in response_hashtags_list if x.count > 2]
         #send the top10 connections back to ELASTICSEARCH -> DONE BY EXTERNAL script
-        deg2_visuals = []
-        for deg1 in top10_connections:
-            deg2 = "SELECT count,degree1 FROM holytwit.highestconnection WHERE word='"+str(deg1)+"' LIMIT 10;"
-            response_deg2 = session.execute(deg2)
-            response_deg2_list =[]
-            for val in response_deg2:
-                response_deg2_list.append(val)
-            drilldown_data = [[str(x.degree1), x.count] for x in response_deg2_list]
-            deg2_visuals.append({'name': str(x.degree1), 'id': str(x.degree1), 'data': drilldown_data})
+        #deg2_visuals = []
+        #for deg1 in top10_connections:
+        #    deg2 = "SELECT count,degree1 FROM holytwit.highestconnection WHERE word='"+str(deg1)+"' LIMIT 10;"
+        #    response_deg2 = session.execute(deg2)
+        #    response_deg2_list =[]
+        #    for val in response_deg2:
+        #        response_deg2_list.append(val)
+        #    drilldown_data = [[str(x.degree1), x.count] for x in response_deg2_list]
+        #    deg2_visuals.append({'name': str(x.degree1), 'id': str(x.degree1), 'data': drilldown_data})
         #put all deg2_visuals into one dictionary
-        deg2_visuals_dict[words+'deg2'] = deg2_visuals
-    return render_template("output.html", data_places = placesdata, data_hashtags = hashtagdata, list_of_words = listof_words_in_es, drilldowndata = deg2_visuals_dict)
+        #deg2_visuals_dict[words+'deg2'] = deg2_visuals
+    return render_template("output.html", data_places = placesdata, data_hashtags = hashtagdata, list_of_words = listof_words_in_es)
