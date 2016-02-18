@@ -52,21 +52,31 @@ def add_current_top10_toES():
         'ec2-52-26-37-207.us-west-2.compute.amazonaws.com',
         'ec2-52-33-125-6.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
-
+    #to create 2. deg connections
+    es.create(index='twitdeg2', doc_type='.percolator', body={'query': {'match': {'message':{'query':word, 'operator':'and' }   }}})
     listof_ogwords = []
     with open('words.txt','r') as words:
         for line in words:
             listof_ogwords.append(line.strip())
-    for words in listof_words_in_es:
+    listof_deg2words = []
+    os.system('rm deg2.txt')
+    with open('deg2.txt','a') as deg2:
+        for line in deg2:
+            listof_deg2words.append(line.strip())
+    for words in listof_ogwords:
         hashtagsmt = "SELECT count,degree1 FROM holytwit.highestconnection WHERE word='"+str(words)+"' LIMIT 10;"
         response_degree = session.execute(hashtagsmt)
         response_hashtags_list = []
         for val in response_degree:
             response_hashtags_list.append(val)
 
-        top10_connections = [x.degree1 for x in response_hashtags_list if x.degree1 not in listof_words_in_es]
-        for w in top10_connections:
-            kafka_producer(w)
+        top10_connections = [x.degree1 for x in response_hashtags_list if x.degree1 not in listof_ogwords]
+        top10_connections = [word for word in top10_connections if word not in listof_deg2words]
+        with open('deg2.txt','a') as deg2:
+            for w in top10_connections:
+                kafka_producer(w)
+                deg2.write(w)
+                deg2.write('\n')
 
 
 
@@ -110,6 +120,7 @@ def triggertableres():
           }
         }
     )
+
     os.system('rm words.txt')
     flash(' >>>>>>>>> all words have been reset! Have fun with some new ones, try it again!')
     return render_template("success.html")
