@@ -231,7 +231,7 @@ def get_stream():
                 for val in response_deg2:
                     response_deg2_list.append(val)
                 drilldown_data = [[str(x.degree1), x.count] for x in response_deg2_list]
-                deg2_visuals.append({'name': deg1, 'id': deg1, 'data': drilldown_data})
+                deg2_visuals.append({'name': str(deg1), 'id': str(deg1), 'data': drilldown_data})
             except:
                 pass
         #put all deg2_visuals into one dictionary
