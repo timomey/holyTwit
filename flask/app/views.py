@@ -172,7 +172,7 @@ def citycount():
 
         else:
             flash('Error: All the form fields are required. ')
-    return render_template("input.html", form=form)
+    return render_template("input.html", form=form, currently_tracked_words = listof_words_in_es)
 
 
 @app.route('/output/')
