@@ -238,7 +238,7 @@ def get_stream():
         response_hashtags_list = [ {'name': str(x.degree1), 'y': x.count, 'drilldown': 'null'} for x in response_hashtags_list ]
         hashtagdata[words+'connection'] = response_hashtags_list
         #top10 -> send tyhose over to ES
-        #top10_connections = [x.degree1 for x in response_hashtags_list if x.count > 2]
+        top10_connections = [x.degree1 for x in response_hashtags_list if x.count > 2]
         #send the top10 connections back to ELASTICSEARCH -> DONE BY EXTERNAL script
         deg2_visuals = []
         for deg1 in top10_connections:
