@@ -224,13 +224,14 @@ def get_stream():
         top10_connections = [x.degree1 for x in response_hashtags_list ]
         deg2_visuals = []
         for deg1 in top10_connections:
-            deg2 = "SELECT count,degree1 FROM holytwit.highestconnection WHERE word='"+str(deg1)+"' LIMIT 10;"
-            response_deg2 = session.execute(deg2)
-            response_deg2_list =[]
-            for val in response_deg2:
-                response_deg2_list.append(val)
-            drilldown_data = [[str(x.degree1), x.count] for x in response_deg2_list]
-            deg2_visuals.append({'name': deg1, 'id': deg1, 'data': drilldown_data})
+            try:
+                deg2 = "SELECT count,degree1 FROM holytwit.highestconnection WHERE word='"+str(deg1)+"' LIMIT 10;"
+                response_deg2 = session.execute(deg2)
+                response_deg2_list =[]
+                for val in response_deg2:
+                    response_deg2_list.append(val)
+                drilldown_data = [[str(x.degree1), x.count] for x in response_deg2_list]
+                deg2_visuals.append({'name': deg1, 'id': deg1, 'data': drilldown_data})
         #put all deg2_visuals into one dictionary
         deg2_visuals_dict[words+'deg2'] = deg2_visuals
     return render_template("output.html", data_places = placesdata, data_hashtags = hashtagdata, list_of_words = listof_words_in_es, data_deg2 = deg2_visuals_dict)
