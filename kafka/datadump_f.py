@@ -13,10 +13,7 @@ if __name__ == "__main__":
 			tweetdump_filelist.append(str(sys.argv[i]))
 	else:
 		tweetdump_filelist.append('bernie_clinton_trump_cool_awesome_bad')
-		tweetdump_filelist.append('clean2_2016-02-08-11-57_tweets.txt')
-		tweetdump_filelist.append('clean2_2016-02-08-11-57_tweets.txt')
-		tweetdump_filelist.append('clean2_2016-02-08-11-57_tweets.txt')
-		tweetdump_filelist.append('clean2_2016-02-08-11-57_tweets.txt')
+		#tweetdump_filelist.append('clean2_2016-02-08-11-57_tweets.txt')
 
 
 	topic = 'faketwitterstream'
