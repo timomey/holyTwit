@@ -95,8 +95,7 @@ if __name__ == "__main__":
         for line in f:
             if line != '\n':
                 stopwords.append(line.strip())
-
-    stop_words = get_stop_words('en')
+    #stop_words = get_stop_words('en')
     #cassandra keyspace name
     keyspacename = 'holytwit'
     tablename = 'topicgraph'
@@ -108,7 +107,7 @@ if __name__ == "__main__":
     conf.set("spark.streaming.receiver.maxRate", 200)
     sc = SparkContext(conf=conf)
     ssc = StreamingContext(sc, 5)
-
+    broadcast_stopwords = sc.broadcast(stopwords)
     #StorageLevel.MEMORY_AND_DISK_SER
     ############################################
     # consume from kafka streams
@@ -199,7 +198,7 @@ if __name__ == "__main__":
             text = mw_t_p_tuple[1]
             stop_words = get_stop_words('en')
             connections = list(set(text.split()))
-            connections = [word for word in connections]
+            connections = [word for word in connections if not in broadcast_stopwords.value]
 
             if not connections:
                 pass
