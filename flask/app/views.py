@@ -43,9 +43,11 @@ def kafka_producer(input_str):
 
 
 def add_current_top10_toES():
-    #es = Elasticsearch(hosts=[{"host":"ip-172-31-2-202", "port":9200},{"host":"ip-172-31-2-201", "port":9200},{"host":"ip-172-31-2-200", "port":9200},{"host":"ip-172-31-2-203", "port":9200}] )
+    es = Elasticsearch(hosts=[{"host":"ip-172-31-2-202", "port":9200},{"host":"ip-172-31-2-201", "port":9200},{"host":"ip-172-31-2-200", "port":9200},{"host":"ip-172-31-2-203", "port":9200}] )
     #pers = es.search(index='twit',doc_type='.percolator')
     #listof_words_in_es = map(lambda x: str(x['_source']['query']['match']['message']), pers['hits']['hits'])
+    #es.create(index='twitdeg2', doc_type='.percolator', body={'query': {'match': {'message': word   }} } )
+
     cluster = Cluster([
         'ec2-52-36-123-77.us-west-2.compute.amazonaws.com',
         'ec2-52-36-185-47.us-west-2.compute.amazonaws.com',
@@ -53,7 +55,6 @@ def add_current_top10_toES():
         'ec2-52-33-125-6.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
     #to create 2. deg connections
-    es.create(index='twitdeg2', doc_type='.percolator', body={'query': {'match': {'message':{'query':word, 'operator':'and' }   }}})
     listof_ogwords = []
     with open('words.txt','r') as words:
         for line in words:
