@@ -22,7 +22,6 @@ from stop_words import get_stop_words
 
 
 def write_to_cassandra(record):
-    #cluster = Cluster(['ec2-52-33-153-115.us-west-2.compute.amazonaws.com','ec2-52-36-102-156.us-west-2.compute.amazonaws.com'])
     cluster = Cluster([
         'ec2-52-36-123-77.us-west-2.compute.amazonaws.com',
         'ec2-52-36-185-47.us-west-2.compute.amazonaws.com',
@@ -37,10 +36,6 @@ def write_to_cassandra(record):
                                     FROM holytwit.htgraph\
                                     WHERE word=? AND degree1=?")
     read_query.consistency_level = ConsistencyLevel.QUORUM
-    #delete_query = session.prepare("DELETE *\
-    #                                FROM holytwit.htgraph\
-    #                                WHERE word=? AND degree1=? AND date=?")
-    #delete_query.consistency_level = ConsistencyLevel.QUORUM
     for ((word,degree1),count) in record:
         #time string for right now in minutes:
         currenttime = datetime.datetime.now()
@@ -58,7 +53,6 @@ def write_city_to_cassandra(record):
         'ec2-52-36-185-47.us-west-2.compute.amazonaws.com',
         'ec2-52-26-37-207.us-west-2.compute.amazonaws.com',
         'ec2-52-33-125-6.us-west-2.compute.amazonaws.com'])
-    #cluster = Cluster(['ec2-52-33-153-115.us-west-2.compute.amazonaws.com','ec2-52-36-102-156.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
     write_query = session.prepare("INSERT INTO holytwit.city_count\
                                     (word, place, count)\
@@ -190,9 +184,6 @@ if __name__ == "__main__":
             hashtags = mw_t_p_tuple[3]
             if not hashtags:
                 pass
-                #list_of_tuple = map(lambda x: ((x, 'nohashtags'),1), matched_words)
-                #return (matched_words, 'nohashtags')
-                #return list_of_tuple
             else:
                 list_of_tuple=[]
                 for i in itertools.product(matched_words, hashtags):
@@ -208,12 +199,9 @@ if __name__ == "__main__":
             text = mw_t_p_tuple[1]
             stop_words = get_stop_words('en')
             connections = list(set(text.split()))
-            connections = [word for word in connections if word not in stopwords ]
+            connections = [word for word in connections]
 
             if not connections:
-                #list_of_tuple = map(lambda x: ((x, 'nohashtags'),1), matched_words)
-                #return (matched_words, 'nohashtags')
-                #return list_of_tuple
                 pass
             else:
                 list_of_tuple=[]
