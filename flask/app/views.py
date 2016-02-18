@@ -61,9 +61,6 @@ def add_current_top10_toES():
             listof_ogwords.append(line.strip())
     listof_deg2words = []
     os.system('rm deg2.txt')
-    with open('deg2.txt','a') as deg2:
-        for line in deg2:
-            listof_deg2words.append(line.strip())
     for words in listof_ogwords:
         hashtagsmt = "SELECT count,degree1 FROM holytwit.highestconnection WHERE word='"+str(words)+"' LIMIT 10;"
         response_degree = session.execute(hashtagsmt)
