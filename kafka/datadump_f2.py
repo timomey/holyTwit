@@ -13,7 +13,7 @@ if __name__ == "__main__":
 	else:
 		tweetdump_filelist.append('feelthebern_bernie_trump_clinton_gopdebate_bieber_education_california_apple_cool_bad_awesome_sad_happy_awful_weird_dumb_smart_stupid_idiot_climate_change')
 		#tweetdump_filelist.append('bernie_clinton_trump_cool_awesome_bad')
-		#tweetdump_filelist.append('clean2_2016-02-08-11-57_tweets.txt')
+		tweetdump_filelist.append('clean2_2016-02-08-11-57_tweets.txt')
 
 	topic = 'faketwitterstream'
 	cluster = kafka.KafkaClient("ip-172-31-2-200:9092,ip-172-31-2-201:9092,ip-172-31-2-202:9092,ip-172-31-2-203:9092")
