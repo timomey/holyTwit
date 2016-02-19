@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+#This is the spark streaming job that needs "clean" input to work smoothly.
+#streaming.py takes any input and takes care of the dirty stuff.
+#to have more efficiency the tweets can be cleaned before ingestion to kafka and then consumed with this file.
+
+
 from __future__ import print_function
 import sys
 import json
@@ -22,6 +27,12 @@ from stop_words import get_stop_words
 
 
 def write_to_cassandra(record):
+    """
+    this function saves the words that were found to be connections to cassandra.
+    It takes care of data that is already in there. The number of occurences are sorted within cassandra using materialized views (cassandra 3.0 and higher)
+
+    input: record should have the format ((word, connection), count)
+    """
     cluster = Cluster([
         'ec2-52-36-123-77.us-west-2.compute.amazonaws.com',
         'ec2-52-36-185-47.us-west-2.compute.amazonaws.com',
@@ -35,44 +46,47 @@ def write_to_cassandra(record):
     read_query = session.prepare("SELECT *\
                                     FROM holytwit.htgraph\
                                     WHERE word=? AND degree1=?")
+    #consistency level: make sure at least 2 nodes say the same thing:
     read_query.consistency_level = ConsistencyLevel.QUORUM
+    #for each word - connection - count tuple , write to cassandra
     for ((word,degree1),count) in record:
-        #time string for right now in minutes:
-        currenttime = datetime.datetime.now()
-        date = currenttime.strftime('%Y-%m-%d %H')
         rows = session.execute(read_query, (word, degree1))
-        #session.execute(delete_query, (word, degree1,date))
+        #in case there was already an entry, add the old value:
         if rows:
             newcount = rows[0].count + count
             session.execute(write_query,(word, degree1, newcount) )
         else:
             session.execute(write_query,(word, degree1,count) )
 def write_city_to_cassandra(record):
+    """
+    this function saves the place where a tweet was tweeted to cassandra.
+
+    input: record should have the format: ((word, place),count)
+    """
+    #connect to cassandra cluster and start a session
     cluster = Cluster([
         'ec2-52-36-123-77.us-west-2.compute.amazonaws.com',
         'ec2-52-36-185-47.us-west-2.compute.amazonaws.com',
         'ec2-52-26-37-207.us-west-2.compute.amazonaws.com',
         'ec2-52-33-125-6.us-west-2.compute.amazonaws.com'])
     session = cluster.connect()
+    #prepare the cassandra query to write the data to cassandra
     write_query = session.prepare("INSERT INTO holytwit.city_count\
                                     (word, place, count)\
                                     values (?,?,?) USING TTL 1200")
+    #make sure that the data is written consistently (this makes sure at least 2 nodes have the new data)
     write_query.consistency_level = ConsistencyLevel.QUORUM
+    #prepare read query
     read_query = session.prepare("SELECT *\
                                     FROM holytwit.city_count\
                                     WHERE word=? AND place=?")
+    #make sure the value that is read is consistent (waits for 2 nodes to respond and checks for consistency)
     read_query.consistency_level = ConsistencyLevel.QUORUM
 
-    #delete_query = session.prepare("DELETE *\
-    #                                FROM holytwit.city_count\
-    #                                WHERE word=? AND place=? AND date=?")
-    #delete_query.consistency_level = ConsistencyLevel.QUORUM
+    #for each word - place - count tuple , write to cassandra
     for ((word,place),count) in record:
-        #time string for right now in minutes:
-        currenttime = datetime.datetime.now()
-        date = currenttime.strftime('%Y-%m-%d %H')
         rows = session.execute(read_query, (word, place))
-        #session.execute(delete_query, (word,place,date))
+        #in case there was already an entry, add the old value:
         if rows:
             newcount = rows[0].count + count
             session.execute(write_query,(word, place, newcount) )
