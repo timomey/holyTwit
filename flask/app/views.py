@@ -164,6 +164,7 @@ def citycount():
 
     #pers = es.search(index='twit',doc_type='.percolator')
     #listof_words_in_es = map(lambda x: str(x['_source']['query']['match']['message']), pers['hits']['hits'])
+    listof_words_in_es = []
     with open('words.txt','r') as words:
         for line in words:
             listof_words_in_es.append(line.strip())
