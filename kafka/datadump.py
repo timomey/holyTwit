@@ -6,7 +6,7 @@ import json
 import sys
 import time
 
-if __name_	time.sleep(1) == "__main__":
+if __name_== "__main__":
 
 	tweetdump_filelist = list()
 	if len(sys.argv) >1:
