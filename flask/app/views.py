@@ -169,7 +169,8 @@ def citycount():
         with open('words.txt','r') as words:
             for line in words:
                 listof_words_in_es.append(line.strip())
-    
+    except:
+        pass
     if request.method == 'POST':
         input=request.form['input']
         print ' > looking for ' + input +' in the incoming twitterstream'
