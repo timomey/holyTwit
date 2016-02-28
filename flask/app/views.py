@@ -1,13 +1,9 @@
 from app import app
 from flask import jsonify
-from cassandra.cluster import Cluster
 from flask import render_template, Flask, flash, request
 from wtforms import Form, TextField, TextAreaField, validators, StringField, SubmitField
 from subprocess import call
 import time as timepackage
-from elasticsearch import Elasticsearch
-from elasticsearch.helpers import bulk, scan
-import kafka
 import json
 import os
 
